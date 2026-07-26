@@ -1,3 +1,5 @@
+import Image from "next/image"
+
 import { companySlug } from "@/lib/content/slug"
 import { getCompanyLogoUrl } from "@/lib/company-icons/company-enrich"
 import {
@@ -34,13 +36,11 @@ export function CompanyIcon({
   }
 
   return (
-    <img
+    <Image
       src={getCompanyLogoUrl(domain)}
       alt=""
       width={size}
       height={size}
-      loading="lazy"
-      decoding="async"
       className={cn("shrink-0 object-contain", className)}
     />
   )

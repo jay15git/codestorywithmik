@@ -4,14 +4,13 @@ import {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useSyncExternalStore,
   type ReactNode,
 } from "react"
 import { LayoutGridIcon, ListIcon } from "lucide-react"
 
-import { SolutionRow } from "@/components/solution-row"
 import { Button } from "@/components/ui/button"
-import type { SolutionMeta } from "@/lib/content/types"
 import { cn } from "@/lib/utils"
 
 const STORAGE_KEY = "solution-view-mode"
@@ -61,9 +60,16 @@ export function SolutionViewProvider({ children }: { children: ReactNode }) {
     viewModeListeners.forEach((listener) => listener())
   }, [])
 
+  const contextValue = useMemo(
+    () => ({ viewMode, setViewMode }),
+    [viewMode, setViewMode],
+  )
+
   return (
-    <SolutionViewContext.Provider value={{ viewMode, setViewMode }}>
-      {children}
+    <SolutionViewContext.Provider value={contextValue}>
+      <div className="solution-view-root" data-view-mode={viewMode}>
+        {children}
+      </div>
     </SolutionViewContext.Provider>
   )
 }
@@ -93,40 +99,6 @@ export function SolutionViewToggle({ className }: { className?: string }) {
       >
         <ListIcon />
       </Button>
-    </div>
-  )
-}
-
-export function SolutionView({
-  solutions,
-  className,
-}: {
-  solutions: SolutionMeta[]
-  className?: string
-}) {
-  const { viewMode } = useSolutionViewContext()
-
-  if (solutions.length === 0) {
-    return null
-  }
-
-  if (viewMode === "list") {
-    return (
-      <div className={cn("divide-y rounded-lg border bg-card", className)}>
-        {solutions.map((solution) => (
-          <SolutionRow key={solution.slug} solution={solution} variant="list" />
-        ))}
-      </div>
-    )
-  }
-
-  return (
-    <div
-      className={cn("grid gap-3 md:grid-cols-2", className)}
-    >
-      {solutions.map((solution) => (
-        <SolutionRow key={solution.slug} solution={solution} variant="grid" />
-      ))}
     </div>
   )
 }

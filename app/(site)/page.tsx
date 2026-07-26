@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 
-import { AppShell } from "@/components/app-shell"
+import { SolutionView } from "@/components/solution-view-list"
 import {
-  SolutionView,
   SolutionViewProvider,
   SolutionViewToggle,
 } from "@/components/solution-view"
@@ -21,8 +20,7 @@ export default function HomePage() {
   const topics = getTopics()
 
   return (
-    <AppShell>
-      <div className="space-y-10">
+    <div className="space-y-10">
         <section className="space-y-4">
           <p className="text-sm font-medium text-muted-foreground">
             One stop interview prep
@@ -104,7 +102,6 @@ export default function HomePage() {
             <SolutionView solutions={index.solutions.slice(0, 6)} />
           </section>
         </SolutionViewProvider>
-      </div>
-    </AppShell>
+    </div>
   )
 }

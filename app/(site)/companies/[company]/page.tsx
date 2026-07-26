@@ -1,10 +1,9 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import { AppShell } from "@/components/app-shell"
 import { CompanyIcon } from "@/components/company-icon"
+import { SolutionView } from "@/components/solution-view-list"
 import {
-  SolutionView,
   SolutionViewProvider,
   SolutionViewToggle,
 } from "@/components/solution-view"
@@ -58,9 +57,8 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
   const solutions = getSolutionsByCompany(companySlug)
 
   return (
-    <AppShell>
-      <SolutionViewProvider>
-        <div className="space-y-8">
+    <SolutionViewProvider>
+      <div className="space-y-8">
           <div className="space-y-4">
             <Breadcrumb>
               <BreadcrumbList>
@@ -88,9 +86,10 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
             </div>
           </div>
 
-          <SolutionView solutions={solutions} />
-        </div>
-      </SolutionViewProvider>
-    </AppShell>
+          <div className="solution-list-section">
+            <SolutionView solutions={solutions} />
+          </div>
+      </div>
+    </SolutionViewProvider>
   )
 }

@@ -1,14 +1,11 @@
-"use client"
-
 import Link from "next/link"
-import { useState } from "react"
 
 import { CompanyIcon, hasCompanyIcon } from "@/components/company-icon"
 import { DifficultyBadge } from "@/components/difficulty-badge"
-import CenterUnderline from "@/components/fancy/text/underline-center"
 import { SolutionExternalLinks } from "@/components/solution-external-links"
 import type { SolutionMeta } from "@/lib/content/types"
 import { companySlug } from "@/lib/content/slug"
+import { cn } from "@/lib/utils"
 
 interface SolutionRowProps {
   solution: SolutionMeta
@@ -19,6 +16,9 @@ const MAX_GRID_COMPANIES = 3
 const MAX_LIST_COMPANIES = 4
 const LIST_ROW_GRID =
   "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_7.5rem_minmax(1rem,1fr)_3.5rem] items-center gap-x-3"
+
+const titleUnderlineClassName =
+  "relative inline-block after:absolute after:bottom-0 after:left-1/2 after:h-[0.1em] after:w-0 after:-translate-x-1/2 after:bg-current after:transition-[width] after:duration-200 after:ease-out group-hover/row:after:w-full group-focus-within/row:after:w-full"
 
 function sortCompaniesForDisplay(companies: string[]): string[] {
   return [...companies].sort((a, b) => {
@@ -55,7 +55,6 @@ function SolutionCompanyIconLink({ company }: { company: string }) {
 }
 
 export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
-  const [cardHovered, setCardHovered] = useState(false)
   const companyTags = sortCompaniesForDisplay([...new Set(solution.companyTags)])
   const hasExternalLinks =
     solution.youtubeUrl || solution.leetcodeUrl || solution.gfgUrl
@@ -66,11 +65,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
     const overflowCount = companyTags.length - visibleCompanies.length
 
     return (
-      <div
-        className={`relative px-3 py-2.5 ${LIST_ROW_GRID}`}
-        onMouseEnter={() => setCardHovered(true)}
-        onMouseLeave={() => setCardHovered(false)}
-      >
+      <div className={cn("group/row relative px-3 py-2.5", LIST_ROW_GRID)}>
         <Link
           href={solutionHref}
           className="absolute inset-0 z-0"
@@ -83,9 +78,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
 
         <div className="relative z-10 flex min-h-6 min-w-0 items-center pointer-events-none">
           <span className="text-sm font-medium leading-snug">
-            <CenterUnderline active={cardHovered}>
-              {solution.title}
-            </CenterUnderline>
+            <span className={titleUnderlineClassName}>{solution.title}</span>
           </span>
         </div>
 
@@ -130,11 +123,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
   const overflowCount = companyTags.length - visibleCompanies.length
 
   return (
-    <article
-      className="relative flex min-h-32 cursor-pointer flex-col rounded-lg border bg-card p-(--spacing-solution-card) md:min-h-36"
-      onMouseEnter={() => setCardHovered(true)}
-      onMouseLeave={() => setCardHovered(false)}
-    >
+    <article className="group/row relative flex min-h-32 cursor-pointer flex-col rounded-lg border bg-card p-(--spacing-solution-card) md:min-h-36">
       <Link
         href={solutionHref}
         className="absolute inset-0 z-0 rounded-lg"
@@ -144,9 +133,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
       <div className="pointer-events-none relative z-10 flex min-w-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 text-base font-medium leading-snug text-balance md:text-lg">
-            <CenterUnderline active={cardHovered}>
-              {solution.title}
-            </CenterUnderline>
+            <span className={titleUnderlineClassName}>{solution.title}</span>
           </div>
           <DifficultyBadge
             difficulty={solution.difficulty}
@@ -162,7 +149,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
                   <SolutionCompanyIconLink key={company} company={company} />
                 ))}
                 {overflowCount > 0 && (
-                  <span className="text-xs text-muted-foreground tabular-nums pointer-events-none">
+                  <span className="pointer-events-none text-xs text-muted-foreground tabular-nums">
                     +{overflowCount}
                   </span>
                 )}

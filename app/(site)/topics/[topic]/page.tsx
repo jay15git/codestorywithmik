@@ -1,9 +1,8 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import { AppShell } from "@/components/app-shell"
+import { SolutionView } from "@/components/solution-view-list"
 import {
-  SolutionView,
   SolutionViewProvider,
   SolutionViewToggle,
 } from "@/components/solution-view"
@@ -56,9 +55,8 @@ export default async function TopicPage({ params }: TopicPageProps) {
   const solutions = getSolutionsByTopic(topicSlug)
 
   return (
-    <AppShell>
-      <SolutionViewProvider>
-        <div className="space-y-8">
+    <SolutionViewProvider>
+      <div className="space-y-8">
           <div className="space-y-4">
             <Breadcrumb>
               <BreadcrumbList>
@@ -90,7 +88,10 @@ export default async function TopicPage({ params }: TopicPageProps) {
             }
 
             return (
-              <section key={subtopic.slug} className="space-y-4">
+              <section
+                key={subtopic.slug}
+                className="solution-list-section space-y-4"
+              >
                 <h2 className="text-lg font-medium">{subtopic.name}</h2>
                 <SolutionView solutions={subtopicSolutions} />
               </section>
@@ -98,15 +99,14 @@ export default async function TopicPage({ params }: TopicPageProps) {
           })}
 
           {solutions.some((solution) => !solution.subtopic) && (
-            <section className="space-y-4">
+            <section className="solution-list-section space-y-4">
               <h2 className="text-lg font-medium">General</h2>
               <SolutionView
                 solutions={solutions.filter((solution) => !solution.subtopic)}
               />
             </section>
           )}
-        </div>
-      </SolutionViewProvider>
-    </AppShell>
+      </div>
+    </SolutionViewProvider>
   )
 }

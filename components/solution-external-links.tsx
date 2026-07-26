@@ -1,6 +1,4 @@
-"use client"
-
-import { type ReactNode } from "react"
+import type { ReactNode } from "react"
 
 import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"

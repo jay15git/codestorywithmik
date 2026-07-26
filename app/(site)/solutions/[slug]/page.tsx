@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { CodeIcon } from "lucide-react"
 
-import { AppShell } from "@/components/app-shell"
 import { ButtonLink } from "@/components/button-link"
 import { CompanyTagLink, sortCompanyTags } from "@/components/company-tag-link"
 import { DifficultyBadge } from "@/components/difficulty-badge"
@@ -65,8 +64,7 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
   ])
 
   return (
-    <AppShell>
-      <div className="min-w-0 max-w-full space-y-8">
+    <div className="min-w-0 max-w-full space-y-8">
         <div className="space-y-4">
           <Breadcrumb>
             <BreadcrumbList>
@@ -180,7 +178,6 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
           cppHtml={cppHtml}
           javaHtml={javaHtml}
         />
-      </div>
-    </AppShell>
+    </div>
   )
 }

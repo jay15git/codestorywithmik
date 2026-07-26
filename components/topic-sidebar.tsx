@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 
 import { LineNav } from "@/components/line-nav"
@@ -11,6 +12,7 @@ interface TopicSidebarProps {
 
 export function TopicSidebar({ topics }: TopicSidebarProps) {
   const pathname = usePathname()
+  const activeItemRef = useRef<HTMLAnchorElement | null>(null)
 
   const activeTopic = topics.find(
     (topic) =>
@@ -24,11 +26,16 @@ export function TopicSidebar({ topics }: TopicSidebarProps) {
     href: `/topics/${topic.slug}`,
   }))
 
+  useEffect(() => {
+    activeItemRef.current?.scrollIntoView({ block: "center" })
+  }, [pathname])
+
   return (
     <LineNav
       className="w-full"
       items={items}
       activeHref={activeTopic ? `/topics/${activeTopic.slug}` : undefined}
+      activeItemRef={activeItemRef}
     />
   )
 }

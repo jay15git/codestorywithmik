@@ -2,21 +2,11 @@
  * This component is inspired by Devouring Details and Skiper UI.
  */
 
-"use client"
-
 import Link from "next/link"
-import { memo, useEffect, useRef } from "react"
-import { motion } from "motion/react"
 
 import { cn } from "@/lib/utils"
 
-const MotionLink = motion.create(Link)
-
-const lineVariants = {
-  normal: { width: 24 },
-  active: { width: 40 },
-  hover: { width: 40 },
-}
+const LINE_WIDTH_NORMAL = 24
 
 export type LineNavItem = {
   title: string
@@ -28,7 +18,7 @@ export type LineNavProps = {
   className?: string
   items: LineNavItem[]
   activeHref?: string
-  scrollActiveIntoView?: boolean
+  activeItemRef?: React.Ref<HTMLAnchorElement>
   onItemClick?: (
     item: LineNavItem,
     event: React.MouseEvent<HTMLAnchorElement>,
@@ -39,23 +29,15 @@ export function LineNav({
   className,
   items,
   activeHref,
-  scrollActiveIntoView = true,
+  activeItemRef,
   onItemClick,
 }: LineNavProps) {
-  const activeItemRef = useRef<HTMLAnchorElement | null>(null)
-
-  useEffect(() => {
-    if (scrollActiveIntoView) {
-      activeItemRef.current?.scrollIntoView({ block: "center" })
-    }
-  }, [scrollActiveIntoView])
-
   return (
     <nav
       className={cn("flex flex-col gap-2 py-5.25", className)}
       style={
         {
-          "--line-nav-width": `${lineVariants.normal.width}px`,
+          "--line-nav-width": `${LINE_WIDTH_NORMAL}px`,
         } as React.CSSProperties
       }
     >
@@ -81,7 +63,7 @@ export function LineNav({
   )
 }
 
-const LineNavItem = memo(function LineNavItem({
+function LineNavItem({
   ref,
   title,
   href,
@@ -100,34 +82,30 @@ const LineNavItem = memo(function LineNavItem({
 }) {
   return (
     <>
-      <MotionLink
+      <Link
         ref={ref}
         aria-current={active ? "page" : undefined}
         className="group/line-nav relative flex h-px items-center gap-3 after:absolute after:top-1/2 after:left-0 after:size-full after:-translate-y-1/2 after:p-3.5"
         href={href}
-        initial={false}
-        animate={active ? "active" : "normal"}
-        whileHover="hover"
         onClick={onClick}
       >
-        <motion.span
-          className="block h-px shrink-0 bg-foreground/20 transition-[background-color] ease-out group-hover/line-nav:bg-foreground group-aria-[current=page]/line-nav:bg-foreground"
-          variants={lineVariants}
-          transition={{ type: "spring", stiffness: 200, damping: 20 }}
-        />
         <span
-          className="flex items-center whitespace-nowrap text-sm text-muted-foreground transition-[color] ease-out group-hover/line-nav:text-foreground group-aria-[current=page]/line-nav:text-foreground"
-        >
+          className={cn(
+            "block h-px shrink-0 bg-foreground/20 transition-[width,background-color] duration-200 ease-out motion-reduce:transition-none",
+            active
+              ? "w-10 bg-foreground"
+              : "w-6 group-hover/line-nav:w-10 group-hover/line-nav:bg-foreground",
+          )}
+        />
+        <span className="flex items-center whitespace-nowrap text-sm text-muted-foreground transition-[color] duration-200 ease-out motion-reduce:transition-none group-hover/line-nav:text-foreground group-aria-[current=page]/line-nav:text-foreground">
           {prefix && (
-            <span
-              className="mr-4 min-w-[1.25rem] text-xs tabular-nums text-muted-foreground/40 group-hover/line-nav:text-muted-foreground/60 group-aria-[current=page]/line-nav:text-muted-foreground/70"
-            >
+            <span className="mr-4 min-w-[1.25rem] text-xs tabular-nums text-muted-foreground/40 group-hover/line-nav:text-muted-foreground/60 group-aria-[current=page]/line-nav:text-muted-foreground/70">
               {prefix}
             </span>
           )}
           <span>{title}</span>
         </span>
-      </MotionLink>
+      </Link>
 
       {!isLast && (
         <>
@@ -137,4 +115,4 @@ const LineNavItem = memo(function LineNavItem({
       )}
     </>
   )
-})
+}
