@@ -11,6 +11,8 @@ import { CopyButton } from "@/components/copy-button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 
+import { sanitizeShikiHtml } from "@/lib/sanitize-shiki-html"
+
 interface SolutionCodePanelProps {
   cpp: string | null
   java: string | null
@@ -22,7 +24,7 @@ function HighlightedCode({ html }: { html: string }) {
   return (
     <div
       className="[&_pre]:w-max [&_pre]:max-w-none [&_pre]:font-mono [&_code]:font-mono"
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: sanitizeShikiHtml(html) }}
     />
   )
 }

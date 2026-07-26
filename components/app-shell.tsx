@@ -66,6 +66,7 @@ export function AppShell({ children }: AppShellProps) {
               size="icon"
               href={YOUTUBE_CHANNEL_URL}
               external
+              aria-label="YouTube channel"
             >
               <LogosYoutubeIcon className="size-4" aria-hidden="true" />
             </ButtonLink>
@@ -74,6 +75,7 @@ export function AppShell({ children }: AppShellProps) {
               size="icon"
               href={`https://github.com/${CONTENT_REPO_SLUG}`}
               external
+              aria-label="GitHub repository"
             >
               <CodeIcon />
             </ButtonLink>

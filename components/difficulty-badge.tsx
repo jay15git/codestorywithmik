@@ -1,4 +1,4 @@
-import { buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button-variants"
 import type { Difficulty } from "@/lib/content/types"
 import { cn } from "@/lib/utils"
 

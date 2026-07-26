@@ -1,5 +1,7 @@
 import { createHighlighter, type Highlighter, type ShikiTransformer } from "shiki"
 
+import { sanitizeShikiHtml } from "@/lib/sanitize-shiki-html"
+
 let highlighterPromise: Promise<Highlighter> | null = null
 
 async function getHighlighter(): Promise<Highlighter> {
@@ -25,7 +27,7 @@ export async function highlightCode(
   lang: "cpp" | "java",
 ): Promise<string> {
   const highlighter = await getHighlighter()
-  return highlighter.codeToHtml(code, {
+  const html = highlighter.codeToHtml(code, {
     lang,
     themes: {
       light: "github-light",
@@ -33,4 +35,6 @@ export async function highlightCode(
     },
     transformers: [lineNumbersTransformer],
   })
+
+  return sanitizeShikiHtml(html)
 }

@@ -21,10 +21,6 @@ function getCompanyDomain(company: string): string | null {
   )
 }
 
-export function hasCompanyIcon(company: string): boolean {
-  return getCompanyDomain(company) !== null
-}
-
 export function CompanyIcon({
   company,
   className,

@@ -231,15 +231,6 @@ export function leetcodeSlugFromUrl(url: string | null): string | null {
   return match?.[1]?.toLowerCase() ?? null
 }
 
-export function gfgSlugFromUrl(url: string | null): string | null {
-  if (!url) {
-    return null
-  }
-
-  const match = url.match(/geeksforgeeks\.org\/problems\/([^/?#]+)/i)
-  return match?.[1] ?? null
-}
-
 function leetcodeUrlFromTitle(title: string): string | null {
   const slug = title
     .toLowerCase()

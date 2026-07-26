@@ -1,6 +1,7 @@
 import Link from "next/link"
 
-import { CompanyIcon, hasCompanyIcon } from "@/components/company-icon"
+import { CompanyIcon } from "@/components/company-icon"
+import { hasCompanyIcon } from "@/lib/company-icons/has-company-icon"
 import { DifficultyBadge } from "@/components/difficulty-badge"
 import { SolutionExternalLinks } from "@/components/solution-external-links"
 import type { SolutionMeta } from "@/lib/content/types"

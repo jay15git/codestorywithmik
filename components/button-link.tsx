@@ -1,8 +1,7 @@
 import Link from "next/link"
-import type { ComponentProps, ReactNode } from "react"
+import type { ComponentProps } from "react"
 
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 
 type ButtonLinkProps = ComponentProps<typeof Button> & {
   href: string
@@ -13,6 +12,7 @@ export function ButtonLink({
   href,
   external = false,
   className,
+  "aria-label": ariaLabel,
   ...props
 }: ButtonLinkProps) {
   if (external) {
@@ -20,7 +20,15 @@ export function ButtonLink({
       <Button
         nativeButton={false}
         className={className}
-        render={<a href={href} target="_blank" rel="noreferrer" />}
+        render={
+          <a
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={ariaLabel}
+          />
+        }
+        aria-label={ariaLabel}
         {...props}
       />
     )
@@ -30,30 +38,9 @@ export function ButtonLink({
     <Button
       nativeButton={false}
       className={className}
-      render={<Link href={href} />}
+      render={<Link href={href} aria-label={ariaLabel} />}
+      aria-label={ariaLabel}
       {...props}
     />
-  )
-}
-
-export function BadgeLink({
-  href,
-  className,
-  children,
-}: {
-  href: string
-  className?: string
-  children: ReactNode
-}) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground hover:underline",
-        className,
-      )}
-    >
-      {children}
-    </Link>
   )
 }

@@ -145,8 +145,3 @@ export function getCompanyName(companySlug: string): string | undefined {
 export function getCompanies(): string[] {
   return getContentIndex().companies
 }
-
-export function buildGithubUrl(relativePath: string): string {
-  const index = getContentIndex()
-  return `https://github.com/${CONTENT_REPO_SLUG}/blob/${index.upstreamSha}/${relativePath}`
-}

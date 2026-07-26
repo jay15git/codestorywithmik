@@ -42,6 +42,23 @@ async function loadSearchIndex(): Promise<SearchIndex> {
   return fetchPromise
 }
 
+function ensureSearchIndex(
+  onLoaded: (index: SearchIndex) => void,
+  onError: (message: string) => void,
+  onFinally: () => void,
+) {
+  if (cachedIndex) {
+    onLoaded(cachedIndex)
+    onFinally()
+    return
+  }
+
+  loadSearchIndex()
+    .then(onLoaded)
+    .catch(() => onError("Search unavailable. Run sync-content and refresh."))
+    .finally(onFinally)
+}
+
 const DIFFICULTY_STYLES = {
   Easy: "text-emerald-600 dark:text-emerald-400",
   Medium: "text-amber-600 dark:text-amber-400",
@@ -56,36 +73,23 @@ export function SearchCommand() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
-  React.useEffect(() => {
-    if (!open || index) {
+  const openSearch = React.useCallback(() => {
+    setOpen(true)
+
+    if (cachedIndex) {
+      setIndex(cachedIndex)
       return
     }
 
-    let cancelled = false
     setLoading(true)
     setError(null)
 
-    loadSearchIndex()
-      .then((loaded) => {
-        if (!cancelled) {
-          setIndex(loaded)
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setError("Search unavailable. Run sync-content and refresh.")
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [open, index])
+    ensureSearchIndex(
+      (loaded) => setIndex(loaded),
+      (message) => setError(message),
+      () => setLoading(false),
+    )
+  }, [])
 
   const results = React.useMemo(() => {
     if (!index) {
@@ -104,13 +108,13 @@ export function SearchCommand() {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
         event.preventDefault()
-        setOpen((value) => !value)
+        openSearch()
       }
     }
 
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
-  }, [])
+  }, [openSearch])
 
   function navigate(href: string) {
     setOpen(false)
@@ -123,7 +127,7 @@ export function SearchCommand() {
       <Button
         variant="secondary"
         className="hidden h-9 w-full max-w-sm justify-start gap-2 border-0 bg-card text-muted-foreground shadow-none md:flex"
-        onClick={() => setOpen(true)}
+        onClick={openSearch}
       >
         <SearchIcon className="size-4" />
         <span className="flex-1 text-left">Search problems, companies…</span>
@@ -137,7 +141,7 @@ export function SearchCommand() {
         size="icon"
         className="md:hidden"
         aria-label="Search"
-        onClick={() => setOpen(true)}
+        onClick={openSearch}
       >
         <SearchIcon />
       </Button>

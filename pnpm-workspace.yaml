@@ -1,5 +1,41 @@
 packages: []
 
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - "@csstools/*"
+  - "@emnapi/*"
+  - "@eslint-community/*"
+  - "@hono/*"
+  - "@next/bundle-analyzer"
+  - "@radix-ui/*"
+  - "@typescript-eslint/*"
+  - baseline-browser-mapping
+  - brace-expansion
+  - browserslist
+  - electron-to-chromium
+  - enhanced-resolve
+  - flatted
+  - fs-extra
+  - hono
+  - ip-address
+  - isomorphic-dompurify
+  - jose
+  - lucide-react
+  - media-typer
+  - own-keys
+  - postcss
+  - prettier
+  - shadcn
+  - systeminformation
+  - typescript-eslint
+  - undici
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - undici-types
+  - "@hono/node-server"
+  - eslint-import-resolver-typescript
+  - semver
+
 allowBuilds:
   sharp: true
   unrs-resolver: true

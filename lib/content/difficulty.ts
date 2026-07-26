@@ -10,25 +10,6 @@ const EASY_SUBTOPIC_PATTERN =
 
 let cachedDifficultyMap: Map<string, Difficulty> | null = null
 
-export function normalizeDifficulty(value: string | null | undefined): Difficulty | null {
-  if (!value) {
-    return null
-  }
-
-  const normalized = value.trim().toLowerCase()
-  if (normalized === "easy" || normalized === "school" || normalized === "basic") {
-    return "Easy"
-  }
-  if (normalized === "medium") {
-    return "Medium"
-  }
-  if (normalized === "hard") {
-    return "Hard"
-  }
-
-  return null
-}
-
 export function inferDifficultyFromSubtopic(
   subtopic: string | null,
 ): Difficulty | null {

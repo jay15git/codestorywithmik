@@ -1,6 +1,7 @@
 import Link from "next/link"
 
-import { CompanyIcon, hasCompanyIcon } from "@/components/company-icon"
+import { CompanyIcon } from "@/components/company-icon"
+import { hasCompanyIcon } from "@/lib/company-icons/has-company-icon"
 import { companySlug } from "@/lib/content/slug"
 import { cn } from "@/lib/utils"
 
@@ -31,19 +32,6 @@ function CompanyMark({
       {company.charAt(0)}
     </span>
   )
-}
-
-export function sortCompanyTags(companies: string[]): string[] {
-  return [...companies].sort((a, b) => {
-    const aHasIcon = hasCompanyIcon(a) ? 0 : 1
-    const bHasIcon = hasCompanyIcon(b) ? 0 : 1
-
-    if (aHasIcon !== bHasIcon) {
-      return aHasIcon - bHasIcon
-    }
-
-    return a.localeCompare(b)
-  })
 }
 
 export function CompanyTagLink({

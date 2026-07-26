@@ -3,7 +3,8 @@ import { notFound } from "next/navigation"
 import { CodeIcon } from "lucide-react"
 
 import { ButtonLink } from "@/components/button-link"
-import { CompanyTagLink, sortCompanyTags } from "@/components/company-tag-link"
+import { CompanyTagLink } from "@/components/company-tag-link"
+import { sortCompanyTags } from "@/lib/content/sort-company-tags"
 import { DifficultyBadge } from "@/components/difficulty-badge"
 import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
@@ -17,7 +18,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button-variants"
 import { getSolution, getSolutions } from "@/lib/content/get-content"
 import { practiceLinkLabel } from "@/lib/content/practice-link-label"
 import { highlightCode } from "@/lib/shiki"
