@@ -1,10 +1,8 @@
-import { CodeIcon, MenuIcon } from "lucide-react"
+import { MenuIcon } from "lucide-react"
 
-import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
-import Link from "next/link"
-
-import { ButtonLink } from "@/components/button-link"
 import { SearchLazy } from "@/components/search-lazy"
+import { SidebarBrand } from "@/components/sidebar-brand"
+import { SocialLinks } from "@/components/social-links"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { TopicSidebar } from "@/components/topic-sidebar"
 import {
@@ -16,10 +14,6 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import {
-  CONTENT_REPO_SLUG,
-  YOUTUBE_CHANNEL_URL,
-} from "@/lib/content/constants"
 import { getTopics } from "@/lib/content/get-content"
 
 interface AppShellProps {
@@ -35,14 +29,7 @@ export function AppShell({ children }: AppShellProps) {
         className="[&_[data-slot=sidebar-inner]]:bg-transparent [&_[data-slot=sidebar][data-mobile=true]]:bg-transparent"
       >
         <SidebarHeader className="gap-3 p-4">
-          <Link href="/" className="flex flex-col gap-1">
-            <span className="text-sm font-semibold tracking-tight">
-              codestorywithMIK
-            </span>
-            <span className="text-xs text-muted-foreground">
-              Interview DS & Algo
-            </span>
-          </Link>
+          <SidebarBrand />
         </SidebarHeader>
         <SidebarContent className="flex flex-1 items-center justify-center">
           <TopicSidebar topics={topics} />
@@ -56,29 +43,11 @@ export function AppShell({ children }: AppShellProps) {
             <MenuIcon />
           </SidebarTrigger>
 
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            <SearchLazy />
-          </div>
+          <div className="flex min-w-0 flex-1" />
 
-          <div className="flex items-center gap-1">
-            <ButtonLink
-              variant="ghost"
-              size="icon"
-              href={YOUTUBE_CHANNEL_URL}
-              external
-              aria-label="YouTube channel"
-            >
-              <LogosYoutubeIcon className="size-4" aria-hidden="true" />
-            </ButtonLink>
-            <ButtonLink
-              variant="ghost"
-              size="icon"
-              href={`https://github.com/${CONTENT_REPO_SLUG}`}
-              external
-              aria-label="GitHub repository"
-            >
-              <CodeIcon />
-            </ButtonLink>
+          <div className="flex items-center gap-2">
+            <SearchLazy />
+            <SocialLinks />
             <ThemeToggle />
           </div>
         </header>

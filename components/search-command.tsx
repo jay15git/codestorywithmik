@@ -65,6 +65,47 @@ const DIFFICULTY_STYLES = {
   Hard: "text-red-600 dark:text-red-400",
 } as const
 
+const searchTriggerClassName =
+  "relative hidden h-9 w-56 max-w-64 justify-start gap-2 overflow-hidden border-0 bg-card pr-12 text-muted-foreground shadow-none md:flex"
+
+export function SearchTrigger({
+  onClick,
+  disabled = false,
+}: {
+  onClick?: () => void
+  disabled?: boolean
+}) {
+  return (
+    <>
+      <Button
+        variant="secondary"
+        className={searchTriggerClassName}
+        onClick={onClick}
+        disabled={disabled}
+      >
+        <SearchIcon className="size-4 shrink-0" />
+        <span className="min-w-0 truncate text-left">
+          Search problems, companies…
+        </span>
+        <kbd className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+          ⌘K
+        </kbd>
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="md:hidden"
+        aria-label="Search"
+        onClick={onClick}
+        disabled={disabled}
+      >
+        <SearchIcon />
+      </Button>
+    </>
+  )
+}
+
 export function SearchCommand() {
   const router = useRouter()
   const [open, setOpen] = React.useState(false)
@@ -124,27 +165,7 @@ export function SearchCommand() {
 
   return (
     <>
-      <Button
-        variant="secondary"
-        className="hidden h-9 w-full max-w-sm justify-start gap-2 border-0 bg-card text-muted-foreground shadow-none md:flex"
-        onClick={openSearch}
-      >
-        <SearchIcon className="size-4" />
-        <span className="flex-1 text-left">Search problems, companies…</span>
-        <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-          ⌘K
-        </kbd>
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="icon"
-        className="md:hidden"
-        aria-label="Search"
-        onClick={openSearch}
-      >
-        <SearchIcon />
-      </Button>
+      <SearchTrigger onClick={openSearch} />
 
       <CommandDialog
         open={open}

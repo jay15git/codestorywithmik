@@ -7,14 +7,6 @@ import {
   SolutionViewToggle,
 } from "@/components/solution-view"
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import {
   getCompanies,
   getCompanyName,
   getSolutionsByCompany,
@@ -58,35 +50,21 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
   return (
     <SolutionViewProvider>
       <div className="space-y-8">
-          <div className="space-y-4">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{company}</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-semibold tracking-tight">
-                  {company}
-                </h1>
-                <p className="mt-2 text-muted-foreground">
-                  {solutions.length} solutions tagged with this company
-                </p>
-              </div>
-              <SolutionViewToggle />
-            </div>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight">
+              {company}
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              {solutions.length} solutions tagged with this company
+            </p>
           </div>
+          <SolutionViewToggle />
+        </div>
 
-          <div className="solution-list-section">
-            <SolutionView solutions={solutions} />
-          </div>
+        <div className="solution-list-section">
+          <SolutionView solutions={solutions} />
+        </div>
       </div>
     </SolutionViewProvider>
   )

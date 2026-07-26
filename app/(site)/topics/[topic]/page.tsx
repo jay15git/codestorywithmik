@@ -7,14 +7,6 @@ import {
   SolutionViewToggle,
 } from "@/components/solution-view"
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import {
   getSolutionsByTopic,
   getTopic,
   getTopics,
@@ -57,25 +49,11 @@ export default async function TopicPage({ params }: TopicPageProps) {
   return (
     <SolutionViewProvider>
       <div className="space-y-8">
-          <div className="space-y-4">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{topic.name}</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-
-            <div className="flex items-start justify-between gap-4">
-              <h1 className="text-3xl font-semibold tracking-tight">
-                {topic.name}
-              </h1>
-              <SolutionViewToggle />
-            </div>
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-3xl font-semibold tracking-tight">
+              {topic.name}
+            </h1>
+            <SolutionViewToggle />
           </div>
 
           {topic.subtopics.map((subtopic) => {

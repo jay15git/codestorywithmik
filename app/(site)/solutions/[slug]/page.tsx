@@ -10,14 +10,6 @@ import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
 import { SimpleIconsGeeksforgeeks } from "@/components/icons/simple-icons/geeksforgeeks"
 import { SolutionCodePanel } from "@/components/solution-code-panel"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { getSolution, getSolutions } from "@/lib/content/get-content"
 import { practiceLinkLabel } from "@/lib/content/practice-link-label"
@@ -67,32 +59,6 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
   return (
     <div className="min-w-0 max-w-full space-y-8">
         <div className="space-y-4">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Home</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink href={`/topics/${solution.topicSlug}`}>
-                  {solution.topic}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              {solution.subtopic && (
-                <>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>{solution.subtopic}</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </>
-              )}
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{solution.title}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-
           <div className="space-y-3">
             <h1 className="text-3xl font-semibold tracking-tight">
               {solution.title}

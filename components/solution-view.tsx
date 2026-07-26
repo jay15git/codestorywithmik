@@ -78,12 +78,15 @@ export function SolutionViewToggle({ className }: { className?: string }) {
   const { viewMode, setViewMode } = useSolutionViewContext()
 
   return (
-    <div
-      className={cn("flex items-center gap-0.5 rounded-lg border bg-card p-0.5", className)}
-    >
+    <div className={cn("flex items-center gap-1", className)}>
       <Button
-        variant={viewMode === "grid" ? "secondary" : "ghost"}
-        size="icon-xs"
+        variant="ghost"
+        size="icon-sm"
+        className={
+          viewMode === "grid"
+            ? "bg-white text-foreground hover:bg-white dark:text-black"
+            : "text-muted-foreground"
+        }
         onClick={() => setViewMode("grid")}
         aria-label="Grid view"
         aria-pressed={viewMode === "grid"}
@@ -91,8 +94,13 @@ export function SolutionViewToggle({ className }: { className?: string }) {
         <LayoutGridIcon />
       </Button>
       <Button
-        variant={viewMode === "list" ? "secondary" : "ghost"}
-        size="icon-xs"
+        variant="ghost"
+        size="icon-sm"
+        className={
+          viewMode === "list"
+            ? "bg-white text-foreground hover:bg-white dark:text-black"
+            : "text-muted-foreground"
+        }
         onClick={() => setViewMode("list")}
         aria-label="List view"
         aria-pressed={viewMode === "list"}
