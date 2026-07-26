@@ -2,7 +2,11 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { AppShell } from "@/components/app-shell"
-import { SolutionCard } from "@/components/solution-card"
+import {
+  SolutionView,
+  SolutionViewProvider,
+  SolutionViewToggle,
+} from "@/components/solution-view"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -53,70 +57,69 @@ export default async function TopicPage({ params }: TopicPageProps) {
 
   return (
     <AppShell>
-      <div className="space-y-8">
-        <div className="space-y-4">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Home</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{topic.name}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+      <SolutionViewProvider>
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{topic.name}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
 
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">{topic.name}</h1>
-            <p className="mt-2 text-muted-foreground">
-              {topic.solutionCount} solutions
-              {topic.subtopics.length > 0
-                ? ` across ${topic.subtopics.length} subtopics`
-                : ""}
-            </p>
-          </div>
-        </div>
-
-        {topic.subtopics.map((subtopic) => {
-          const subtopicSolutions = solutions.filter(
-            (solution) => solution.subtopicSlug === subtopic.slug,
-          )
-
-          if (subtopicSolutions.length === 0) {
-            return null
-          }
-
-          return (
-            <section key={subtopic.slug} className="space-y-4">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-lg font-medium">{subtopic.name}</h2>
-                <p className="text-sm text-muted-foreground">
-                  {subtopic.solutionCount} solutions
+                <h1 className="text-3xl font-semibold tracking-tight">
+                  {topic.name}
+                </h1>
+                <p className="mt-2 text-muted-foreground">
+                  {topic.solutionCount} solutions
+                  {topic.subtopics.length > 0
+                    ? ` across ${topic.subtopics.length} subtopics`
+                    : ""}
                 </p>
               </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                {subtopicSolutions.map((solution) => (
-                  <SolutionCard key={solution.slug} solution={solution} />
-                ))}
-              </div>
-            </section>
-          )
-        })}
-
-        {solutions.some((solution) => !solution.subtopic) && (
-          <section className="space-y-4">
-            <h2 className="text-lg font-medium">General</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {solutions
-                .filter((solution) => !solution.subtopic)
-                .map((solution) => (
-                  <SolutionCard key={solution.slug} solution={solution} />
-                ))}
+              <SolutionViewToggle />
             </div>
-          </section>
-        )}
-      </div>
+          </div>
+
+          {topic.subtopics.map((subtopic) => {
+            const subtopicSolutions = solutions.filter(
+              (solution) => solution.subtopicSlug === subtopic.slug,
+            )
+
+            if (subtopicSolutions.length === 0) {
+              return null
+            }
+
+            return (
+              <section key={subtopic.slug} className="space-y-4">
+                <div>
+                  <h2 className="text-lg font-medium">{subtopic.name}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {subtopic.solutionCount} solutions
+                  </p>
+                </div>
+                <SolutionView solutions={subtopicSolutions} />
+              </section>
+            )
+          })}
+
+          {solutions.some((solution) => !solution.subtopic) && (
+            <section className="space-y-4">
+              <h2 className="text-lg font-medium">General</h2>
+              <SolutionView
+                solutions={solutions.filter((solution) => !solution.subtopic)}
+              />
+            </section>
+          )}
+        </div>
+      </SolutionViewProvider>
     </AppShell>
   )
 }

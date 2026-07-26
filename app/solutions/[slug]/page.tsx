@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ExternalLinkIcon, CodeIcon, VideoIcon } from "lucide-react"
+import { CodeIcon } from "lucide-react"
 
 import { AppShell } from "@/components/app-shell"
 import { BadgeLink, ButtonLink } from "@/components/button-link"
-import { CodeBlock } from "@/components/code-block"
+import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
+import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
+import { SimpleIconsGeeksforgeeks } from "@/components/icons/simple-icons/geeksforgeeks"
+import { SolutionCodePanel } from "@/components/solution-code-panel"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,7 +16,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { companySlug } from "@/lib/content/slug"
 import { getSolution, getSolutions } from "@/lib/content/get-content"
 import { practiceLinkLabel } from "@/lib/content/practice-link-label"
@@ -60,8 +61,6 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
       ? highlightCode(solution.code.java, "java")
       : Promise.resolve(null),
   ])
-
-  const defaultTab = solution.code.cpp ? "cpp" : "java"
 
   return (
     <AppShell>
@@ -130,8 +129,8 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
                   href={solution.leetcodeUrl}
                   external
                 >
+                  <DeviconLeetcode className="size-4" aria-hidden="true" />
                   LeetCode
-                  <ExternalLinkIcon />
                 </ButtonLink>
               )}
               {!solution.leetcodeUrl && solution.gfgUrl && (
@@ -141,8 +140,12 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
                   href={solution.gfgUrl}
                   external
                 >
+                  <SimpleIconsGeeksforgeeks
+                    className="size-4"
+                    style={{ color: "#2f8d46" }}
+                    aria-hidden="true"
+                  />
                   {practiceLinkLabel(solution.gfgUrl)}
-                  <ExternalLinkIcon />
                 </ButtonLink>
               )}
               {solution.youtubeUrl && (
@@ -152,7 +155,7 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
                   href={solution.youtubeUrl}
                   external
                 >
-                  <VideoIcon />
+                  <LogosYoutubeIcon className="size-4" aria-hidden="true" />
                   Watch explanation
                 </ButtonLink>
               )}
@@ -169,24 +172,12 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
           </div>
         </div>
 
-        <Tabs defaultValue={defaultTab}>
-          <TabsList>
-            {solution.code.cpp && <TabsTrigger value="cpp">C++</TabsTrigger>}
-            {solution.code.java && <TabsTrigger value="java">Java</TabsTrigger>}
-          </TabsList>
-
-          {solution.code.cpp && cppHtml && (
-            <TabsContent value="cpp" className="mt-4">
-              <CodeBlock html={cppHtml} code={solution.code.cpp} label="C++" />
-            </TabsContent>
-          )}
-
-          {solution.code.java && javaHtml && (
-            <TabsContent value="java" className="mt-4">
-              <CodeBlock html={javaHtml} code={solution.code.java} label="Java" />
-            </TabsContent>
-          )}
-        </Tabs>
+        <SolutionCodePanel
+          cpp={solution.code.cpp}
+          java={solution.code.java}
+          cppHtml={cppHtml}
+          javaHtml={javaHtml}
+        />
       </div>
     </AppShell>
   )

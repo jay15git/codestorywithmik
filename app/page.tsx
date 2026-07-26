@@ -1,7 +1,11 @@
 import type { Metadata } from "next"
 
 import { AppShell } from "@/components/app-shell"
-import { SolutionCard } from "@/components/solution-card"
+import {
+  SolutionView,
+  SolutionViewProvider,
+  SolutionViewToggle,
+} from "@/components/solution-view"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getContentIndex, getTopics } from "@/lib/content/get-content"
 import Link from "next/link"
@@ -91,14 +95,15 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="space-y-4">
-          <h2 className="text-xl font-semibold">Recently added</h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            {index.solutions.slice(0, 6).map((solution) => (
-              <SolutionCard key={solution.slug} solution={solution} />
-            ))}
-          </div>
-        </section>
+        <SolutionViewProvider>
+          <section className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl font-semibold">Recently added</h2>
+              <SolutionViewToggle />
+            </div>
+            <SolutionView solutions={index.solutions.slice(0, 6)} />
+          </section>
+        </SolutionViewProvider>
       </div>
     </AppShell>
   )

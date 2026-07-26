@@ -1,4 +1,6 @@
-import { ExternalLinkIcon, CodeIcon, MenuIcon, VideoIcon } from "lucide-react"
+import { ExternalLinkIcon, CodeIcon, MenuIcon } from "lucide-react"
+
+import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
 import Link from "next/link"
 
 import { ButtonLink } from "@/components/button-link"
@@ -8,7 +10,6 @@ import { TopicSidebar } from "@/components/topic-sidebar"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarInset,
   SidebarProvider,
@@ -20,7 +21,7 @@ import {
   ORIGINAL_REPO_SLUG,
   YOUTUBE_CHANNEL_URL,
 } from "@/lib/content/constants"
-import { getContentIndex, getSearchDocuments, getTopics } from "@/lib/content/get-content"
+import { getSearchDocuments, getTopics } from "@/lib/content/get-content"
 
 interface AppShellProps {
   children: React.ReactNode
@@ -29,18 +30,12 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const topics = getTopics()
   const documents = getSearchDocuments()
-  const index = getContentIndex()
-
-  const syncedDate = new Date(index.syncedAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  })
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar
+        className="[&_[data-slot=sidebar-inner]]:bg-transparent [&_[data-slot=sidebar][data-mobile=true]]:bg-transparent"
+      >
         <SidebarHeader className="gap-3 p-4">
           <Link href="/" className="flex flex-col gap-1">
             <span className="text-sm font-semibold tracking-tight">
@@ -51,13 +46,9 @@ export function AppShell({ children }: AppShellProps) {
             </span>
           </Link>
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="flex flex-1 items-center justify-center">
           <TopicSidebar topics={topics} />
         </SidebarContent>
-        <SidebarFooter className="p-4 text-xs text-muted-foreground">
-          <p>{index.solutionCount} solutions</p>
-          <p className="mt-1">Synced {syncedDate}</p>
-        </SidebarFooter>
         <SidebarRail />
       </Sidebar>
 
@@ -78,7 +69,7 @@ export function AppShell({ children }: AppShellProps) {
               href={YOUTUBE_CHANNEL_URL}
               external
             >
-              <VideoIcon />
+              <LogosYoutubeIcon className="size-4" aria-hidden="true" />
             </ButtonLink>
             <ButtonLink
               variant="ghost"
@@ -123,8 +114,9 @@ export function AppShell({ children }: AppShellProps) {
               href={YOUTUBE_CHANNEL_URL}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 hover:text-foreground"
+              className="inline-flex items-center gap-1.5 hover:text-foreground"
             >
+              <LogosYoutubeIcon className="size-4" aria-hidden="true" />
               Watch on YouTube
               <ExternalLinkIcon className="size-3.5" />
             </a>

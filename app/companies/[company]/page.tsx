@@ -3,7 +3,11 @@ import { notFound } from "next/navigation"
 
 import { AppShell } from "@/components/app-shell"
 import { CompanyIcon } from "@/components/company-icon"
-import { SolutionCard } from "@/components/solution-card"
+import {
+  SolutionView,
+  SolutionViewProvider,
+  SolutionViewToggle,
+} from "@/components/solution-view"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -55,37 +59,38 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
 
   return (
     <AppShell>
-      <div className="space-y-8">
-        <div className="space-y-4">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Home</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{company}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+      <SolutionViewProvider>
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{company}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
 
-          <div>
-            <h1 className="flex items-center gap-3 text-3xl font-semibold tracking-tight">
-              <CompanyIcon company={company} className="size-8" size={32} />
-              {company}
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              {solutions.length} solutions tagged with this company
-            </p>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="flex items-center gap-3 text-3xl font-semibold tracking-tight">
+                  <CompanyIcon company={company} className="size-8" size={32} />
+                  {company}
+                </h1>
+                <p className="mt-2 text-muted-foreground">
+                  {solutions.length} solutions tagged with this company
+                </p>
+              </div>
+              <SolutionViewToggle />
+            </div>
           </div>
-        </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {solutions.map((solution) => (
-            <SolutionCard key={solution.slug} solution={solution} />
-          ))}
+          <SolutionView solutions={solutions} />
         </div>
-      </div>
+      </SolutionViewProvider>
     </AppShell>
   )
 }
