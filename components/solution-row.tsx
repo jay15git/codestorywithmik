@@ -20,6 +20,19 @@ const MAX_LIST_COMPANIES = 4
 const LIST_ROW_GRID =
   "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_7.5rem_minmax(1rem,1fr)_3.5rem] items-center gap-x-3"
 
+function sortCompaniesForDisplay(companies: string[]): string[] {
+  return [...companies].sort((a, b) => {
+    const aHasIcon = hasCompanyIcon(a) ? 0 : 1
+    const bHasIcon = hasCompanyIcon(b) ? 0 : 1
+
+    if (aHasIcon !== bHasIcon) {
+      return aHasIcon - bHasIcon
+    }
+
+    return a.localeCompare(b)
+  })
+}
+
 function SolutionCompanyIconLink({ company }: { company: string }) {
   const [hovered, setHovered] = useState(false)
 
@@ -32,7 +45,16 @@ function SolutionCompanyIconLink({ company }: { company: string }) {
       onMouseLeave={() => setHovered(false)}
     >
       <CenterUnderline as="span" className="inline-flex" active={hovered}>
-        <CompanyIcon company={company} size={16} className="size-4" />
+        {hasCompanyIcon(company) ? (
+          <CompanyIcon company={company} size={16} className="size-4" />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="flex size-4 items-center justify-center rounded-sm bg-muted text-[9px] font-semibold uppercase text-muted-foreground"
+          >
+            {company.charAt(0)}
+          </span>
+        )}
       </CenterUnderline>
     </Link>
   )
@@ -66,15 +88,13 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
   const [cardHovered, setCardHovered] = useState(false)
   const [metaHovered, setMetaHovered] = useState(false)
   const titleUnderlineActive = cardHovered && !metaHovered
-  const companyTags = [...new Set(solution.companyTags)]
+  const companyTags = sortCompaniesForDisplay([...new Set(solution.companyTags)])
   const hasExternalLinks =
     solution.youtubeUrl || solution.leetcodeUrl || solution.gfgUrl
   const solutionHref = `/solutions/${solution.slug}`
 
   if (variant === "list") {
-    const visibleCompanies = companyTags
-      .filter((company) => hasCompanyIcon(company))
-      .slice(0, MAX_LIST_COMPANIES)
+    const visibleCompanies = companyTags.slice(0, MAX_LIST_COMPANIES)
     const overflowCount = companyTags.length - visibleCompanies.length
 
     return (

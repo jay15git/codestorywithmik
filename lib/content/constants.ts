@@ -16,3 +16,10 @@ export const GENERATED_INDEX_PATH = "generated/content-index.json"
 export const GENERATED_SOLUTIONS_PATH = "generated/solutions"
 
 export const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/c/codestorywithMIK"
+
+export const LEETCODE_COMPANY_TAGS_REPO =
+  "https://github.com/snehasishroy/leetcode-companywise-interview-questions.git"
+
+export const LEETCODE_COMPANY_TAGS_BRANCH = "master"
+
+export const LEETCODE_COMPANY_TAGS_CACHE_PATH = ".cache/leetcode-company-tags"

@@ -26,6 +26,10 @@ import {
   resolveSolutionDifficulty,
 } from "../lib/content/difficulty"
 import {
+  enrichCompanyTags,
+  loadLeetcodeCompanyTagIndex,
+} from "../lib/content/leetcode-company-tags"
+import {
   parseCompanyTags,
   parseSpaceComplexity,
   parseTimeComplexity,
@@ -246,9 +250,23 @@ async function run() {
 
   console.log(`Found ${cppFiles.length} solution files`)
 
+  const leetcodeCompanyTagIndex = loadLeetcodeCompanyTagIndex()
+  console.log(
+    `Loaded company tags for ${leetcodeCompanyTagIndex.size} LeetCode problems`,
+  )
+
   let solutions = cppFiles.map(({ relativePath, absolutePath }) => {
     const content = readFileSync(absolutePath, "utf8")
-    return parseSolutionFile(relativePath, content, upstreamSha)
+    const solution = parseSolutionFile(relativePath, content, upstreamSha)
+
+    return {
+      ...solution,
+      companyTags: enrichCompanyTags(
+        solution.companyTags,
+        solution.leetcodeUrl,
+        leetcodeCompanyTagIndex,
+      ),
+    }
   })
 
   solutions = ensureUniqueSlugs(solutions)

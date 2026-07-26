@@ -3,7 +3,8 @@ import { notFound } from "next/navigation"
 import { CodeIcon } from "lucide-react"
 
 import { AppShell } from "@/components/app-shell"
-import { BadgeLink, ButtonLink } from "@/components/button-link"
+import { ButtonLink } from "@/components/button-link"
+import { CompanyTagLink, sortCompanyTags } from "@/components/company-tag-link"
 import { DifficultyBadge } from "@/components/difficulty-badge"
 import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
@@ -17,7 +18,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { companySlug } from "@/lib/content/slug"
 import { getSolution, getSolutions } from "@/lib/content/get-content"
 import { practiceLinkLabel } from "@/lib/content/practice-link-label"
 import { highlightCode } from "@/lib/shiki"
@@ -98,37 +98,10 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
               {solution.title}
             </h1>
 
-            {solution.difficulty && (
-              <p>
-                <DifficultyBadge difficulty={solution.difficulty} className="text-sm" />
-              </p>
-            )}
-
             <div className="flex flex-wrap items-center gap-2">
-              {solution.companyTags.map((company) => (
-                <BadgeLink
-                  key={company}
-                  href={`/companies/${companySlug(company)}`}
-                >
-                  {company}
-                </BadgeLink>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              {solution.timeComplexity && (
-                <span className="rounded-md bg-muted px-2 py-1">
-                  T.C: {solution.timeComplexity}
-                </span>
+              {solution.difficulty && (
+                <DifficultyBadge difficulty={solution.difficulty} className="text-sm" />
               )}
-              {solution.spaceComplexity && (
-                <span className="rounded-md bg-muted px-2 py-1">
-                  S.C: {solution.spaceComplexity}
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
               {solution.leetcodeUrl && (
                 <ButtonLink
                   variant="outline"
@@ -175,6 +148,25 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
                 <CodeIcon />
                 View on GitHub
               </ButtonLink>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {sortCompanyTags(solution.companyTags).map((company) => (
+                <CompanyTagLink key={company} company={company} />
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              {solution.timeComplexity && (
+                <span className="rounded-md bg-muted px-2 py-1">
+                  T.C: {solution.timeComplexity}
+                </span>
+              )}
+              {solution.spaceComplexity && (
+                <span className="rounded-md bg-muted px-2 py-1">
+                  S.C: {solution.spaceComplexity}
+                </span>
+              )}
             </div>
           </div>
         </div>

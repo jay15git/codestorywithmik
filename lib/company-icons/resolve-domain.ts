@@ -21,6 +21,10 @@ function lookupDomain(name: string): string | null {
     }
   }
 
+  if (compact.length >= 3 && /[a-z]/.test(compact)) {
+    return `${compact}.com`
+  }
+
   return null
 }
 

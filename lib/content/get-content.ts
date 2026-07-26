@@ -62,10 +62,6 @@ function getIndexPath(): string {
 }
 
 export function getContentIndex(): ContentIndex {
-  if (cachedIndex) {
-    return cachedIndex
-  }
-
   const indexPath = getIndexPath()
 
   if (!existsSync(indexPath)) {
@@ -74,10 +70,19 @@ export function getContentIndex(): ContentIndex {
     )
   }
 
-  cachedIndex = normalizeIndex(
+  if (process.env.NODE_ENV === "production" && cachedIndex) {
+    return cachedIndex
+  }
+
+  const index = normalizeIndex(
     JSON.parse(readFileSync(indexPath, "utf8")) as ContentIndex,
   )
-  return cachedIndex
+
+  if (process.env.NODE_ENV === "production") {
+    cachedIndex = index
+  }
+
+  return index
 }
 
 export function getTopics(): Topic[] {
