@@ -23,10 +23,10 @@ import {
 } from "../lib/content/constants"
 import {
   parseCompanyTags,
-  parseLeetcodeUrl,
   parseSpaceComplexity,
   parseTimeComplexity,
   parseYoutubeUrl,
+  resolveProblemLinks,
 } from "../lib/content/parse-solution"
 import { slugify, slugifyParts, topicSlugFromName } from "../lib/content/slug"
 import type { ContentIndex, SolutionMeta, Subtopic, Topic } from "../lib/content/types"
@@ -117,6 +117,7 @@ function parseSolutionFile(
     segments.length > 2 ? segments.slice(1, -1).join(" / ") : null
 
   const slug = slugifyParts(...segments.map((part) => part.replace(/\.cpp$/i, "")))
+  const problemLinks = resolveProblemLinks(slug, content)
 
   return {
     slug,
@@ -128,7 +129,8 @@ function parseSolutionFile(
     relativePath,
     githubUrl: `https://github.com/${CONTENT_REPO_SLUG}/blob/${upstreamSha}/${relativePath}`,
     youtubeUrl: parseYoutubeUrl(content),
-    leetcodeUrl: parseLeetcodeUrl(content),
+    leetcodeUrl: problemLinks.leetcodeUrl,
+    gfgUrl: problemLinks.gfgUrl,
     companyTags: parseCompanyTags(content),
     timeComplexity: parseTimeComplexity(content),
     spaceComplexity: parseSpaceComplexity(content),

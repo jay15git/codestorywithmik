@@ -14,6 +14,7 @@ export interface SolutionMeta {
   githubUrl: string
   youtubeUrl: string | null
   leetcodeUrl: string | null
+  gfgUrl: string | null
   companyTags: string[]
   timeComplexity: string | null
   spaceComplexity: string | null

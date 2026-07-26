@@ -17,6 +17,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { companySlug } from "@/lib/content/slug"
 import { getSolution, getSolutions } from "@/lib/content/get-content"
+import { practiceLinkLabel } from "@/lib/content/practice-link-label"
 import { highlightCode } from "@/lib/shiki"
 
 interface SolutionPageProps {
@@ -130,6 +131,17 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
                   external
                 >
                   LeetCode
+                  <ExternalLinkIcon />
+                </ButtonLink>
+              )}
+              {!solution.leetcodeUrl && solution.gfgUrl && (
+                <ButtonLink
+                  variant="outline"
+                  size="sm"
+                  href={solution.gfgUrl}
+                  external
+                >
+                  {practiceLinkLabel(solution.gfgUrl)}
                   <ExternalLinkIcon />
                 </ButtonLink>
               )}
