@@ -1,11 +1,10 @@
 import Link from "next/link"
 
-import { CompanyIcon } from "@/components/company-icon"
-import { hasCompanyIcon } from "@/lib/company-icons/has-company-icon"
+import { CompanyTagLink } from "@/components/company-tag-link"
 import { DifficultyBadge } from "@/components/difficulty-badge"
 import { SolutionExternalLinks } from "@/components/solution-external-links"
+import { sortCompanyTags } from "@/lib/content/sort-company-tags"
 import type { SolutionMeta } from "@/lib/content/types"
-import { companySlug } from "@/lib/content/slug"
 import { cn } from "@/lib/utils"
 
 interface SolutionRowProps {
@@ -14,49 +13,15 @@ interface SolutionRowProps {
 }
 
 const MAX_GRID_COMPANIES = 3
-const MAX_LIST_COMPANIES = 4
+const MAX_LIST_COMPANIES = 3
 const LIST_ROW_GRID =
-  "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_7.5rem_minmax(1rem,1fr)_3.5rem] items-center gap-x-3"
+  "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_16rem_3.5rem] items-center gap-x-3"
 
 const titleUnderlineClassName =
   "relative inline-block after:absolute after:bottom-0 after:left-1/2 after:h-[0.1em] after:w-0 after:-translate-x-1/2 after:bg-current after:transition-[width] after:duration-200 after:ease-out group-hover/row:after:w-full group-focus-within/row:after:w-full"
 
-function sortCompaniesForDisplay(companies: string[]): string[] {
-  return [...companies].sort((a, b) => {
-    const aHasIcon = hasCompanyIcon(a) ? 0 : 1
-    const bHasIcon = hasCompanyIcon(b) ? 0 : 1
-
-    if (aHasIcon !== bHasIcon) {
-      return aHasIcon - bHasIcon
-    }
-
-    return a.localeCompare(b)
-  })
-}
-
-function SolutionCompanyIconLink({ company }: { company: string }) {
-  return (
-    <Link
-      href={`/companies/${companySlug(company)}`}
-      className="relative z-10 inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-      aria-label={company}
-    >
-      {hasCompanyIcon(company) ? (
-        <CompanyIcon company={company} size={16} className="size-4" />
-      ) : (
-        <span
-          aria-hidden="true"
-          className="flex size-4 items-center justify-center text-[9px] font-semibold uppercase"
-        >
-          {company.charAt(0)}
-        </span>
-      )}
-    </Link>
-  )
-}
-
 export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
-  const companyTags = sortCompaniesForDisplay([...new Set(solution.companyTags)])
+  const companyTags = sortCompanyTags([...new Set(solution.companyTags)])
   const hasExternalLinks =
     solution.youtubeUrl || solution.leetcodeUrl || solution.gfgUrl
   const solutionHref = `/solutions/${solution.slug}`
@@ -83,28 +48,21 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           </span>
         </div>
 
-        <div className="relative z-10 flex min-h-6 items-center justify-center gap-1 pointer-events-none">
-          <div className="grid grid-cols-4 gap-1 pointer-events-auto">
-            {Array.from({ length: MAX_LIST_COMPANIES }, (_, index) => {
-              const company = visibleCompanies[index]
-              return (
-                <div
-                  key={company ?? `company-slot-${index}`}
-                  className="flex size-6 items-center justify-center"
-                >
-                  {company ? <SolutionCompanyIconLink company={company} /> : null}
-                </div>
-              )
-            })}
-          </div>
+        <div className="relative z-10 flex min-h-6 w-full items-center justify-start gap-1.5 overflow-hidden whitespace-nowrap pointer-events-auto">
+          {visibleCompanies.map((company, index) => (
+            <span key={company} className="inline-flex items-center">
+              {index > 0 ? (
+                <span className="mr-1.5 text-xs text-muted-foreground">·</span>
+              ) : null}
+              <CompanyTagLink company={company} />
+            </span>
+          ))}
           {overflowCount > 0 && (
-            <span className="pointer-events-none w-5 shrink-0 text-center text-xs text-muted-foreground tabular-nums">
+            <span className="pointer-events-none text-xs text-muted-foreground tabular-nums">
               +{overflowCount}
             </span>
           )}
         </div>
-
-        <div aria-hidden="true" />
 
         <div className="relative z-10 flex min-h-6 items-center justify-end pointer-events-auto">
           {hasExternalLinks ? (
@@ -145,9 +103,9 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
         {(visibleCompanies.length > 0 || hasExternalLinks) && (
           <div className="flex flex-1 flex-col">
             {visibleCompanies.length > 0 && (
-              <div className="mt-(--spacing-solution-title-meta) pointer-events-auto flex items-center gap-1">
+              <div className="mt-(--spacing-solution-title-meta) pointer-events-auto flex flex-wrap items-center gap-x-2 gap-y-1">
                 {visibleCompanies.map((company) => (
-                  <SolutionCompanyIconLink key={company} company={company} />
+                  <CompanyTagLink key={company} company={company} />
                 ))}
                 {overflowCount > 0 && (
                   <span className="pointer-events-none text-xs text-muted-foreground tabular-nums">

@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import { CompanyIcon } from "@/components/company-icon"
 import { SolutionView } from "@/components/solution-view-list"
 import {
   SolutionViewProvider,
@@ -74,8 +73,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
 
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h1 className="flex items-center gap-3 text-3xl font-semibold tracking-tight">
-                  <CompanyIcon company={company} className="size-8" size={32} />
+                <h1 className="text-3xl font-semibold tracking-tight">
                   {company}
                 </h1>
                 <p className="mt-2 text-muted-foreground">

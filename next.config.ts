@@ -5,16 +5,6 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 })
 
-const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "api.companyenrich.com",
-        pathname: "/logo/**",
-      },
-    ],
-  },
-}
+const nextConfig: NextConfig = {}
 
 export default withBundleAnalyzer(nextConfig)

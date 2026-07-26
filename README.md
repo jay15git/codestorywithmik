@@ -21,8 +21,6 @@ pnpm dev
 
 `sync-content` reads from `content/upstream` if the submodule is initialized, otherwise clones into `.cache/upstream`.
 
-Company logos load lazily from the [CompanyEnrich Logo API](https://companyenrich.com/free-tools/logo-api) using domains in `lib/company-icons/domains.ts`.
-
 ### Optional: git submodule
 
 ```bash
