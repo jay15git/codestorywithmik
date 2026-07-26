@@ -197,6 +197,21 @@ function ensureUniqueSlugs(solutions: SolutionMeta[]): SolutionMeta[] {
   })
 }
 
+function buildCompanyList(solutions: SolutionMeta[]): string[] {
+  const bySlug = new Map<string, string>()
+
+  for (const solution of solutions) {
+    for (const company of solution.companyTags) {
+      const companySlug = slugify(company)
+      if (!bySlug.has(companySlug)) {
+        bySlug.set(companySlug, company)
+      }
+    }
+  }
+
+  return [...bySlug.values()].sort((a, b) => a.localeCompare(b))
+}
+
 function main() {
   const sourceDir = resolveSourceDir()
   const upstreamSha = getUpstreamSha(sourceDir)
@@ -238,9 +253,7 @@ function main() {
     cpSync(absolutePath, path.join(solutionsDir, `${solution.slug}.cpp`))
   }
 
-  const companies = [
-    ...new Set(solutions.flatMap((solution) => solution.companyTags)),
-  ].sort((a, b) => a.localeCompare(b))
+  const companies = buildCompanyList(solutions)
 
   const index: ContentIndex = {
     upstreamSha,

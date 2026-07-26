@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { BadgeLink } from "@/components/button-link"
+import { CompanyIcon } from "@/components/company-icon"
 import {
   Card,
   CardContent,
@@ -16,8 +17,10 @@ interface SolutionCardProps {
 }
 
 export function SolutionCard({ solution }: SolutionCardProps) {
+  const companyTags = [...new Set(solution.companyTags)]
+
   return (
-    <Card className="transition-colors hover:bg-muted/30">
+    <Card className="bg-card">
       <CardHeader className="gap-2">
         <CardTitle className="text-base">
           <Link
@@ -32,19 +35,20 @@ export function SolutionCard({ solution }: SolutionCardProps) {
           {solution.topic}
         </CardDescription>
       </CardHeader>
-      {solution.companyTags.length > 0 && (
+      {companyTags.length > 0 && (
         <CardContent className="flex flex-wrap gap-1.5">
-          {solution.companyTags.slice(0, 4).map((company) => (
+          {companyTags.slice(0, 4).map((company) => (
             <BadgeLink
               key={company}
               href={`/companies/${companySlug(company)}`}
             >
+              <CompanyIcon company={company} />
               {company}
             </BadgeLink>
           ))}
-          {solution.companyTags.length > 4 && (
-            <span className="inline-flex h-5 items-center rounded-4xl border border-border px-2 text-xs text-muted-foreground">
-              +{solution.companyTags.length - 4}
+          {companyTags.length > 4 && (
+            <span className="text-xs text-muted-foreground">
+              +{companyTags.length - 4}
             </span>
           )}
         </CardContent>

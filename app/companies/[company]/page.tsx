@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { AppShell } from "@/components/app-shell"
+import { CompanyIcon } from "@/components/company-icon"
 import { SolutionCard } from "@/components/solution-card"
 import {
   Breadcrumb,
@@ -69,7 +70,10 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
           </Breadcrumb>
 
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">{company}</h1>
+            <h1 className="flex items-center gap-3 text-3xl font-semibold tracking-tight">
+              <CompanyIcon company={company} className="size-8" size={32} />
+              {company}
+            </h1>
             <p className="mt-2 text-muted-foreground">
               {solutions.length} solutions tagged with this company
             </p>

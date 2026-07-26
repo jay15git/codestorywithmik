@@ -1,4 +1,5 @@
 import type { SolutionCode } from "./types"
+import { normalizeCompanyTags } from "./normalize-company-tags"
 import { PROBLEM_LINK_FALLBACKS } from "./problem-link-fallbacks"
 
 const YOUTUBE_PATTERNS = [
@@ -143,10 +144,12 @@ export function parseCompanyTags(content: string): string[] {
     return []
   }
 
-  return match[1]
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter(Boolean)
+  return normalizeCompanyTags(
+    match[1]
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean),
+  )
 }
 
 export function parseTimeComplexity(content: string): string | null {
