@@ -8,8 +8,8 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
+  sidebarMenuButtonVariants,
 } from "@/components/ui/sidebar"
 import type { Topic } from "@/lib/content/types"
 import { cn } from "@/lib/utils"
@@ -32,10 +32,14 @@ export function TopicSidebar({ topics }: TopicSidebarProps) {
 
             return (
               <SidebarMenuItem key={topic.slug}>
-                <SidebarMenuButton
-                  render={<Link href={href} />}
-                  isActive={isActive}
-                  className="justify-between"
+                <Link
+                  href={href}
+                  data-active={isActive}
+                  className={cn(
+                    sidebarMenuButtonVariants(),
+                    "justify-between",
+                    isActive && "bg-sidebar-accent text-sidebar-accent-foreground",
+                  )}
                 >
                   <span className="truncate">{topic.name}</span>
                   <span
@@ -48,7 +52,7 @@ export function TopicSidebar({ topics }: TopicSidebarProps) {
                   >
                     {topic.solutionCount}
                   </span>
-                </SidebarMenuButton>
+                </Link>
               </SidebarMenuItem>
             )
           })}

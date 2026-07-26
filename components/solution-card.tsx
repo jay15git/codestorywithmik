@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { Badge } from "@/components/ui/badge"
+import { BadgeLink } from "@/components/button-link"
 import {
   Card,
   CardContent,
@@ -35,12 +35,17 @@ export function SolutionCard({ solution }: SolutionCardProps) {
       {solution.companyTags.length > 0 && (
         <CardContent className="flex flex-wrap gap-1.5">
           {solution.companyTags.slice(0, 4).map((company) => (
-            <Badge key={company} variant="secondary" render={<Link href={`/companies/${companySlug(company)}`} />}>
+            <BadgeLink
+              key={company}
+              href={`/companies/${companySlug(company)}`}
+            >
               {company}
-            </Badge>
+            </BadgeLink>
           ))}
           {solution.companyTags.length > 4 && (
-            <Badge variant="outline">+{solution.companyTags.length - 4}</Badge>
+            <span className="inline-flex h-5 items-center rounded-4xl border border-border px-2 text-xs text-muted-foreground">
+              +{solution.companyTags.length - 4}
+            </span>
           )}
         </CardContent>
       )}

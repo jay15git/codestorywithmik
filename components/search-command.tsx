@@ -2,7 +2,7 @@
 
 import Fuse from "fuse.js"
 import { SearchIcon } from "lucide-react"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 import * as React from "react"
 
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,7 @@ interface SearchCommandProps {
 }
 
 export function SearchCommand({ documents }: SearchCommandProps) {
+  const router = useRouter()
   const [open, setOpen] = React.useState(false)
   const [query, setQuery] = React.useState("")
 
@@ -99,18 +100,16 @@ export function SearchCommand({ documents }: SearchCommandProps) {
                 onSelect={() => {
                   setOpen(false)
                   setQuery("")
+                  router.push(`/solutions/${item.slug}`)
                 }}
               >
-                <Link
-                  href={`/solutions/${item.slug}`}
-                  className="flex w-full flex-col gap-0.5"
-                >
+                <div className="flex w-full flex-col gap-0.5">
                   <span className="font-medium">{item.title}</span>
                   <span className="text-xs text-muted-foreground">
                     {item.topic}
                     {item.subtopic ? ` · ${item.subtopic}` : ""}
                   </span>
-                </Link>
+                </div>
               </CommandItem>
             ))}
           </CommandGroup>

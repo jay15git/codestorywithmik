@@ -1,11 +1,10 @@
-import Link from "next/link"
 import { ExternalLinkIcon, CodeIcon, MenuIcon, VideoIcon } from "lucide-react"
+import Link from "next/link"
 
+import { ButtonLink } from "@/components/button-link"
 import { SearchCommand } from "@/components/search-command"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { TopicSidebar } from "@/components/topic-sidebar"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import {
   Sidebar,
   SidebarContent,
@@ -32,6 +31,13 @@ export function AppShell({ children }: AppShellProps) {
   const documents = getSearchDocuments()
   const index = getContentIndex()
 
+  const syncedDate = new Date(index.syncedAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  })
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -50,7 +56,7 @@ export function AppShell({ children }: AppShellProps) {
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border p-4 text-xs text-muted-foreground">
           <p>{index.solutionCount} solutions</p>
-          <p className="mt-1">Synced {new Date(index.syncedAt).toLocaleDateString()}</p>
+          <p className="mt-1">Synced {syncedDate}</p>
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
@@ -66,22 +72,22 @@ export function AppShell({ children }: AppShellProps) {
           </div>
 
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" render={<a href={YOUTUBE_CHANNEL_URL} target="_blank" rel="noreferrer" />}>
-              <VideoIcon />
-            </Button>
-            <Button
+            <ButtonLink
               variant="ghost"
               size="icon"
-              render={
-                <a
-                  href={`https://github.com/${CONTENT_REPO_SLUG}`}
-                  target="_blank"
-                  rel="noreferrer"
-                />
-              }
+              href={YOUTUBE_CHANNEL_URL}
+              external
+            >
+              <VideoIcon />
+            </ButtonLink>
+            <ButtonLink
+              variant="ghost"
+              size="icon"
+              href={`https://github.com/${CONTENT_REPO_SLUG}`}
+              external
             >
               <CodeIcon />
-            </Button>
+            </ButtonLink>
             <ThemeToggle />
           </div>
         </header>

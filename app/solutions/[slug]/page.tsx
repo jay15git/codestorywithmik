@@ -4,8 +4,8 @@ import { notFound } from "next/navigation"
 import { ExternalLinkIcon, CodeIcon, VideoIcon } from "lucide-react"
 
 import { AppShell } from "@/components/app-shell"
+import { BadgeLink, ButtonLink } from "@/components/button-link"
 import { CodeBlock } from "@/components/code-block"
-import { Badge } from "@/components/ui/badge"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,7 +14,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { companySlug } from "@/lib/content/slug"
 import { getSolution, getSolutions } from "@/lib/content/get-content"
@@ -100,13 +99,12 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
 
             <div className="flex flex-wrap gap-2">
               {solution.companyTags.map((company) => (
-                <Badge
+                <BadgeLink
                   key={company}
-                  variant="secondary"
-                  render={<Link href={`/companies/${companySlug(company)}`} />}
+                  href={`/companies/${companySlug(company)}`}
                 >
                   {company}
-                </Badge>
+                </BadgeLink>
               ))}
             </div>
 
@@ -125,39 +123,36 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
 
             <div className="flex flex-wrap gap-2">
               {solution.leetcodeUrl && (
-                <Button
+                <ButtonLink
                   variant="outline"
                   size="sm"
-                  render={
-                    <a href={solution.leetcodeUrl} target="_blank" rel="noreferrer" />
-                  }
+                  href={solution.leetcodeUrl}
+                  external
                 >
                   LeetCode
                   <ExternalLinkIcon />
-                </Button>
+                </ButtonLink>
               )}
               {solution.youtubeUrl && (
-                <Button
+                <ButtonLink
                   variant="outline"
                   size="sm"
-                  render={
-                    <a href={solution.youtubeUrl} target="_blank" rel="noreferrer" />
-                  }
+                  href={solution.youtubeUrl}
+                  external
                 >
                   <VideoIcon />
                   Watch explanation
-                </Button>
+                </ButtonLink>
               )}
-              <Button
+              <ButtonLink
                 variant="outline"
                 size="sm"
-                render={
-                  <a href={solution.githubUrl} target="_blank" rel="noreferrer" />
-                }
+                href={solution.githubUrl}
+                external
               >
                 <CodeIcon />
                 View on GitHub
-              </Button>
+              </ButtonLink>
             </div>
           </div>
         </div>
