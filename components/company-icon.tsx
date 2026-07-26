@@ -41,11 +41,7 @@ export function CompanyIcon({
       height={size}
       loading="lazy"
       decoding="async"
-      className={cn(
-        "shrink-0 object-contain",
-        domain === "x.com" && "dark:invert",
-        className,
-      )}
+      className={cn("shrink-0 object-contain", className)}
     />
   )
 }

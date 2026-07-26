@@ -13,6 +13,10 @@ export const CONTENT_CACHE_PATH = ".cache/upstream"
 
 export const GENERATED_INDEX_PATH = "generated/content-index.json"
 
+export const GENERATED_SEARCH_INDEX_PATH = "generated/search-index.json"
+
+export const PUBLIC_SEARCH_INDEX_PATH = "public/search-index.json"
+
 export const GENERATED_SOLUTIONS_PATH = "generated/solutions"
 
 export const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/c/codestorywithMIK"

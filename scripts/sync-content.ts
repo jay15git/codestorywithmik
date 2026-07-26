@@ -18,8 +18,10 @@ import {
   CONTENT_REPO_SLUG,
   CONTENT_SUBMODULE_PATH,
   GENERATED_INDEX_PATH,
+  GENERATED_SEARCH_INDEX_PATH,
   GENERATED_SOLUTIONS_PATH,
   ORIGINAL_REPO_SLUG,
+  PUBLIC_SEARCH_INDEX_PATH,
 } from "../lib/content/constants"
 import {
   getProblemDifficultyMap,
@@ -37,6 +39,7 @@ import {
   resolveProblemLinks,
 } from "../lib/content/parse-solution"
 import { slugify, slugifyParts, topicSlugFromName } from "../lib/content/slug"
+import { buildSearchIndex } from "../lib/content/search-index"
 import type { ContentIndex, SolutionMeta, Subtopic, Topic } from "../lib/content/types"
 
 const TOP_LEVEL_SKIP = new Set([
@@ -294,6 +297,7 @@ async function run() {
   }
 
   const companies = buildCompanyList(solutions)
+  const topics = buildTopics(solutions)
 
   const index: ContentIndex = {
     upstreamSha,
@@ -303,13 +307,23 @@ async function run() {
     solutionCount: solutions.length,
     topicCount: new Set(solutions.map((solution) => solution.topicSlug)).size,
     companyCount: companies.length,
-    topics: buildTopics(solutions),
+    topics,
     solutions: solutions.sort((a, b) => a.title.localeCompare(b.title)),
     companies,
   }
 
+  const searchIndex = buildSearchIndex(index.solutions, index.topics)
+  const searchIndexPath = path.join(process.cwd(), GENERATED_SEARCH_INDEX_PATH)
+  const publicSearchIndexPath = path.join(process.cwd(), PUBLIC_SEARCH_INDEX_PATH)
+
+  mkdirSync(path.dirname(publicSearchIndexPath), { recursive: true })
+
   writeFileSync(indexPath, JSON.stringify(index, null, 2))
+  writeFileSync(searchIndexPath, JSON.stringify(searchIndex))
+  writeFileSync(publicSearchIndexPath, JSON.stringify(searchIndex))
+
   console.log(`Wrote ${index.solutionCount} solutions to ${indexPath}`)
+  console.log(`Wrote search index to ${searchIndexPath}`)
 }
 
 main()

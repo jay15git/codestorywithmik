@@ -10,11 +10,11 @@ const YOUTUBE_PATTERNS = [
 
 const COMPANY_PATTERN = /Company\s+Tags?\s*:\s*([^\n*]+)/i
 
-const TIME_COMPLEXITY_PATTERN = /T\.C\s*:\s*([^\n*/]+)/i
-const SPACE_COMPLEXITY_PATTERN = /S\.C\s*:\s*([^\n*/]+)/i
+const TIME_COMPLEXITY_PATTERN = /T\.C\s*:\s*([^\n]+)/i
+const SPACE_COMPLEXITY_PATTERN = /S\.C\s*:\s*([^\n]+)/i
 
-const JAVA_SPLIT_PATTERN =
-  /\/\*{5,}\s*JAVA\s*\*{5,}\s*\*\/|\/\*{5,}\s*JAVA\s*\*{5,}/i
+const LANGUAGE_MARKER_PATTERN =
+  /(?:\/\*{5,}\s*(C\+\+|JAVA)\s*\*{5,}\s*\*\/|^\s*\*{5,}\s*(C\+\+|JAVA)\s*\*{5,}\s*\/?\s*$)/gim
 
 const HEADER_SCAN_LENGTH = 4000
 
@@ -154,47 +154,72 @@ export function parseCompanyTags(content: string): string[] {
 
 export function parseTimeComplexity(content: string): string | null {
   const match = content.match(TIME_COMPLEXITY_PATTERN)
-  return match?.[1]?.trim() ?? null
+  return cleanComplexityValue(match?.[1])
 }
 
 export function parseSpaceComplexity(content: string): string | null {
   const match = content.match(SPACE_COMPLEXITY_PATTERN)
-  return match?.[1]?.trim() ?? null
+  return cleanComplexityValue(match?.[1])
 }
 
 export function splitCodeBlocks(content: string): SolutionCode {
-  const parts = content.split(JAVA_SPLIT_PATTERN)
-  const cppBlock = parts[0]?.trim() ?? null
-  const javaBlock = parts[1]?.trim() ?? null
+  const markers = findLanguageMarkers(content)
 
-  const cpp = extractLanguageBlock(cppBlock, "C++")
-  const java = extractLanguageBlock(javaBlock, "JAVA") ?? javaBlock
+  if (markers.length === 0) {
+    const trimmed = content.trim()
+    return {
+      cpp: trimmed || null,
+      java: null,
+    }
+  }
+
+  const blocks: { cpp: string[]; java: string[] } = { cpp: [], java: [] }
+
+  for (let index = 0; index < markers.length; index += 1) {
+    const marker = markers[index]
+    const nextMarker = markers[index + 1]
+    const start = marker.index + marker.length
+    const end = nextMarker?.index ?? content.length
+    const block = content.slice(start, end).trim()
+
+    if (block) {
+      blocks[marker.lang].push(block)
+    }
+  }
+
+  const joinBlocks = (parts: string[]) => (parts.length > 0 ? parts.join("\n\n") : null)
 
   return {
-    cpp: cpp || cppBlock,
-    java: java || null,
+    cpp: joinBlocks(blocks.cpp),
+    java: joinBlocks(blocks.java),
   }
 }
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+type SolutionLanguage = "cpp" | "java"
+
+interface LanguageMarker {
+  lang: SolutionLanguage
+  index: number
+  length: number
 }
 
-function extractLanguageBlock(
-  block: string | null | undefined,
-  label: string,
-): string | null {
-  if (!block) {
-    return null
+function findLanguageMarkers(content: string): LanguageMarker[] {
+  const markers: LanguageMarker[] = []
+
+  for (const match of content.matchAll(LANGUAGE_MARKER_PATTERN)) {
+    const label = match[1] ?? match[2]
+    if (!label || match.index === undefined) {
+      continue
+    }
+
+    markers.push({
+      lang: label.toUpperCase() === "JAVA" ? "java" : "cpp",
+      index: match.index,
+      length: match[0].length,
+    })
   }
 
-  const escapedLabel = escapeRegExp(label)
-  const pattern = new RegExp(
-    `/\\*{5,}\\s*${escapedLabel}\\s*\\*{5,}\\s*\\*/([\\s\\S]*?)(?=/\\*{5,}|$)`,
-    "i",
-  )
-  const match = block.match(pattern)
-  return match?.[1]?.trim() ?? null
+  return markers.sort((left, right) => left.index - right.index)
 }
 
 export function leetcodeSlugFromUrl(url: string | null): string | null {
@@ -231,6 +256,15 @@ function leetcodeUrlFromTitle(title: string): string | null {
 function isInvalidLinkValue(value: string): boolean {
   const normalized = value.trim().toLowerCase()
   return INVALID_LINK_VALUES.has(normalized) || normalized.length === 0
+}
+
+function cleanComplexityValue(value: string | undefined): string | null {
+  if (!value) {
+    return null
+  }
+
+  const cleaned = value.replace(/\*+\/?$/, "").trim()
+  return cleaned || null
 }
 
 function cleanUrl(url: string): string {

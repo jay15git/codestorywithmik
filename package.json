@@ -9,6 +9,7 @@
     "prebuild": "pnpm run sync-content",
     "build": "next build",
     "start": "next start",
+    "test": "tsx --test lib/content/**/*.test.ts",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit"
@@ -18,7 +19,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "fuse.js": "^7.5.0",
     "lucide-react": "^1.26.0",
     "motion": "^12.42.2",
     "next": "16.2.6",

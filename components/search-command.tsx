@@ -1,6 +1,5 @@
 "use client"
 
-import Fuse from "fuse.js"
 import { SearchIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import * as React from "react"
@@ -14,34 +13,92 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
-import type { SearchDocument } from "@/lib/content/types"
+import { searchIndex } from "@/lib/content/search-index"
+import type { SearchIndex } from "@/lib/content/types"
+import { cn } from "@/lib/utils"
 
-interface SearchCommandProps {
-  documents: SearchDocument[]
+let cachedIndex: SearchIndex | null = null
+let fetchPromise: Promise<SearchIndex> | null = null
+
+async function loadSearchIndex(): Promise<SearchIndex> {
+  if (cachedIndex) {
+    return cachedIndex
+  }
+
+  if (!fetchPromise) {
+    fetchPromise = fetch("/search-index.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load search index")
+        }
+        return response.json() as Promise<SearchIndex>
+      })
+      .then((index) => {
+        cachedIndex = index
+        return index
+      })
+  }
+
+  return fetchPromise
 }
 
-export function SearchCommand({ documents }: SearchCommandProps) {
+const DIFFICULTY_STYLES = {
+  Easy: "text-emerald-600 dark:text-emerald-400",
+  Medium: "text-amber-600 dark:text-amber-400",
+  Hard: "text-red-600 dark:text-red-400",
+} as const
+
+export function SearchCommand() {
   const router = useRouter()
   const [open, setOpen] = React.useState(false)
   const [query, setQuery] = React.useState("")
+  const [index, setIndex] = React.useState<SearchIndex | null>(cachedIndex)
+  const [loading, setLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
 
-  const fuse = React.useMemo(
-    () =>
-      new Fuse(documents, {
-        keys: ["title", "topic", "subtopic", "companies", "leetcodeSlug", "difficulty"],
-        threshold: 0.35,
-        ignoreLocation: true,
-      }),
-    [documents],
-  )
-
-  const results = React.useMemo(() => {
-    if (!query.trim()) {
-      return documents.slice(0, 12)
+  React.useEffect(() => {
+    if (!open || index) {
+      return
     }
 
-    return fuse.search(query, { limit: 20 }).map((result) => result.item)
-  }, [documents, fuse, query])
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+
+    loadSearchIndex()
+      .then((loaded) => {
+        if (!cancelled) {
+          setIndex(loaded)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError("Search unavailable. Run sync-content and refresh.")
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [open, index])
+
+  const results = React.useMemo(() => {
+    if (!index) {
+      return { companies: [], topics: [], problems: [] }
+    }
+
+    return searchIndex(index, query)
+  }, [index, query])
+
+  const hasResults =
+    results.companies.length > 0 ||
+    results.topics.length > 0 ||
+    results.problems.length > 0
 
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -54,6 +111,12 @@ export function SearchCommand({ documents }: SearchCommandProps) {
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [])
+
+  function navigate(href: string) {
+    setOpen(false)
+    setQuery("")
+    router.push(href)
+  }
 
   return (
     <>
@@ -81,37 +144,105 @@ export function SearchCommand({ documents }: SearchCommandProps) {
 
       <CommandDialog
         open={open}
-        onOpenChange={setOpen}
-        value={query}
-        onValueChange={setQuery}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen)
+          if (!nextOpen) {
+            setQuery("")
+          }
+        }}
         shouldFilter={false}
         title="Search solutions"
-        description="Find problems by name, topic, or company"
+        description="Find problems, companies, and topics"
       >
-        <CommandInput placeholder="Search problems, companies, topics…" />
+        <CommandInput
+          value={query}
+          onValueChange={setQuery}
+          placeholder="Search problems, companies, topics…"
+        />
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Solutions">
-            {results.map((item) => (
-              <CommandItem
-                key={item.slug}
-                value={`${item.title} ${item.topic} ${item.companies}`}
-                onSelect={() => {
-                  setOpen(false)
-                  setQuery("")
-                  router.push(`/solutions/${item.slug}`)
-                }}
-              >
-                <div className="flex w-full flex-col gap-0.5">
-                  <span className="font-medium">{item.title}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {item.topic}
-                    {item.subtopic ? ` · ${item.subtopic}` : ""}
-                  </span>
-                </div>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {loading ? (
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              Loading search…
+            </div>
+          ) : error ? (
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              {error}
+            </div>
+          ) : (
+            <>
+              {!hasResults && <CommandEmpty>No results found.</CommandEmpty>}
+
+              {results.companies.length > 0 && (
+                <CommandGroup heading="Companies">
+                  {results.companies.map((company) => (
+                    <CommandItem
+                      key={company.slug}
+                      value={`company-${company.slug}`}
+                      onSelect={() => navigate(`/companies/${company.slug}`)}
+                    >
+                      <div className="flex w-full items-center justify-between gap-2">
+                        <span className="font-medium">{company.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {company.count} solutions
+                        </span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+
+              {results.topics.length > 0 && (
+                <CommandGroup heading="Topics">
+                  {results.topics.map((topic) => (
+                    <CommandItem
+                      key={topic.slug}
+                      value={`topic-${topic.slug}`}
+                      onSelect={() => navigate(`/topics/${topic.slug}`)}
+                    >
+                      <div className="flex w-full items-center justify-between gap-2">
+                        <span className="font-medium">{topic.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {topic.count} solutions
+                        </span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+
+              {results.problems.length > 0 && (
+                <CommandGroup heading="Problems">
+                  {results.problems.map((problem) => (
+                    <CommandItem
+                      key={problem.slug}
+                      value={`problem-${problem.slug}`}
+                      onSelect={() => navigate(`/solutions/${problem.slug}`)}
+                    >
+                      <div className="flex w-full items-start justify-between gap-3">
+                        <div className="flex min-w-0 flex-col gap-0.5">
+                          <span className="font-medium">{problem.title}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {problem.topic}
+                            {problem.subtopic ? ` · ${problem.subtopic}` : ""}
+                          </span>
+                        </div>
+                        {problem.difficulty && (
+                          <span
+                            className={cn(
+                              "shrink-0 text-xs font-medium",
+                              DIFFICULTY_STYLES[problem.difficulty],
+                            )}
+                          >
+                            {problem.difficulty}
+                          </span>
+                        )}
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+            </>
+          )}
         </CommandList>
       </CommandDialog>
     </>

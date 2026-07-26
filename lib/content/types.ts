@@ -54,12 +54,31 @@ export interface ContentIndex {
   companies: string[]
 }
 
-export interface SearchDocument {
+export interface ProblemSearchItem {
   slug: string
   title: string
   topic: string
   subtopic: string | null
-  companies: string
-  leetcodeSlug: string | null
-  difficulty: string | null
+  difficulty: Difficulty | null
+  haystack: string
+}
+
+export interface CompanySearchItem {
+  name: string
+  slug: string
+  count: number
+  haystack: string
+}
+
+export interface TopicSearchItem {
+  name: string
+  slug: string
+  count: number
+  haystack: string
+}
+
+export interface SearchIndex {
+  problems: ProblemSearchItem[]
+  companies: CompanySearchItem[]
+  topics: TopicSearchItem[]
 }

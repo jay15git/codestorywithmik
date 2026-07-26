@@ -146,21 +146,6 @@ export function getCompanies(): string[] {
   return getContentIndex().companies
 }
 
-export function getSearchDocuments() {
-  return getSolutions().map((solution) => ({
-    slug: solution.slug,
-    title: solution.title,
-    topic: solution.topic,
-    subtopic: solution.subtopic,
-    companies: solution.companyTags.join(" "),
-    leetcodeSlug: solution.leetcodeUrl
-      ? solution.leetcodeUrl.match(/leetcode\.com\/problems\/([^/?#]+)/i)?.[1] ??
-        null
-      : null,
-    difficulty: solution.difficulty,
-  }))
-}
-
 export function buildGithubUrl(relativePath: string): string {
   const index = getContentIndex()
   return `https://github.com/${CONTENT_REPO_SLUG}/blob/${index.upstreamSha}/${relativePath}`

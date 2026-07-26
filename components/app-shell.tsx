@@ -1,10 +1,10 @@
-import { ExternalLinkIcon, CodeIcon, MenuIcon } from "lucide-react"
+import { CodeIcon, MenuIcon } from "lucide-react"
 
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
 import Link from "next/link"
 
 import { ButtonLink } from "@/components/button-link"
-import { SearchCommand } from "@/components/search-command"
+import { SearchLazy } from "@/components/search-lazy"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { TopicSidebar } from "@/components/topic-sidebar"
 import {
@@ -18,10 +18,9 @@ import {
 } from "@/components/ui/sidebar"
 import {
   CONTENT_REPO_SLUG,
-  ORIGINAL_REPO_SLUG,
   YOUTUBE_CHANNEL_URL,
 } from "@/lib/content/constants"
-import { getSearchDocuments, getTopics } from "@/lib/content/get-content"
+import { getTopics } from "@/lib/content/get-content"
 
 interface AppShellProps {
   children: React.ReactNode
@@ -29,7 +28,6 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const topics = getTopics()
-  const documents = getSearchDocuments()
 
   return (
     <SidebarProvider>
@@ -59,7 +57,7 @@ export function AppShell({ children }: AppShellProps) {
           </SidebarTrigger>
 
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <SearchCommand documents={documents} />
+            <SearchLazy />
           </div>
 
           <div className="flex items-center gap-1">
@@ -86,42 +84,6 @@ export function AppShell({ children }: AppShellProps) {
         <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-4 py-8 md:px-8">
           {children}
         </main>
-
-        <footer className="px-4 py-6 text-sm text-muted-foreground md:px-8">
-          <div className="mx-auto flex max-w-6xl flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <p>
-              Content from{" "}
-              <a
-                className="underline-offset-4 hover:underline"
-                href={`https://github.com/${ORIGINAL_REPO_SLUG}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {ORIGINAL_REPO_SLUG}
-              </a>{" "}
-              (MIT). Maintained via{" "}
-              <a
-                className="underline-offset-4 hover:underline"
-                href={`https://github.com/${CONTENT_REPO_SLUG}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                fork
-              </a>
-              .
-            </p>
-            <a
-              href={YOUTUBE_CHANNEL_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 hover:text-foreground"
-            >
-              <LogosYoutubeIcon className="size-4" aria-hidden="true" />
-              Watch on YouTube
-              <ExternalLinkIcon className="size-3.5" />
-            </a>
-          </div>
-        </footer>
       </SidebarInset>
     </SidebarProvider>
   )
