@@ -3,6 +3,7 @@ import Link from "next/link"
 import { CompanyTagLink } from "@/components/company-tag-link"
 import { DifficultyBadge } from "@/components/difficulty-badge"
 import { SolutionExternalLinks } from "@/components/solution-external-links"
+import { TitleUnderline } from "@/components/title-underline"
 import { sortCompanyTags } from "@/lib/content/sort-company-tags"
 import type { SolutionMeta } from "@/lib/content/types"
 import { cn } from "@/lib/utils"
@@ -16,9 +17,6 @@ const MAX_GRID_COMPANIES = 3
 const MAX_LIST_COMPANIES = 3
 const LIST_ROW_GRID =
   "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_16rem_3.5rem] items-center gap-x-3"
-
-const titleUnderlineClassName =
-  "relative inline-block after:absolute after:bottom-0 after:left-1/2 after:h-[0.1em] after:w-0 after:-translate-x-1/2 after:bg-current after:transition-[width] after:duration-200 after:ease-out group-hover/row:after:w-full group-focus-within/row:after:w-full"
 
 export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
   const companyTags = sortCompanyTags([...new Set(solution.companyTags)])
@@ -44,7 +42,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
 
         <div className="relative z-10 flex min-h-6 min-w-0 items-center pointer-events-none">
           <span className="text-sm font-medium leading-snug">
-            <span className={titleUnderlineClassName}>{solution.title}</span>
+            <TitleUnderline>{solution.title}</TitleUnderline>
           </span>
         </div>
 
@@ -92,7 +90,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
       <div className="pointer-events-none relative z-10 flex min-w-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 text-base font-medium leading-snug text-balance md:text-lg">
-            <span className={titleUnderlineClassName}>{solution.title}</span>
+            <TitleUnderline>{solution.title}</TitleUnderline>
           </div>
           <DifficultyBadge
             difficulty={solution.difficulty}

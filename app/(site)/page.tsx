@@ -1,13 +1,9 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 
-import { SolutionView } from "@/components/solution-view-list"
-import {
-  SolutionViewProvider,
-  SolutionViewToggle,
-} from "@/components/solution-view"
+import { TitleUnderline } from "@/components/title-underline"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getContentIndex, getTopics } from "@/lib/content/get-content"
-import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "codestorywithMIK — Interview DS & Algo Solutions",
@@ -74,12 +70,18 @@ export default function HomePage() {
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {topics.map((topic) => (
-              <Card key={topic.slug} className="bg-card">
-                <CardHeader>
+              <Card
+                key={topic.slug}
+                className="group/row relative cursor-pointer bg-card"
+              >
+                <Link
+                  href={`/topics/${topic.slug}`}
+                  className="absolute inset-0 z-0 rounded-xl"
+                  aria-label={topic.name}
+                />
+                <CardHeader className="relative z-10 pointer-events-none">
                   <CardTitle className="text-base">
-                    <Link href={`/topics/${topic.slug}`} className="hover:underline">
-                      {topic.name}
-                    </Link>
+                    <TitleUnderline>{topic.name}</TitleUnderline>
                   </CardTitle>
                   <CardDescription>
                     {topic.solutionCount} solutions
@@ -92,16 +94,6 @@ export default function HomePage() {
             ))}
           </div>
         </section>
-
-        <SolutionViewProvider>
-          <section className="space-y-4">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-xl font-semibold">Recently added</h2>
-              <SolutionViewToggle />
-            </div>
-            <SolutionView solutions={index.solutions.slice(0, 6)} />
-          </section>
-        </SolutionViewProvider>
     </div>
   )
 }
