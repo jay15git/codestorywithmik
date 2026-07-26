@@ -34,60 +34,28 @@ function sortCompaniesForDisplay(companies: string[]): string[] {
 }
 
 function SolutionCompanyIconLink({ company }: { company: string }) {
-  const [hovered, setHovered] = useState(false)
-
   return (
     <Link
       href={`/companies/${companySlug(company)}`}
-      className="inline-flex size-6 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+      className="relative z-10 inline-flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       aria-label={company}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
-      <CenterUnderline as="span" className="inline-flex" active={hovered}>
-        {hasCompanyIcon(company) ? (
-          <CompanyIcon company={company} size={16} className="size-4" />
-        ) : (
-          <span
-            aria-hidden="true"
-            className="flex size-4 items-center justify-center rounded-sm bg-muted text-[9px] font-semibold uppercase text-muted-foreground"
-          >
-            {company.charAt(0)}
-          </span>
-        )}
-      </CenterUnderline>
-    </Link>
-  )
-}
-
-function SolutionCompanyLink({ company }: { company: string }) {
-  const [hovered, setHovered] = useState(false)
-
-  return (
-    <Link
-      href={`/companies/${companySlug(company)}`}
-      className="relative z-10 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <CenterUnderline
-        as="span"
-        className="inline-flex items-center gap-2 font-medium"
-        active={hovered}
-      >
-        {hasCompanyIcon(company) && (
-          <CompanyIcon company={company} size={16} className="size-4" />
-        )}
-        {company}
-      </CenterUnderline>
+      {hasCompanyIcon(company) ? (
+        <CompanyIcon company={company} size={16} className="size-4" />
+      ) : (
+        <span
+          aria-hidden="true"
+          className="flex size-4 items-center justify-center text-[9px] font-semibold uppercase"
+        >
+          {company.charAt(0)}
+        </span>
+      )}
     </Link>
   )
 }
 
 export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
   const [cardHovered, setCardHovered] = useState(false)
-  const [metaHovered, setMetaHovered] = useState(false)
-  const titleUnderlineActive = cardHovered && !metaHovered
   const companyTags = sortCompaniesForDisplay([...new Set(solution.companyTags)])
   const hasExternalLinks =
     solution.youtubeUrl || solution.leetcodeUrl || solution.gfgUrl
@@ -101,10 +69,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
       <div
         className={`relative px-3 py-2.5 ${LIST_ROW_GRID}`}
         onMouseEnter={() => setCardHovered(true)}
-        onMouseLeave={() => {
-          setCardHovered(false)
-          setMetaHovered(false)
-        }}
+        onMouseLeave={() => setCardHovered(false)}
       >
         <Link
           href={solutionHref}
@@ -112,24 +77,20 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           aria-label={solution.title}
         />
 
-        <div className="relative z-10 flex min-h-6 items-center">
+        <div className="relative z-10 flex min-h-6 items-center pointer-events-none">
           <DifficultyBadge difficulty={solution.difficulty} />
         </div>
 
         <div className="relative z-10 flex min-h-6 min-w-0 items-center pointer-events-none">
           <span className="text-sm font-medium leading-snug">
-            <CenterUnderline active={titleUnderlineActive}>
+            <CenterUnderline active={cardHovered}>
               {solution.title}
             </CenterUnderline>
           </span>
         </div>
 
-        <div
-          className="relative z-10 flex min-h-6 items-center justify-center gap-1"
-          onMouseEnter={() => setMetaHovered(true)}
-          onMouseLeave={() => setMetaHovered(false)}
-        >
-          <div className="grid grid-cols-4 gap-1">
+        <div className="relative z-10 flex min-h-6 items-center justify-center gap-1 pointer-events-none">
+          <div className="grid grid-cols-4 gap-1 pointer-events-auto">
             {Array.from({ length: MAX_LIST_COMPANIES }, (_, index) => {
               const company = visibleCompanies[index]
               return (
@@ -143,7 +104,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
             })}
           </div>
           {overflowCount > 0 && (
-            <span className="w-5 shrink-0 text-center text-xs text-muted-foreground tabular-nums">
+            <span className="pointer-events-none w-5 shrink-0 text-center text-xs text-muted-foreground tabular-nums">
               +{overflowCount}
             </span>
           )}
@@ -151,11 +112,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
 
         <div aria-hidden="true" />
 
-        <div
-          className="relative z-10 flex min-h-6 items-center justify-end"
-          onMouseEnter={() => setMetaHovered(true)}
-          onMouseLeave={() => setMetaHovered(false)}
-        >
+        <div className="relative z-10 flex min-h-6 items-center justify-end pointer-events-auto">
           {hasExternalLinks ? (
             <SolutionExternalLinks
               iconLayout="slots"
@@ -176,10 +133,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
     <article
       className="relative flex min-h-32 cursor-pointer flex-col rounded-lg border bg-card p-(--spacing-solution-card) md:min-h-36"
       onMouseEnter={() => setCardHovered(true)}
-      onMouseLeave={() => {
-        setCardHovered(false)
-        setMetaHovered(false)
-      }}
+      onMouseLeave={() => setCardHovered(false)}
     >
       <Link
         href={solutionHref}
@@ -187,34 +141,28 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
         aria-label={solution.title}
       />
 
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+      <div className="pointer-events-none relative z-10 flex min-w-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-3">
-          <div
-            className="pointer-events-none min-w-0 text-base font-medium leading-snug text-balance md:text-lg"
-          >
-            <CenterUnderline active={titleUnderlineActive}>
+          <div className="min-w-0 text-base font-medium leading-snug text-balance md:text-lg">
+            <CenterUnderline active={cardHovered}>
               {solution.title}
             </CenterUnderline>
           </div>
           <DifficultyBadge
             difficulty={solution.difficulty}
-            className="relative z-10 shrink-0"
+            className="shrink-0"
           />
         </div>
 
         {(visibleCompanies.length > 0 || hasExternalLinks) && (
-          <div
-            className="flex flex-1 flex-col"
-            onMouseEnter={() => setMetaHovered(true)}
-            onMouseLeave={() => setMetaHovered(false)}
-          >
+          <div className="flex flex-1 flex-col">
             {visibleCompanies.length > 0 && (
-              <div className="mt-(--spacing-solution-title-meta) flex flex-wrap items-center gap-x-3 gap-y-1.5">
+              <div className="mt-(--spacing-solution-title-meta) pointer-events-auto flex items-center gap-1">
                 {visibleCompanies.map((company) => (
-                  <SolutionCompanyLink key={company} company={company} />
+                  <SolutionCompanyIconLink key={company} company={company} />
                 ))}
                 {overflowCount > 0 && (
-                  <span className="text-sm text-muted-foreground tabular-nums pointer-events-none">
+                  <span className="text-xs text-muted-foreground tabular-nums pointer-events-none">
                     +{overflowCount}
                   </span>
                 )}
@@ -228,6 +176,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
                   aria-hidden="true"
                 />
                 <SolutionExternalLinks
+                  className="pointer-events-auto"
                   variant="labeled"
                   youtubeUrl={solution.youtubeUrl}
                   leetcodeUrl={solution.leetcodeUrl}

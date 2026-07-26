@@ -1,3 +1,4 @@
+import { buttonVariants } from "@/components/ui/button"
 import type { Difficulty } from "@/lib/content/types"
 import { cn } from "@/lib/utils"
 
@@ -21,7 +22,7 @@ export function DifficultyBadge({
   return (
     <span
       className={cn(
-        "text-xs font-semibold tracking-wide",
+        buttonVariants({ variant: "outline", size: "sm" }),
         DIFFICULTY_TEXT_STYLES[difficulty],
         className,
       )}

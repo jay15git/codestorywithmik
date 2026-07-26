@@ -73,17 +73,9 @@ export default async function TopicPage({ params }: TopicPageProps) {
             </Breadcrumb>
 
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-semibold tracking-tight">
-                  {topic.name}
-                </h1>
-                <p className="mt-2 text-muted-foreground">
-                  {topic.solutionCount} solutions
-                  {topic.subtopics.length > 0
-                    ? ` across ${topic.subtopics.length} subtopics`
-                    : ""}
-                </p>
-              </div>
+              <h1 className="text-3xl font-semibold tracking-tight">
+                {topic.name}
+              </h1>
               <SolutionViewToggle />
             </div>
           </div>
@@ -99,12 +91,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
 
             return (
               <section key={subtopic.slug} className="space-y-4">
-                <div>
-                  <h2 className="text-lg font-medium">{subtopic.name}</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {subtopic.solutionCount} solutions
-                  </p>
-                </div>
+                <h2 className="text-lg font-medium">{subtopic.name}</h2>
                 <SolutionView solutions={subtopicSolutions} />
               </section>
             )

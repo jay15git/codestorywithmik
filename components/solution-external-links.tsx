@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import { type ReactNode } from "react"
 
-import CenterUnderline from "@/components/fancy/text/underline-center"
 import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
 import { SimpleIconsGeeksforgeeks } from "@/components/icons/simple-icons/geeksforgeeks"
@@ -10,6 +9,12 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const GFG_GREEN = "#2f8d46"
+
+const iconButtonClassName =
+  "relative z-10 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+
+const labeledLinkClassName =
+  "relative z-10 inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 
 interface SolutionExternalLinksProps {
   youtubeUrl: string | null
@@ -32,28 +37,17 @@ function ExternalLinkButton({
   children: ReactNode
   className?: string
 }) {
-  const [hovered, setHovered] = useState(false)
-
   return (
     <Button
       variant="ghost"
       size="icon-xs"
-      className={cn("text-muted-foreground hover:text-foreground", className)}
+      className={cn(iconButtonClassName, className)}
       nativeButton={false}
       render={
-        <a
-          href={href}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={label}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-        />
+        <a href={href} target="_blank" rel="noreferrer" aria-label={label} />
       }
     >
-      <CenterUnderline as="span" className="inline-flex" active={hovered}>
-        {children}
-      </CenterUnderline>
+      {children}
     </Button>
   )
 }
@@ -69,28 +63,15 @@ function LabeledExternalLink({
   children: ReactNode
   className?: string
 }) {
-  const [hovered, setHovered] = useState(false)
-
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
-      className={cn(
-        "relative z-10 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-        className,
-      )}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className={cn(labeledLinkClassName, className)}
     >
-      <CenterUnderline
-        as="span"
-        className="inline-flex items-center gap-2"
-        active={hovered}
-      >
-        {children}
-        {label}
-      </CenterUnderline>
+      {children}
+      {label}
     </a>
   )
 }
@@ -110,7 +91,7 @@ export function SolutionExternalLinks({
 
   if (variant === "labeled") {
     return (
-      <div className={cn("relative z-10 flex flex-wrap items-center gap-x-3 gap-y-1", className)}>
+      <div className={cn("flex flex-wrap items-center gap-x-2 gap-y-1", className)}>
         {youtubeUrl && (
           <LabeledExternalLink href={youtubeUrl} label="Solution">
             <LogosYoutubeIcon
@@ -145,7 +126,7 @@ export function SolutionExternalLinks({
     const practiceLabel = leetcodeUrl ? "Open on LeetCode" : "Open on GFG"
 
     return (
-      <div className={cn("relative z-10 flex shrink-0 justify-end gap-0.5", className)}>
+      <div className={cn("flex shrink-0 justify-end gap-0.5", className)}>
         <div className="flex size-6 items-center justify-center">
           {youtubeUrl ? (
             <ExternalLinkButton href={youtubeUrl} label="Watch on YouTube">
@@ -179,7 +160,7 @@ export function SolutionExternalLinks({
   }
 
   return (
-    <div className={cn("relative z-10 flex shrink-0 items-center gap-0.5", className)}>
+    <div className={cn("flex shrink-0 items-center gap-0.5", className)}>
       {youtubeUrl && (
         <ExternalLinkButton href={youtubeUrl} label="Watch on YouTube">
           <LogosYoutubeIcon

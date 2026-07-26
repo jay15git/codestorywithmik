@@ -18,6 +18,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { buttonVariants } from "@/components/ui/button"
 import { getSolution, getSolutions } from "@/lib/content/get-content"
 import { practiceLinkLabel } from "@/lib/content/practice-link-label"
 import { highlightCode } from "@/lib/shiki"
@@ -136,7 +137,7 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
                   external
                 >
                   <LogosYoutubeIcon className="size-4" aria-hidden="true" />
-                  Watch explanation
+                  Watch solution
                 </ButtonLink>
               )}
               <ButtonLink
@@ -150,23 +151,25 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
               </ButtonLink>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            {(solution.timeComplexity || solution.spaceComplexity) && (
+              <div className="flex flex-wrap items-center gap-2">
+                {solution.timeComplexity && (
+                  <span className={buttonVariants({ variant: "outline", size: "sm" })}>
+                    T.C: {solution.timeComplexity}
+                  </span>
+                )}
+                {solution.spaceComplexity && (
+                  <span className={buttonVariants({ variant: "outline", size: "sm" })}>
+                    S.C: {solution.spaceComplexity}
+                  </span>
+                )}
+              </div>
+            )}
+
+            <div className="mt-8 flex flex-wrap items-center gap-2">
               {sortCompanyTags(solution.companyTags).map((company) => (
                 <CompanyTagLink key={company} company={company} />
               ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              {solution.timeComplexity && (
-                <span className="rounded-md bg-muted px-2 py-1">
-                  T.C: {solution.timeComplexity}
-                </span>
-              )}
-              {solution.spaceComplexity && (
-                <span className="rounded-md bg-muted px-2 py-1">
-                  S.C: {solution.spaceComplexity}
-                </span>
-              )}
             </div>
           </div>
         </div>

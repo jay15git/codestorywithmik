@@ -26,7 +26,7 @@ function CompanyMark({
   return (
     <span
       aria-hidden="true"
-      className="flex size-4 shrink-0 items-center justify-center rounded-sm bg-background text-[9px] font-semibold uppercase text-muted-foreground"
+      className="flex size-4 shrink-0 items-center justify-center text-[9px] font-semibold uppercase"
     >
       {company.charAt(0)}
     </span>
@@ -55,7 +55,7 @@ export function CompanyTagLink({
     <Link
       href={`/companies/${companySlug(company)}`}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md border bg-muted/50 px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+        "inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground",
         className,
       )}
     >
