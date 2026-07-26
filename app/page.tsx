@@ -1,19 +1,105 @@
-import { Button } from "@/components/ui/button"
+import type { Metadata } from "next"
 
-export default function Page() {
+import { AppShell } from "@/components/app-shell"
+import { SolutionCard } from "@/components/solution-card"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { getContentIndex, getTopics } from "@/lib/content/get-content"
+import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: "codestorywithMIK — Interview DS & Algo Solutions",
+  description:
+    "Browse interview data structures and algorithms solutions by topic, company, and problem name.",
+}
+
+export default function HomePage() {
+  const index = getContentIndex()
+  const topics = getTopics()
+
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
+    <AppShell>
+      <div className="space-y-10">
+        <section className="space-y-4">
+          <p className="text-sm font-medium text-muted-foreground">
+            One stop interview prep
+          </p>
+          <h1 className="max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl">
+            Calm, searchable solutions for coding interviews
+          </h1>
+          <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
+            Topic-wise C++ and Java solutions with company tags, LeetCode links,
+            and video explanations from codestorywithMIK. Knowledge should be
+            free — learn free, share free.
+          </p>
+        </section>
+
+        <section className="grid gap-4 sm:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl tabular-nums">
+                {index.solutionCount}
+              </CardTitle>
+              <CardDescription>Solutions indexed</CardDescription>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl tabular-nums">
+                {index.topicCount}
+              </CardTitle>
+              <CardDescription>Topics covered</CardDescription>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl tabular-nums">
+                {index.companyCount}
+              </CardTitle>
+              <CardDescription>Company tags</CardDescription>
+            </CardHeader>
+          </Card>
+        </section>
+
+        <section className="space-y-4">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">Browse by topic</h2>
+              <p className="text-sm text-muted-foreground">
+                Pick a category to explore problems and techniques.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {topics.map((topic) => (
+              <Card key={topic.slug} className="transition-colors hover:bg-muted/30">
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    <Link href={`/topics/${topic.slug}`} className="hover:underline">
+                      {topic.name}
+                    </Link>
+                  </CardTitle>
+                  <CardDescription>
+                    {topic.solutionCount} solutions
+                    {topic.subtopics.length > 0
+                      ? ` · ${topic.subtopics.length} subtopics`
+                      : ""}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold">Recently added</h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            {index.solutions.slice(0, 6).map((solution) => (
+              <SolutionCard key={solution.slug} solution={solution} />
+            ))}
+          </div>
+        </section>
       </div>
-    </div>
+    </AppShell>
   )
 }
