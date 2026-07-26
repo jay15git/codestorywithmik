@@ -28,7 +28,7 @@ export function SearchCommand({ documents }: SearchCommandProps) {
   const fuse = React.useMemo(
     () =>
       new Fuse(documents, {
-        keys: ["title", "topic", "subtopic", "companies", "leetcodeSlug"],
+        keys: ["title", "topic", "subtopic", "companies", "leetcodeSlug", "difficulty"],
         threshold: 0.35,
         ignoreLocation: true,
       }),

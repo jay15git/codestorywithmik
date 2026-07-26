@@ -22,6 +22,10 @@ import {
   ORIGINAL_REPO_SLUG,
 } from "../lib/content/constants"
 import {
+  getProblemDifficultyMap,
+  resolveSolutionDifficulty,
+} from "../lib/content/difficulty"
+import {
   parseCompanyTags,
   parseSpaceComplexity,
   parseTimeComplexity,
@@ -134,6 +138,7 @@ function parseSolutionFile(
     companyTags: parseCompanyTags(content),
     timeComplexity: parseTimeComplexity(content),
     spaceComplexity: parseSpaceComplexity(content),
+    difficulty: null,
   }
 }
 
@@ -213,6 +218,10 @@ function buildCompanyList(solutions: SolutionMeta[]): string[] {
 }
 
 function main() {
+  void run()
+}
+
+async function run() {
   const sourceDir = resolveSourceDir()
   const upstreamSha = getUpstreamSha(sourceDir)
 
@@ -243,6 +252,19 @@ function main() {
   })
 
   solutions = ensureUniqueSlugs(solutions)
+
+  const difficultyMap = getProblemDifficultyMap()
+  solutions = solutions.map((solution) => ({
+    ...solution,
+    difficulty: resolveSolutionDifficulty(solution, difficultyMap),
+  }))
+
+  const missingDifficulties = solutions.filter((solution) => !solution.difficulty)
+  if (missingDifficulties.length > 0) {
+    console.warn(
+      `Missing difficulties for ${missingDifficulties.length} solutions. Add entries to lib/content/problem-difficulties.json`,
+    )
+  }
 
   for (const { absolutePath, relativePath } of cppFiles) {
     const solution = solutions.find((item) => item.relativePath === relativePath)

@@ -3,6 +3,8 @@ export interface SolutionCode {
   java: string | null
 }
 
+export type Difficulty = "Easy" | "Medium" | "Hard"
+
 export interface SolutionMeta {
   slug: string
   title: string
@@ -18,6 +20,7 @@ export interface SolutionMeta {
   companyTags: string[]
   timeComplexity: string | null
   spaceComplexity: string | null
+  difficulty: Difficulty | null
 }
 
 export interface Solution extends SolutionMeta {
@@ -58,4 +61,5 @@ export interface SearchDocument {
   subtopic: string | null
   companies: string
   leetcodeSlug: string | null
+  difficulty: string | null
 }

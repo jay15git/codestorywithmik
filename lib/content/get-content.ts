@@ -15,14 +15,47 @@ import {
   splitCodeBlocks,
 } from "./parse-solution"
 import { slugify, slugifyParts, topicSlugFromName } from "./slug"
+import {
+  getProblemDifficultyMap,
+  resolveSolutionDifficulty,
+} from "./difficulty"
 import type {
   ContentIndex,
+  Difficulty,
   Solution,
   SolutionMeta,
   Topic,
 } from "./types"
 
 let cachedIndex: ContentIndex | null = null
+let cachedDifficultyMap: Map<string, Difficulty> | null = null
+
+function getDifficultyMapForRuntime(): Map<string, Difficulty> {
+  if (cachedDifficultyMap) {
+    return cachedDifficultyMap
+  }
+
+  cachedDifficultyMap = getProblemDifficultyMap()
+  return cachedDifficultyMap
+}
+
+function withResolvedDifficulty(solution: SolutionMeta): SolutionMeta {
+  if (solution.difficulty) {
+    return solution
+  }
+
+  return {
+    ...solution,
+    difficulty: resolveSolutionDifficulty(solution, getDifficultyMapForRuntime()),
+  }
+}
+
+function normalizeIndex(index: ContentIndex): ContentIndex {
+  return {
+    ...index,
+    solutions: index.solutions.map(withResolvedDifficulty),
+  }
+}
 
 function getIndexPath(): string {
   return path.join(process.cwd(), GENERATED_INDEX_PATH)
@@ -41,7 +74,9 @@ export function getContentIndex(): ContentIndex {
     )
   }
 
-  cachedIndex = JSON.parse(readFileSync(indexPath, "utf8")) as ContentIndex
+  cachedIndex = normalizeIndex(
+    JSON.parse(readFileSync(indexPath, "utf8")) as ContentIndex,
+  )
   return cachedIndex
 }
 
@@ -117,6 +152,7 @@ export function getSearchDocuments() {
       ? solution.leetcodeUrl.match(/leetcode\.com\/problems\/([^/?#]+)/i)?.[1] ??
         null
       : null,
+    difficulty: solution.difficulty,
   }))
 }
 

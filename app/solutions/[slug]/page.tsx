@@ -4,6 +4,7 @@ import { CodeIcon } from "lucide-react"
 
 import { AppShell } from "@/components/app-shell"
 import { BadgeLink, ButtonLink } from "@/components/button-link"
+import { DifficultyBadge } from "@/components/difficulty-badge"
 import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
 import { SimpleIconsGeeksforgeeks } from "@/components/icons/simple-icons/geeksforgeeks"
@@ -97,7 +98,13 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
               {solution.title}
             </h1>
 
-            <div className="flex flex-wrap gap-2">
+            {solution.difficulty && (
+              <p>
+                <DifficultyBadge difficulty={solution.difficulty} className="text-sm" />
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-2">
               {solution.companyTags.map((company) => (
                 <BadgeLink
                   key={company}
