@@ -92,7 +92,7 @@ export function AppShell({ children }: AppShellProps) {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 md:px-8">
+        <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-4 py-8 md:px-8">
           {children}
         </main>
 

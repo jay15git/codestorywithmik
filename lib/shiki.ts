@@ -1,4 +1,4 @@
-import { createHighlighter, type Highlighter } from "shiki"
+import { createHighlighter, type Highlighter, type ShikiTransformer } from "shiki"
 
 let highlighterPromise: Promise<Highlighter> | null = null
 
@@ -13,6 +13,13 @@ async function getHighlighter(): Promise<Highlighter> {
   return highlighterPromise
 }
 
+const lineNumbersTransformer: ShikiTransformer = {
+  name: "line-numbers",
+  pre(hast) {
+    this.addClassToHast(hast, "shiki-line-numbers")
+  },
+}
+
 export async function highlightCode(
   code: string,
   lang: "cpp" | "java",
@@ -24,5 +31,6 @@ export async function highlightCode(
       light: "github-light",
       dark: "github-dark",
     },
+    transformers: [lineNumbersTransformer],
   })
 }

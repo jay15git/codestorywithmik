@@ -64,7 +64,7 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
 
   return (
     <AppShell>
-      <div className="space-y-8">
+      <div className="min-w-0 max-w-full space-y-8">
         <div className="space-y-4">
           <Breadcrumb>
             <BreadcrumbList>
