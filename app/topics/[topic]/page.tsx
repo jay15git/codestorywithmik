@@ -11,7 +11,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
 import {
   getSolutionsByTopic,
   getTopic,
@@ -101,7 +100,6 @@ export default async function TopicPage({ params }: TopicPageProps) {
                   <SolutionCard key={solution.slug} solution={solution} />
                 ))}
               </div>
-              <Separator />
             </section>
           )
         })}

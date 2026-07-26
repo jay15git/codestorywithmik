@@ -34,7 +34,7 @@ export default function HomePage() {
         </section>
 
         <section className="grid gap-4 sm:grid-cols-3">
-          <Card>
+          <Card className="bg-card">
             <CardHeader>
               <CardTitle className="text-2xl tabular-nums">
                 {index.solutionCount}
@@ -42,7 +42,7 @@ export default function HomePage() {
               <CardDescription>Solutions indexed</CardDescription>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="bg-card">
             <CardHeader>
               <CardTitle className="text-2xl tabular-nums">
                 {index.topicCount}
@@ -50,7 +50,7 @@ export default function HomePage() {
               <CardDescription>Topics covered</CardDescription>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="bg-card">
             <CardHeader>
               <CardTitle className="text-2xl tabular-nums">
                 {index.companyCount}
@@ -72,7 +72,7 @@ export default function HomePage() {
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {topics.map((topic) => (
-              <Card key={topic.slug} className="transition-colors hover:bg-muted/30">
+              <Card key={topic.slug} className="bg-card">
                 <CardHeader>
                   <CardTitle className="text-base">
                     <Link href={`/topics/${topic.slug}`} className="hover:underline">

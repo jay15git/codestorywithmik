@@ -49,7 +49,7 @@ export function BadgeLink({
     <Link
       href={href}
       className={cn(
-        "inline-flex h-5 w-fit shrink-0 items-center justify-center rounded-4xl border border-transparent bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80",
+        "inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground hover:underline",
         className,
       )}
     >

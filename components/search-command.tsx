@@ -58,13 +58,13 @@ export function SearchCommand({ documents }: SearchCommandProps) {
   return (
     <>
       <Button
-        variant="outline"
-        className="hidden h-9 w-full max-w-sm justify-start gap-2 text-muted-foreground md:flex"
+        variant="secondary"
+        className="hidden h-9 w-full max-w-sm justify-start gap-2 border-0 bg-card text-muted-foreground shadow-none md:flex"
         onClick={() => setOpen(true)}
       >
         <SearchIcon className="size-4" />
         <span className="flex-1 text-left">Search problems, companies…</span>
-        <kbd className="rounded border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+        <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
           ⌘K
         </kbd>
       </Button>
@@ -82,14 +82,13 @@ export function SearchCommand({ documents }: SearchCommandProps) {
       <CommandDialog
         open={open}
         onOpenChange={setOpen}
+        value={query}
+        onValueChange={setQuery}
+        shouldFilter={false}
         title="Search solutions"
         description="Find problems by name, topic, or company"
       >
-        <CommandInput
-          placeholder="Search problems, companies, topics…"
-          value={query}
-          onValueChange={setQuery}
-        />
+        <CommandInput placeholder="Search problems, companies, topics…" />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Solutions">

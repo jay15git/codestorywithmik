@@ -41,7 +41,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader className="gap-3 border-b border-sidebar-border p-4">
+        <SidebarHeader className="gap-3 p-4">
           <Link href="/" className="flex flex-col gap-1">
             <span className="text-sm font-semibold tracking-tight">
               codestorywithMIK
@@ -54,7 +54,7 @@ export function AppShell({ children }: AppShellProps) {
         <SidebarContent>
           <TopicSidebar topics={topics} />
         </SidebarContent>
-        <SidebarFooter className="border-t border-sidebar-border p-4 text-xs text-muted-foreground">
+        <SidebarFooter className="p-4 text-xs text-muted-foreground">
           <p>{index.solutionCount} solutions</p>
           <p className="mt-1">Synced {syncedDate}</p>
         </SidebarFooter>
@@ -62,7 +62,7 @@ export function AppShell({ children }: AppShellProps) {
       </Sidebar>
 
       <SidebarInset>
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b bg-background/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 bg-background/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/70">
           <SidebarTrigger className="md:hidden">
             <MenuIcon />
           </SidebarTrigger>
@@ -96,7 +96,7 @@ export function AppShell({ children }: AppShellProps) {
           {children}
         </main>
 
-        <footer className="border-t px-4 py-6 text-sm text-muted-foreground md:px-8">
+        <footer className="px-4 py-6 text-sm text-muted-foreground md:px-8">
           <div className="mx-auto flex max-w-6xl flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <p>
               Content from{" "}

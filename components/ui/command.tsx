@@ -39,16 +39,28 @@ function CommandDialog({
   children,
   className,
   showCloseButton = false,
-  ...props
-}: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
+  open,
+  onOpenChange,
+  defaultOpen,
+  modal,
+  ...commandProps
+}: React.ComponentProps<typeof Command> & {
   title?: string
   description?: string
   className?: string
   showCloseButton?: boolean
-  children: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  defaultOpen?: boolean
+  modal?: boolean
 }) {
   return (
-    <Dialog {...props}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+      defaultOpen={defaultOpen}
+      modal={modal}
+    >
       <DialogHeader className="sr-only">
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription>{description}</DialogDescription>
@@ -60,7 +72,12 @@ function CommandDialog({
         )}
         showCloseButton={showCloseButton}
       >
-        {children}
+        <Command
+          className="**:data-[slot=command-input-wrapper]:border-b"
+          {...commandProps}
+        >
+          {children}
+        </Command>
       </DialogContent>
     </Dialog>
   )
@@ -72,7 +89,7 @@ function CommandInput({
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
     <div data-slot="command-input-wrapper" className="p-1 pb-0">
-      <InputGroup className="h-8! rounded-lg! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:pl-2!">
+      <InputGroup className="h-8! rounded-lg! border-0 bg-muted shadow-none! *:data-[slot=input-group-addon]:pl-2!">
         <CommandPrimitive.Input
           data-slot="command-input"
           className={cn(
