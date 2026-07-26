@@ -1,6 +1,6 @@
 "use client"
 
-import { ElementType, useEffect, useRef, useMemo } from "react"
+import { ElementType, useEffect, useMemo, useRef, useState } from "react"
 import { motion, ValueAnimationTransition } from "motion/react"
 import { cn } from "@/lib/utils"
 
@@ -56,24 +56,24 @@ const CenterUnderline = ({
   active,
   ...props
 }: UnderlineProps) => {
-  const textRef = useRef<HTMLSpanElement>(null)
+  const textRef = useRef<HTMLElement>(null)
   const MotionComponent = useMemo(() => motion.create(as ?? "span"), [as])
+  const [underlineMetrics, setUnderlineMetrics] = useState({
+    height: 2,
+    padding: 1,
+  })
 
   useEffect(() => {
     const updateUnderlineStyles = () => {
-      if (textRef.current) {
-        const fontSize = parseFloat(getComputedStyle(textRef.current).fontSize)
-        const underlineHeight = fontSize * underlineHeightRatio
-        const underlinePadding = fontSize * underlinePaddingRatio
-        textRef.current.style.setProperty(
-          "--underline-height",
-          `${underlineHeight}px`
-        )
-        textRef.current.style.setProperty(
-          "--underline-padding",
-          `${underlinePadding}px`
-        )
+      if (!textRef.current) {
+        return
       }
+
+      const fontSize = parseFloat(getComputedStyle(textRef.current).fontSize)
+      setUnderlineMetrics({
+        height: fontSize * underlineHeightRatio,
+        padding: fontSize * underlinePaddingRatio,
+      })
     }
 
     updateUnderlineStyles()
@@ -82,43 +82,42 @@ const CenterUnderline = ({
     return () => window.removeEventListener("resize", updateUnderlineStyles)
   }, [underlineHeightRatio, underlinePaddingRatio])
 
-  const underlineVariants = {
-    hidden: {
-      width: 0,
-      originX: 0.5,
-    },
-    visible: {
-      width: "100%",
-      transition: transition,
-    },
-  }
+  const hiddenBackgroundSize = `0% ${underlineMetrics.height}px`
+  const visibleBackgroundSize = `100% ${underlineMetrics.height}px`
 
   const interactionProps =
     active !== undefined
-      ? { initial: "hidden" as const, animate: active ? "visible" : "hidden" }
-      : { initial: "hidden" as const, whileHover: "visible" as const }
+      ? {
+          initial: { backgroundSize: hiddenBackgroundSize },
+          animate: {
+            backgroundSize: active ? visibleBackgroundSize : hiddenBackgroundSize,
+          },
+          transition,
+        }
+      : {
+          initial: { backgroundSize: hiddenBackgroundSize },
+          whileHover: { backgroundSize: visibleBackgroundSize },
+          transition,
+        }
 
   return (
     <MotionComponent
       className={cn(
-        "relative inline-block",
+        "inline [box-decoration-break:clone] [-webkit-box-decoration-break:clone]",
         active === undefined && "cursor-pointer",
-        className
+        className,
       )}
       ref={textRef}
+      style={{
+        backgroundImage: "linear-gradient(currentColor, currentColor)",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center bottom",
+        paddingBottom: underlineMetrics.padding,
+      }}
       {...interactionProps}
       {...props}
     >
-      <span>{children}</span>
-      <motion.div
-        className="absolute left-1/2 bg-current -translate-x-1/2"
-        style={{
-          height: "var(--underline-height)",
-          bottom: "calc(-1 * var(--underline-padding))",
-        }}
-        variants={underlineVariants}
-        aria-hidden="true"
-      />
+      {children}
     </MotionComponent>
   )
 }

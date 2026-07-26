@@ -1,5 +1,8 @@
-import type { ReactNode } from "react"
+"use client"
 
+import { useState, type ReactNode } from "react"
+
+import CenterUnderline from "@/components/fancy/text/underline-center"
 import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
 import { SimpleIconsGeeksforgeeks } from "@/components/icons/simple-icons/geeksforgeeks"
@@ -15,6 +18,7 @@ interface SolutionExternalLinksProps {
   className?: string
   iconClassName?: string
   variant?: "icon" | "labeled"
+  iconLayout?: "inline" | "slots"
 }
 
 function ExternalLinkButton({
@@ -28,6 +32,8 @@ function ExternalLinkButton({
   children: ReactNode
   className?: string
 }) {
+  const [hovered, setHovered] = useState(false)
+
   return (
     <Button
       variant="ghost"
@@ -35,10 +41,19 @@ function ExternalLinkButton({
       className={cn("text-muted-foreground hover:text-foreground", className)}
       nativeButton={false}
       render={
-        <a href={href} target="_blank" rel="noreferrer" aria-label={label} />
+        <a
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={label}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        />
       }
     >
-      {children}
+      <CenterUnderline as="span" className="inline-flex" active={hovered}>
+        {children}
+      </CenterUnderline>
     </Button>
   )
 }
@@ -54,18 +69,28 @@ function LabeledExternalLink({
   children: ReactNode
   className?: string
 }) {
+  const [hovered, setHovered] = useState(false)
+
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
       className={cn(
-        "relative z-10 inline-flex items-center gap-1.5 rounded-md border bg-background px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted",
+        "relative z-10 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
         className,
       )}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      {children}
-      <span>{label}</span>
+      <CenterUnderline
+        as="span"
+        className="inline-flex items-center gap-2"
+        active={hovered}
+      >
+        {children}
+        {label}
+      </CenterUnderline>
     </a>
   )
 }
@@ -77,6 +102,7 @@ export function SolutionExternalLinks({
   className,
   iconClassName,
   variant = "icon",
+  iconLayout = "inline",
 }: SolutionExternalLinksProps) {
   if (!youtubeUrl && !leetcodeUrl && !gfgUrl) {
     return null
@@ -84,11 +110,11 @@ export function SolutionExternalLinks({
 
   if (variant === "labeled") {
     return (
-      <div className={cn("relative z-10 flex flex-wrap gap-2", className)}>
+      <div className={cn("relative z-10 flex flex-wrap items-center gap-x-3 gap-y-1", className)}>
         {youtubeUrl && (
-          <LabeledExternalLink href={youtubeUrl} label="Video solution">
+          <LabeledExternalLink href={youtubeUrl} label="Solution">
             <LogosYoutubeIcon
-              className={cn("size-4", iconClassName)}
+              className={cn("size-4 shrink-0", iconClassName)}
               aria-hidden="true"
             />
           </LabeledExternalLink>
@@ -96,7 +122,7 @@ export function SolutionExternalLinks({
         {leetcodeUrl && (
           <LabeledExternalLink href={leetcodeUrl} label="Practice">
             <DeviconLeetcode
-              className={cn("size-4", iconClassName)}
+              className={cn("size-4 shrink-0", iconClassName)}
               aria-hidden="true"
             />
           </LabeledExternalLink>
@@ -104,12 +130,50 @@ export function SolutionExternalLinks({
         {gfgUrl && (
           <LabeledExternalLink href={gfgUrl} label="Practice">
             <SimpleIconsGeeksforgeeks
-              className={cn("size-4", iconClassName)}
+              className={cn("size-4 shrink-0", iconClassName)}
               style={{ color: GFG_GREEN }}
               aria-hidden="true"
             />
           </LabeledExternalLink>
         )}
+      </div>
+    )
+  }
+
+  if (iconLayout === "slots") {
+    const practiceUrl = leetcodeUrl ?? gfgUrl
+    const practiceLabel = leetcodeUrl ? "Open on LeetCode" : "Open on GFG"
+
+    return (
+      <div className={cn("relative z-10 flex shrink-0 justify-end gap-0.5", className)}>
+        <div className="flex size-6 items-center justify-center">
+          {youtubeUrl ? (
+            <ExternalLinkButton href={youtubeUrl} label="Watch on YouTube">
+              <LogosYoutubeIcon
+                className={cn("size-4", iconClassName)}
+                aria-hidden="true"
+              />
+            </ExternalLinkButton>
+          ) : null}
+        </div>
+        <div className="flex size-6 items-center justify-center">
+          {practiceUrl ? (
+            <ExternalLinkButton href={practiceUrl} label={practiceLabel}>
+              {leetcodeUrl ? (
+                <DeviconLeetcode
+                  className={cn("size-4", iconClassName)}
+                  aria-hidden="true"
+                />
+              ) : (
+                <SimpleIconsGeeksforgeeks
+                  className={cn("size-4", iconClassName)}
+                  style={{ color: GFG_GREEN }}
+                  aria-hidden="true"
+                />
+              )}
+            </ExternalLinkButton>
+          ) : null}
+        </div>
       </div>
     )
   }

@@ -7,8 +7,6 @@ const DIFFICULTY_TEXT_STYLES: Record<Difficulty, string> = {
   Hard: "text-red-600 dark:text-red-400",
 }
 
-export const DIFFICULTY_COLUMN_CLASS = "w-14 shrink-0 text-xs font-medium"
-
 export function DifficultyBadge({
   difficulty,
   className,
@@ -23,7 +21,7 @@ export function DifficultyBadge({
   return (
     <span
       className={cn(
-        "text-xs font-medium",
+        "text-xs font-semibold tracking-wide",
         DIFFICULTY_TEXT_STYLES[difficulty],
         className,
       )}

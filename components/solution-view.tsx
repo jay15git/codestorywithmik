@@ -122,7 +122,7 @@ export function SolutionView({
 
   return (
     <div
-      className={cn("grid gap-4 md:grid-cols-2", className)}
+      className={cn("grid gap-3 md:grid-cols-2", className)}
     >
       {solutions.map((solution) => (
         <SolutionRow key={solution.slug} solution={solution} variant="grid" />
