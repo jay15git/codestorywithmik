@@ -1,7 +1,11 @@
+"use client"
+
 import Link from "next/link"
+import { useState } from "react"
 
 import { BadgeLink } from "@/components/button-link"
 import { CompanyIcon } from "@/components/company-icon"
+import CenterUnderline from "@/components/fancy/text/underline-center"
 import {
   Card,
   CardContent,
@@ -17,17 +21,19 @@ interface SolutionCardProps {
 }
 
 export function SolutionCard({ solution }: SolutionCardProps) {
+  const [hovered, setHovered] = useState(false)
   const companyTags = [...new Set(solution.companyTags)]
 
   return (
-    <Card className="bg-card">
+    <Card
+      className="cursor-pointer bg-card"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <CardHeader className="gap-2">
         <CardTitle className="text-base">
-          <Link
-            href={`/solutions/${solution.slug}`}
-            className="hover:underline"
-          >
-            {solution.title}
+          <Link href={`/solutions/${solution.slug}`}>
+            <CenterUnderline active={hovered}>{solution.title}</CenterUnderline>
           </Link>
         </CardTitle>
         <CardDescription>
