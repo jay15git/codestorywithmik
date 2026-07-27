@@ -1,24 +1,14 @@
-import { readFileSync, existsSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import path from "node:path"
 
-import {
-  CONTENT_REPO_SLUG,
-  GENERATED_INDEX_PATH,
-  GENERATED_SOLUTIONS_PATH,
-} from "./constants"
-import {
-  parseCompanyTags,
-  parseLeetcodeUrl,
-  parseSpaceComplexity,
-  parseTimeComplexity,
-  parseYoutubeUrl,
-  splitCodeBlocks,
-} from "./parse-solution"
-import { slugify, slugifyParts, topicSlugFromName } from "./slug"
+import contentIndexJson from "@/generated/content-index.json"
+import { GENERATED_SOLUTIONS_PATH } from "./constants"
 import {
   getProblemDifficultyMap,
   resolveSolutionDifficulty,
 } from "./difficulty"
+import { splitCodeBlocks } from "./parse-solution"
+import { slugify } from "./slug"
 import type {
   ContentIndex,
   Difficulty,
@@ -27,7 +17,6 @@ import type {
   Topic,
 } from "./types"
 
-let cachedIndex: ContentIndex | null = null
 let cachedDifficultyMap: Map<string, Difficulty> | null = null
 
 function getDifficultyMapForRuntime(): Map<string, Difficulty> {
@@ -57,32 +46,10 @@ function normalizeIndex(index: ContentIndex): ContentIndex {
   }
 }
 
-function getIndexPath(): string {
-  return path.join(process.cwd(), GENERATED_INDEX_PATH)
-}
+const normalizedIndex = normalizeIndex(contentIndexJson as ContentIndex)
 
 export function getContentIndex(): ContentIndex {
-  const indexPath = getIndexPath()
-
-  if (!existsSync(indexPath)) {
-    throw new Error(
-      `Content index not found at ${indexPath}. Run "npm run sync-content" first.`,
-    )
-  }
-
-  if (process.env.NODE_ENV === "production" && cachedIndex) {
-    return cachedIndex
-  }
-
-  const index = normalizeIndex(
-    JSON.parse(readFileSync(indexPath, "utf8")) as ContentIndex,
-  )
-
-  if (process.env.NODE_ENV === "production") {
-    cachedIndex = index
-  }
-
-  return index
+  return normalizedIndex
 }
 
 export function getTopics(): Topic[] {

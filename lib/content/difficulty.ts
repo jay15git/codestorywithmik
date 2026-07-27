@@ -1,9 +1,5 @@
-import { readFileSync } from "node:fs"
-import path from "node:path"
-
+import problemDifficultiesJson from "./problem-difficulties.json"
 import type { Difficulty, SolutionMeta } from "./types"
-
-const PROBLEM_DIFFICULTIES_PATH = "lib/content/problem-difficulties.json"
 
 const EASY_SUBTOPIC_PATTERN =
   /(^easy$|leetcode easy|easy tagged|\/ easy\b|\/ easy$)/i
@@ -25,9 +21,9 @@ export function getProblemDifficultyMap(): Map<string, Difficulty> {
     return cachedDifficultyMap
   }
 
-  const filePath = path.join(process.cwd(), PROBLEM_DIFFICULTIES_PATH)
-  const raw = JSON.parse(readFileSync(filePath, "utf8")) as Record<string, Difficulty>
-  cachedDifficultyMap = new Map(Object.entries(raw))
+  cachedDifficultyMap = new Map(
+    Object.entries(problemDifficultiesJson as Record<string, Difficulty>),
+  )
   return cachedDifficultyMap
 }
 
