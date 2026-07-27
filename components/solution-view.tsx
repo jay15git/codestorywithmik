@@ -48,6 +48,8 @@ function useSolutionViewContext() {
   return context
 }
 
+export { useSolutionViewContext }
+
 export function SolutionViewProvider({ children }: { children: ReactNode }) {
   const viewMode = useSyncExternalStore<ViewMode>(
     subscribeToViewMode,
@@ -84,7 +86,7 @@ export function SolutionViewToggle({ className }: { className?: string }) {
         size="icon-sm"
         className={
           viewMode === "grid"
-            ? "bg-white text-foreground hover:bg-white dark:text-black"
+            ? "bg-white text-foreground hover:bg-white dark:bg-muted dark:hover:bg-muted"
             : "text-muted-foreground"
         }
         onClick={() => setViewMode("grid")}
@@ -98,7 +100,7 @@ export function SolutionViewToggle({ className }: { className?: string }) {
         size="icon-sm"
         className={
           viewMode === "list"
-            ? "bg-white text-foreground hover:bg-white dark:text-black"
+            ? "bg-white text-foreground hover:bg-white dark:bg-muted dark:hover:bg-muted"
             : "text-muted-foreground"
         }
         onClick={() => setViewMode("list")}

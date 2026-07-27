@@ -28,4 +28,11 @@ jobs:
 
       - name: Trigger site rebuild
         if: success()
-        run: curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "No VERCEL_DEPLOY_HOOK_URL set — skipping site rebuild"
+            exit 0
+          fi
+          curl -fsS -X POST "$HOOK"

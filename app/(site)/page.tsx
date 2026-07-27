@@ -8,7 +8,7 @@ import { getContentIndex, getTopics } from "@/lib/content/get-content"
 export const metadata: Metadata = {
   title: "codestorywithMIK — Interview DS & Algo Solutions",
   description:
-    "Browse interview data structures and algorithms solutions by topic, company, and problem name.",
+    "Browse Interview_DS_Algo solutions by topic and company, with C++/Java code, LeetCode links, and YouTube explanations.",
 }
 
 export default function HomePage() {
@@ -18,16 +18,13 @@ export default function HomePage() {
   return (
     <div className="space-y-10">
         <section className="space-y-4">
-          <p className="text-sm font-medium text-muted-foreground">
-            One stop interview prep
-          </p>
           <h1 className="max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl">
-            Calm, searchable solutions for coding interviews
+            Interview DS &amp; Algo solutions from codestorywithMIK
           </h1>
           <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
-            Topic-wise C++ and Java solutions with company tags, LeetCode links,
-            and video explanations from codestorywithMIK. Knowledge should be
-            free — learn free, share free.
+            Solutions from the Interview_DS_Algo GitHub repo, organized by topic
+            and company. Each page has the code, company tags, and links to
+            LeetCode and YouTube.
           </p>
         </section>
 

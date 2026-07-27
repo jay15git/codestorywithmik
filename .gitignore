@@ -40,3 +40,4 @@ next-env.d.ts
 /.cache/
 /content/upstream/
 /public/search-index.json
+.vercel
