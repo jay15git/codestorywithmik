@@ -1,8 +1,8 @@
 import { MenuIcon } from "lucide-react"
 
+import { GithubRepoButton } from "@/components/github-repo-button"
 import { SearchLazy } from "@/components/search-lazy"
 import { SidebarBrand } from "@/components/sidebar-brand"
-import { SocialLinks } from "@/components/social-links"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { TopicSidebar } from "@/components/topic-sidebar"
 import {
@@ -47,7 +47,7 @@ export function AppShell({ children }: AppShellProps) {
 
           <div className="flex items-center gap-2">
             <SearchLazy />
-            <SocialLinks />
+            <GithubRepoButton />
             <ThemeToggle />
           </div>
         </header>

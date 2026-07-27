@@ -22,9 +22,28 @@ export default function HomePage() {
             Interview DS &amp; Algo solutions from codestorywithMIK
           </h1>
           <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
-            Solutions from the Interview_DS_Algo GitHub repo, organized by topic
-            and company. Each page has the code, company tags, and links to
-            LeetCode and YouTube.
+            Solutions from the{" "}
+            <a
+              href="https://github.com/MAZHARMIK/Interview_DS_Algo"
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              Interview_DS_Algo GitHub repo
+            </a>
+            , organized by topic and company. Each page has the code, company
+            tags, and links to LeetCode and YouTube.
+          </p>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            Made by{" "}
+            <a
+              href="https://www.itsjay.in"
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              Jayant
+            </a>
           </p>
         </section>
 
