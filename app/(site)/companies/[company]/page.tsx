@@ -1,12 +1,17 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
+import { SolutionFilters } from "@/components/solution-filters"
 import { SolutionsPagination } from "@/components/solutions-pagination"
 import { SolutionView } from "@/components/solution-view-list"
 import {
   SolutionViewProvider,
   SolutionViewToggle,
 } from "@/components/solution-view"
+import {
+  filterSolutions,
+  parseListSearchParams,
+} from "@/lib/content/filter-solutions"
 import {
   getCompanies,
   getCompanyName,
@@ -18,7 +23,10 @@ const PAGE_SIZE = 48
 
 interface CompanyPageProps {
   params: Promise<{ company: string }>
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{
+    page?: string
+    difficulty?: string
+  }>
 }
 
 export async function generateStaticParams() {
@@ -46,19 +54,17 @@ export default async function CompanyPage({
   searchParams,
 }: CompanyPageProps) {
   const { company: companySlug } = await params
-  const { page: pageParam } = await searchParams
+  const filters = parseListSearchParams(await searchParams)
   const company = getCompanyName(companySlug)
 
   if (!company) {
     notFound()
   }
 
-  const solutions = getSolutionsByCompany(companySlug)
+  const allSolutions = getSolutionsByCompany(companySlug)
+  const solutions = filterSolutions(allSolutions, filters)
   const totalPages = Math.max(1, Math.ceil(solutions.length / PAGE_SIZE))
-  const page = Math.min(
-    totalPages,
-    Math.max(1, Number.parseInt(pageParam ?? "1", 10) || 1),
-  )
+  const page = Math.min(filters.page, totalPages)
   const pageSolutions = solutions.slice(
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE,
@@ -74,21 +80,35 @@ export default async function CompanyPage({
               {company}
             </h1>
             <p className="mt-2 text-muted-foreground">
-              {solutions.length} solutions tagged with this company
+              {solutions.length} solution{solutions.length === 1 ? "" : "s"}
+              {solutions.length !== allSolutions.length
+                ? ` of ${allSolutions.length}`
+                : " tagged with this company"}
               {totalPages > 1 ? ` · page ${page} of ${totalPages}` : ""}
             </p>
           </div>
           <SolutionViewToggle />
         </div>
 
-        <div className="solution-list-section">
-          <SolutionView solutions={pageSolutions} />
-        </div>
+        <SolutionFilters basePath={basePath} filters={filters} />
+
+        {solutions.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No solutions match these filters.
+          </p>
+        ) : (
+          <div className="solution-list-section">
+            <SolutionView solutions={pageSolutions} />
+          </div>
+        )}
 
         <SolutionsPagination
           basePath={basePath}
           page={page}
           totalPages={totalPages}
+          query={{
+            difficulty: filters.difficulty,
+          }}
         />
       </div>
     </SolutionViewProvider>

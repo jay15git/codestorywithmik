@@ -1,4 +1,9 @@
 import {
+  buildListHref,
+  type ListHrefParams,
+} from "@/lib/content/filter-solutions"
+
+import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -40,17 +45,19 @@ export function SolutionsPagination({
   basePath,
   page,
   totalPages,
+  query = {},
 }: {
   basePath: string
   page: number
   totalPages: number
+  query?: Omit<ListHrefParams, "page">
 }) {
   if (totalPages <= 1) {
     return null
   }
 
   const hrefForPage = (target: number) =>
-    target <= 1 ? basePath : `${basePath}?page=${target}`
+    buildListHref(basePath, { ...query, page: target })
 
   return (
     <Pagination>
