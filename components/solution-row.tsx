@@ -15,8 +15,9 @@ interface SolutionRowProps {
 
 const MAX_GRID_COMPANIES = 3
 const MAX_LIST_COMPANIES = 3
+const MAX_LIST_COMPANIES_SM = 1
 const LIST_ROW_GRID =
-  "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_16rem_3.5rem] items-center gap-x-3"
+  "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_3.5rem] items-center gap-x-2 sm:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,7rem)_3.5rem] sm:gap-x-3 md:grid-cols-[3.5rem_minmax(0,1fr)_16rem_3.5rem]"
 
 export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
   const companyTags = sortCompanyTags([...new Set(solution.companyTags)])
@@ -26,7 +27,8 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
 
   if (variant === "list") {
     const visibleCompanies = companyTags.slice(0, MAX_LIST_COMPANIES)
-    const overflowCount = companyTags.length - visibleCompanies.length
+    const overflowCountSm = companyTags.length - MAX_LIST_COMPANIES_SM
+    const overflowCountMd = companyTags.length - MAX_LIST_COMPANIES
 
     return (
       <div className={cn("group/row relative px-3 py-2.5", LIST_ROW_GRID)}>
@@ -41,23 +43,34 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
         </div>
 
         <div className="relative z-10 flex min-h-6 min-w-0 items-center pointer-events-none">
-          <span className="text-sm font-medium leading-snug">
-            <TitleUnderline>{solution.title}</TitleUnderline>
-          </span>
+          <TitleUnderline className="block max-w-full truncate text-sm font-medium leading-snug">
+            {solution.title}
+          </TitleUnderline>
         </div>
 
-        <div className="relative z-10 flex min-h-6 w-full items-center justify-start gap-1.5 overflow-hidden whitespace-nowrap pointer-events-auto">
+        <div className="relative z-10 hidden min-h-6 w-full items-center justify-start gap-1.5 overflow-hidden whitespace-nowrap pointer-events-auto sm:flex">
           {visibleCompanies.map((company, index) => (
-            <span key={company} className="inline-flex items-center">
+            <span
+              key={company}
+              className={cn(
+                "inline-flex items-center",
+                index >= MAX_LIST_COMPANIES_SM && "hidden md:inline-flex",
+              )}
+            >
               {index > 0 ? (
                 <span className="mr-1.5 text-xs text-muted-foreground">·</span>
               ) : null}
               <CompanyTagLink company={company} />
             </span>
           ))}
-          {overflowCount > 0 && (
-            <span className="pointer-events-none text-xs text-muted-foreground tabular-nums">
-              +{overflowCount}
+          {overflowCountSm > 0 && (
+            <span className="pointer-events-none text-xs text-muted-foreground tabular-nums md:hidden">
+              +{overflowCountSm}
+            </span>
+          )}
+          {overflowCountMd > 0 && (
+            <span className="pointer-events-none hidden text-xs text-muted-foreground tabular-nums md:inline">
+              +{overflowCountMd}
             </span>
           )}
         </div>
