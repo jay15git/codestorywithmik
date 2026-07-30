@@ -4,6 +4,7 @@ import {
 } from "@/lib/content/solution-languages"
 import type { SolutionNotesMap } from "@/lib/notes/types"
 import type { SolutionProgressMap } from "@/lib/progress/types"
+import { coerceSrsMap as coerceSrsMapFromLib } from "@/lib/srs/migrate-legacy"
 import type { SrsMap } from "@/lib/srs/types"
 
 import { idbGet, idbSet, STUDY_BAG_KEY } from "./idb"
@@ -52,7 +53,7 @@ function coerceNotesMap(value: unknown): SolutionNotesMap {
 }
 
 function coerceSrsMap(value: unknown): SrsMap {
-  return isRecord(value) ? (value as SrsMap) : {}
+  return coerceSrsMapFromLib(value)
 }
 
 function coerceLanguage(value: unknown): SolutionLanguage | null {

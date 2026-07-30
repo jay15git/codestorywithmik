@@ -1,13 +1,23 @@
+import { Rating } from "ts-fsrs"
+
+import {
+  RATING_TO_GRADE,
+  createFsrsCardDueOn,
+  formatIntervalPreview,
+  fromFsrsCard,
+  srsEngine,
+  toFsrsCard,
+  toUtcDateKeyFromDate,
+} from "@/lib/srs/fsrs-engine"
 import type { SrsCard, SrsRating } from "@/lib/srs/types"
 
-export const DEFAULT_EASE = 2.5
-export const MIN_EASE = 1.3
+export {
+  formatIntervalPreview,
+  getSrsStateLabel,
+} from "@/lib/srs/fsrs-engine"
 
 export function toUtcDateKey(date: Date = new Date()): string {
-  const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0")
-  const day = String(date.getUTCDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
+  return toUtcDateKeyFromDate(date)
 }
 
 export function addUtcDays(dateKey: string, days: number): string {
@@ -25,91 +35,43 @@ export function isDueOnOrBefore(dueAt: string, today: string): boolean {
   return compareDateKeys(dueAt, today) <= 0
 }
 
+/** First solve → schedule review tomorrow without rating yet. */
 export function createInitialCard(
   today: string = toUtcDateKey(),
-  intervalDays = 1,
 ): SrsCard {
-  return {
-    dueAt: addUtcDays(today, intervalDays),
-    intervalDays,
-    ease: DEFAULT_EASE,
-    repetitions: 0,
-    updatedAt: new Date().toISOString(),
-  }
+  return createFsrsCardDueOn(addUtcDays(today, 1))
 }
 
 /** Mark due today (e.g. revisit flag). */
 export function createDueTodayCard(today: string = toUtcDateKey()): SrsCard {
-  return {
-    dueAt: today,
-    intervalDays: 0,
-    ease: DEFAULT_EASE,
-    repetitions: 0,
-    updatedAt: new Date().toISOString(),
-  }
+  return createFsrsCardDueOn(today)
 }
 
-function clampEase(ease: number): number {
-  return Math.max(MIN_EASE, Math.round(ease * 100) / 100)
-}
-
-/**
- * Simplified SM-2 step. Mutates schedule only — progress flags handled by caller.
- */
 export function applySrsRating(
   card: SrsCard | null | undefined,
   rating: SrsRating,
-  today: string = toUtcDateKey(),
+  now: Date = new Date(),
 ): SrsCard {
-  const base = card ?? createDueTodayCard(today)
-  const nowIso = new Date().toISOString()
+  const base = card ?? createDueTodayCard(toUtcDateKey(now))
+  const result = srsEngine.next(
+    toFsrsCard(base),
+    now,
+    RATING_TO_GRADE[rating],
+  )
+  return fromFsrsCard(result.card)
+}
 
-  if (rating === "again") {
-    return {
-      dueAt: today,
-      intervalDays: 0,
-      ease: clampEase(base.ease - 0.2),
-      repetitions: 0,
-      updatedAt: nowIso,
-    }
-  }
-
-  let ease = base.ease
-  let intervalDays: number
-  let repetitions = base.repetitions
-
-  if (rating === "hard") {
-    ease = clampEase(ease - 0.15)
-    intervalDays =
-      base.repetitions === 0 ? 1 : Math.max(1, Math.round(base.intervalDays * 1.2))
-    repetitions = base.repetitions + 1
-  } else if (rating === "good") {
-    if (base.repetitions === 0) {
-      intervalDays = 1
-    } else if (base.repetitions === 1) {
-      intervalDays = 3
-    } else {
-      intervalDays = Math.max(1, Math.round(base.intervalDays * ease))
-    }
-    repetitions = base.repetitions + 1
-  } else {
-    // easy
-    ease = clampEase(ease + 0.15)
-    if (base.repetitions === 0) {
-      intervalDays = 2
-    } else if (base.repetitions === 1) {
-      intervalDays = 4
-    } else {
-      intervalDays = Math.max(1, Math.round(base.intervalDays * ease * 1.3))
-    }
-    repetitions = base.repetitions + 1
-  }
+export function previewSrsRatings(
+  card: SrsCard | null | undefined,
+  now: Date = new Date(),
+): Record<SrsRating, string> {
+  const base = card ?? createDueTodayCard(toUtcDateKey(now))
+  const preview = srsEngine.repeat(toFsrsCard(base), now)
 
   return {
-    dueAt: addUtcDays(today, intervalDays),
-    intervalDays,
-    ease,
-    repetitions,
-    updatedAt: nowIso,
+    again: formatIntervalPreview(now, preview[Rating.Again].card.due),
+    hard: formatIntervalPreview(now, preview[Rating.Hard].card.due),
+    good: formatIntervalPreview(now, preview[Rating.Good].card.due),
+    easy: formatIntervalPreview(now, preview[Rating.Easy].card.due),
   }
 }

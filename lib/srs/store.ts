@@ -61,7 +61,7 @@ export function ensureScheduledOnSolve(slug: string): SrsMap {
   return map
 }
 
-/** Revisit flag → due today (preserves ease / reps if card exists). */
+/** Revisit flag → due today (preserves FSRS state if card exists). */
 export function markDueToday(slug: string): SrsMap {
   const map = { ...readSrsMap() }
   const today = toUtcDateKey()

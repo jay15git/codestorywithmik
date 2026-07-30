@@ -1,13 +1,21 @@
+import type { State } from "ts-fsrs"
+
 export type SrsRating = "again" | "hard" | "good" | "easy"
 
 export interface SrsCard {
-  /** Due day as YYYY-MM-DD (UTC). */
+  /** Due day as YYYY-MM-DD (UTC) for queue sorting. */
   dueAt: string
-  /** Current interval in whole days. */
-  intervalDays: number
-  /** SM-2-style ease factor (min 1.3). */
-  ease: number
-  repetitions: number
+  /** FSRS due timestamp (ISO). */
+  due: string
+  stability: number
+  difficulty: number
+  elapsed_days: number
+  scheduled_days: number
+  learning_steps: number
+  reps: number
+  lapses: number
+  state: State
+  last_review?: string
   updatedAt: string
 }
 

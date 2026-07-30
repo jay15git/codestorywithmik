@@ -52,6 +52,7 @@ describe("study bag migrate", () => {
     assert.equal(bag.progress["two-sum"]?.solved, true)
     assert.equal(bag.notes["two-sum"]?.markdown, "note")
     assert.equal(bag.srs["two-sum"]?.dueAt, "2026-07-30")
+    assert.equal(bag.srs["two-sum"]?.reps, 0)
     assert.equal(bag.language, "python")
     assert.equal(bag.viewMode, "list")
     assert.equal(keysToRemove.length, 5)

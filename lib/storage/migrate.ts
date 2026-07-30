@@ -4,7 +4,7 @@ import {
 } from "@/lib/content/solution-languages"
 import type { SolutionNotesMap } from "@/lib/notes/types"
 import type { SolutionProgressMap } from "@/lib/progress/types"
-import type { SrsMap } from "@/lib/srs/types"
+import { coerceSrsMap } from "@/lib/srs/migrate-legacy"
 
 import type { StudyBag, ViewMode } from "./types"
 
@@ -81,9 +81,9 @@ export function buildStudyBagFromLegacyStorage(
   }
 
   const srsRaw = getItem(LEGACY_STORAGE_KEYS.srs)
-  const srs = parseJsonRecord<SrsMap>(srsRaw)
+  const srs = parseJsonRecord<Record<string, unknown>>(srsRaw)
   if (srs) {
-    bag.srs = srs
+    bag.srs = coerceSrsMap(srs)
     keysToRemove.push(LEGACY_STORAGE_KEYS.srs)
   }
 

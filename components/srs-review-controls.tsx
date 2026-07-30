@@ -1,11 +1,16 @@
 "use client"
 
-import { useSyncExternalStore } from "react"
+import { useMemo, useSyncExternalStore } from "react"
 import Link from "next/link"
 
 import { useSolutionProgress } from "@/components/solution-progress-provider"
 import { Button } from "@/components/ui/button"
-import { isDueOnOrBefore, toUtcDateKey } from "@/lib/srs/schedule"
+import {
+  getSrsStateLabel,
+  isDueOnOrBefore,
+  previewSrsRatings,
+  toUtcDateKey,
+} from "@/lib/srs/schedule"
 import {
   getServerSrsMap,
   getSrsCard,
@@ -34,6 +39,10 @@ export function SrsReviewControls({ slug }: { slug: string }) {
   const revisit = hasFlag(slug, "revisit")
   const due =
     revisit || (card ? isDueOnOrBefore(card.dueAt, today) : false)
+  const previews = useMemo(
+    () => previewSrsRatings(card),
+    [card],
+  )
 
   function handleRate(rating: SrsRating) {
     rateSrsCard(slug, rating)
@@ -64,7 +73,7 @@ export function SrsReviewControls({ slug }: { slug: string }) {
         </p>
         <p className="text-xs tabular-nums text-muted-foreground">
           {card ? `due ${card.dueAt}` : "due today"}
-          {card ? ` · ease ${card.ease.toFixed(2)}` : null}
+          {card ? ` · ${getSrsStateLabel(card.state)}` : null}
         </p>
       </div>
       {due ? (
@@ -77,7 +86,10 @@ export function SrsReviewControls({ slug }: { slug: string }) {
               variant={rating === "again" ? "outline" : "secondary"}
               onClick={() => handleRate(rating)}
             >
-              {label}
+              <span>{label}</span>
+              <span className="ml-1.5 text-xs tabular-nums opacity-70">
+                {previews[rating]}
+              </span>
             </Button>
           ))}
         </div>
