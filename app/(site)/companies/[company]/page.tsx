@@ -1,18 +1,24 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
+import { PrepPackFilter } from "@/components/prep-pack-filter"
+import { RandomProblemButton } from "@/components/random-problem-button"
+import { FilteredCount } from "@/components/filtered-count"
 import { SolutionFilters } from "@/components/solution-filters"
-import { SolutionsPagination } from "@/components/solutions-pagination"
-import { SolutionView } from "@/components/solution-view-list"
+import { StatusAwareSolutionList } from "@/components/status-aware-solution-list"
 import {
   SolutionViewProvider,
   SolutionViewToggle,
 } from "@/components/solution-view"
 import {
   filterSolutions,
-  LIST_PAGE_SIZE,
   parseListSearchParams,
 } from "@/lib/content/filter-solutions"
+import {
+  applyPrepPack,
+  parsePrepPack,
+  prepPackLabel,
+} from "@/lib/content/prep-packs"
 import {
   getCompanies,
   getCompanyName,
@@ -25,6 +31,8 @@ interface CompanyPageProps {
   searchParams: Promise<{
     page?: string
     difficulty?: string
+    prep?: string
+    status?: string
   }>
 }
 
@@ -34,17 +42,25 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: CompanyPageProps): Promise<Metadata> {
   const { company: companySlug } = await params
+  const { prep } = await searchParams
   const company = getCompanyName(companySlug)
 
   if (!company) {
     return { title: "Company not found" }
   }
 
+  const pack = parsePrepPack(prep)
+
   return {
-    title: `${company} interview questions`,
-    description: `Solutions tagged with ${company} in coding interviews.`,
+    title: pack
+      ? `${company} ${prepPackLabel(pack)} interview prep`
+      : `${company} interview questions`,
+    description: pack
+      ? `${prepPackLabel(pack)} most frequent ${company} interview questions with solutions.`
+      : `Solutions tagged with ${company} in coding interviews.`,
   }
 }
 
@@ -61,52 +77,55 @@ export default async function CompanyPage({
   }
 
   const allSolutions = getSolutionsByCompany(companySlug)
-  const solutions = filterSolutions(allSolutions, filters)
-  const totalPages = Math.max(1, Math.ceil(solutions.length / LIST_PAGE_SIZE))
-  const page = Math.min(filters.page, totalPages)
-  const pageSolutions = solutions.slice(
-    (page - 1) * LIST_PAGE_SIZE,
-    page * LIST_PAGE_SIZE,
-  )
+  const difficultyFiltered = filterSolutions(allSolutions, filters)
+  const solutions = applyPrepPack(difficultyFiltered, company, filters.prep)
   const basePath = `/companies/${companySlug}`
 
   return (
     <SolutionViewProvider>
       <div className="flex flex-col gap-8">
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="flex flex-col gap-2">
             <h1 className="text-3xl font-semibold tracking-tight">
               {company}
             </h1>
-            <p className="mt-2 text-muted-foreground">
-              {solutions.length} solution{solutions.length === 1 ? "" : "s"}
-              {solutions.length !== allSolutions.length
-                ? ` of ${allSolutions.length}`
-                : " tagged with this company"}
-              {totalPages > 1 ? ` · page ${page} of ${totalPages}` : ""}
-            </p>
+            <FilteredCount
+              solutions={solutions}
+              status={filters.status}
+              ofTotal={allSolutions.length}
+              trailing={
+                filters.prep
+                  ? `· ${prepPackLabel(filters.prep)} by frequency`
+                  : "tagged with this company"
+              }
+            />
           </div>
-          <SolutionViewToggle />
+          <div className="flex shrink-0 items-center gap-2">
+            <RandomProblemButton solutions={solutions} />
+            <SolutionViewToggle />
+          </div>
         </div>
 
-        <SolutionFilters basePath={basePath} filters={filters} />
+        <div className="flex flex-col gap-3">
+          <PrepPackFilter
+            basePath={basePath}
+            prep={filters.prep}
+            hrefParams={{
+              difficulty: filters.difficulty,
+              status: filters.status,
+            }}
+          />
+          <SolutionFilters basePath={basePath} filters={filters} />
+        </div>
 
-        {solutions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No solutions match these filters.
-          </p>
-        ) : (
-          <div className="solution-list-section">
-            <SolutionView solutions={pageSolutions} />
-          </div>
-        )}
-
-        <SolutionsPagination
+        <StatusAwareSolutionList
+          solutions={solutions}
+          status={filters.status}
           basePath={basePath}
-          page={page}
-          totalPages={totalPages}
+          page={filters.page}
           query={{
             difficulty: filters.difficulty,
+            prep: filters.prep,
           }}
         />
       </div>

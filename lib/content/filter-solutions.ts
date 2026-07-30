@@ -1,5 +1,13 @@
 import { companySlug } from "@/lib/content/slug"
+import {
+  parsePrepPack,
+  type PrepPack,
+} from "@/lib/content/prep-packs"
 import type { Difficulty, SolutionMeta } from "@/lib/content/types"
+import {
+  parseStatusFilter,
+} from "@/lib/progress/store"
+import type { StatusFilter } from "@/lib/progress/types"
 
 export const LIST_PAGE_SIZE = 48
 
@@ -8,12 +16,16 @@ export const DIFFICULTY_VALUES = ["Easy", "Medium", "Hard"] as const satisfies r
 export interface ListFilterState {
   difficulty: Difficulty | null
   companySlug: string | null
+  prep: PrepPack | null
+  status: StatusFilter
   page: number
 }
 
 export interface ListHrefParams {
   difficulty?: Difficulty | null
   companySlug?: string | null
+  prep?: PrepPack | null
+  status?: StatusFilter | null
   page?: number
 }
 
@@ -30,11 +42,15 @@ export function parseDifficultyParam(value: string | undefined): Difficulty | nu
 export function parseListSearchParams(searchParams: {
   difficulty?: string
   company?: string
+  prep?: string
+  status?: string
   page?: string
 }): ListFilterState {
   return {
     difficulty: parseDifficultyParam(searchParams.difficulty),
     companySlug: searchParams.company?.trim() || null,
+    prep: parsePrepPack(searchParams.prep),
+    status: parseStatusFilter(searchParams.status),
     page: Math.max(1, Number.parseInt(searchParams.page ?? "1", 10) || 1),
   }
 }
@@ -48,6 +64,14 @@ export function buildListHref(basePath: string, params: ListHrefParams = {}): st
 
   if (params.companySlug) {
     query.set("company", params.companySlug)
+  }
+
+  if (params.prep) {
+    query.set("prep", params.prep)
+  }
+
+  if (params.status && params.status !== "all") {
+    query.set("status", params.status)
   }
 
   if (params.page && params.page > 1) {

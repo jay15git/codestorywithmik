@@ -23,6 +23,8 @@ export interface SolutionMeta {
   leetcodeUrl: string | null
   gfgUrl: string | null
   companyTags: string[]
+  /** Company display name → interview frequency % from CSV (0–100). */
+  companyFrequencies?: Record<string, number>
   timeComplexity: string | null
   spaceComplexity: string | null
   difficulty: Difficulty | null

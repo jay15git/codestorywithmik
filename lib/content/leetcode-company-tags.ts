@@ -11,6 +11,14 @@ import { normalizeCompanyTags } from "./normalize-company-tags"
 import { leetcodeSlugFromUrl } from "./parse-solution"
 
 const LEETCODE_SLUG_PATTERN = /leetcode\.com\/problems\/([^/?#,"]+)/i
+const FREQUENCY_PATTERN = /,(\d+(?:\.\d+)?)%\s*$/
+
+export interface CompanyTagEnrichment {
+  companyTags: string[]
+  companyFrequencies: Record<string, number>
+}
+
+export type LeetcodeCompanyTagIndex = Map<string, Record<string, number>>
 
 export function companyFolderToDisplayName(folder: string): string {
   return folder
@@ -49,10 +57,20 @@ function resolveCompanyTagsSourceDir(): string {
   return cachePath
 }
 
+function parseFrequencyPercent(line: string): number {
+  const match = line.match(FREQUENCY_PATTERN)
+  if (!match?.[1]) {
+    return 0
+  }
+
+  const value = Number.parseFloat(match[1])
+  return Number.isFinite(value) ? value : 0
+}
+
 export function buildLeetcodeCompanyTagIndex(
   sourceDir: string,
-): Map<string, string[]> {
-  const index = new Map<string, Set<string>>()
+): LeetcodeCompanyTagIndex {
+  const index: LeetcodeCompanyTagIndex = new Map()
 
   for (const entry of readdirSync(sourceDir)) {
     const companyDir = path.join(sourceDir, entry)
@@ -80,21 +98,18 @@ export function buildLeetcodeCompanyTagIndex(
       }
 
       const slug = slugMatch[1].toLowerCase()
-      const companies = index.get(slug) ?? new Set<string>()
-      companies.add(companyName)
-      index.set(slug, companies)
+      const frequency = parseFrequencyPercent(line)
+      const frequencies = index.get(slug) ?? {}
+      const existing = frequencies[companyName] ?? 0
+      frequencies[companyName] = Math.max(existing, frequency)
+      index.set(slug, frequencies)
     }
   }
 
-  const normalized = new Map<string, string[]>()
-  for (const [slug, companies] of index) {
-    normalized.set(slug, [...companies].sort((a, b) => a.localeCompare(b)))
-  }
-
-  return normalized
+  return index
 }
 
-export function loadLeetcodeCompanyTagIndex(): Map<string, string[]> {
+export function loadLeetcodeCompanyTagIndex(): LeetcodeCompanyTagIndex {
   const sourceDir = resolveCompanyTagsSourceDir()
   return buildLeetcodeCompanyTagIndex(sourceDir)
 }
@@ -102,10 +117,20 @@ export function loadLeetcodeCompanyTagIndex(): Map<string, string[]> {
 export function enrichCompanyTags(
   markdownTags: string[],
   leetcodeUrl: string | null,
-  index: Map<string, string[]>,
-): string[] {
+  index: LeetcodeCompanyTagIndex,
+): CompanyTagEnrichment {
   const slug = leetcodeSlugFromUrl(leetcodeUrl)
-  const fromLeetcode = slug ? (index.get(slug) ?? []) : []
+  const frequencies = slug ? { ...(index.get(slug) ?? {}) } : {}
+  const fromLeetcode = Object.keys(frequencies)
+  const companyTags = normalizeCompanyTags([...markdownTags, ...fromLeetcode])
 
-  return normalizeCompanyTags([...markdownTags, ...fromLeetcode])
+  const companyFrequencies: Record<string, number> = {}
+  for (const company of companyTags) {
+    const value = frequencies[company]
+    if (typeof value === "number" && value > 0) {
+      companyFrequencies[company] = value
+    }
+  }
+
+  return { companyTags, companyFrequencies }
 }

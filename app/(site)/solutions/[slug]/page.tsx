@@ -10,6 +10,7 @@ import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
 import { SimpleIconsGeeksforgeeks } from "@/components/icons/simple-icons/geeksforgeeks"
 import { SolutionCodePanel } from "@/components/solution-code-panel"
+import { SolutionStatusControls } from "@/components/solution-status-controls"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { getSolution, getSolutions } from "@/lib/content/get-content"
 import { practiceLinkLabel } from "@/lib/content/practice-link-label"
@@ -78,6 +79,8 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
             <h1 className="text-3xl font-semibold tracking-tight">
               {solution.title}
             </h1>
+
+            <SolutionStatusControls slug={solution.slug} />
 
             <div className="flex flex-wrap items-center gap-2">
               {solution.difficulty && (

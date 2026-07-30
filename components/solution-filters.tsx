@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { CheckIcon, ChevronDownIcon } from "lucide-react"
 
+import { StatusFilterDropdown } from "@/components/status-filter-dropdown"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -78,19 +79,33 @@ export function SolutionFilters({
   companies,
   topics,
   currentTopicSlug,
+  showStatus = true,
 }: {
   basePath: string
-  filters: Pick<ListFilterState, "difficulty" | "companySlug">
+  filters: Pick<ListFilterState, "difficulty" | "companySlug" | "prep" | "status">
   companies?: Array<{ slug: string; name: string }>
   topics?: Array<{ slug: string; name: string }>
   currentTopicSlug?: string
+  showStatus?: boolean
 }) {
-  const hasActiveFilters = Boolean(filters.difficulty || filters.companySlug)
+  const hasActiveFilters = Boolean(
+    filters.difficulty ||
+      filters.companySlug ||
+      filters.prep ||
+      (filters.status && filters.status !== "all"),
+  )
   const selectedCompany =
     companies?.find((company) => company.slug === filters.companySlug)?.name ??
     "All companies"
   const selectedTopic =
     topics?.find((topic) => topic.slug === currentTopicSlug)?.name ?? "Category"
+
+  const shared = {
+    difficulty: filters.difficulty,
+    companySlug: filters.companySlug,
+    prep: filters.prep,
+    status: filters.status,
+  }
 
   const topicOptions = topics
     ? topics.map((topic) => ({
@@ -98,6 +113,7 @@ export function SolutionFilters({
         href: buildListHref(`/topics/${topic.slug}`, {
           difficulty: filters.difficulty,
           companySlug: filters.companySlug,
+          status: filters.status,
         }),
         isActive: topic.slug === currentTopicSlug,
       }))
@@ -106,8 +122,8 @@ export function SolutionFilters({
   const difficultyOptions = DIFFICULTY_OPTIONS.map((option) => ({
     label: option.label,
     href: buildListHref(basePath, {
+      ...shared,
       difficulty: option.value,
-      companySlug: filters.companySlug,
     }),
     isActive: filters.difficulty === option.value,
   }))
@@ -117,7 +133,7 @@ export function SolutionFilters({
         {
           label: "All companies",
           href: buildListHref(basePath, {
-            difficulty: filters.difficulty,
+            ...shared,
             companySlug: null,
           }),
           isActive: !filters.companySlug,
@@ -125,7 +141,7 @@ export function SolutionFilters({
         ...companies.map((company) => ({
           label: company.name,
           href: buildListHref(basePath, {
-            difficulty: filters.difficulty,
+            ...shared,
             companySlug: company.slug,
           }),
           isActive: filters.companySlug === company.slug,
@@ -157,6 +173,18 @@ export function SolutionFilters({
           value={selectedCompany}
           options={companyOptions}
           className="min-w-48"
+        />
+      ) : null}
+
+      {showStatus ? (
+        <StatusFilterDropdown
+          basePath={basePath}
+          status={filters.status}
+          hrefParams={{
+            difficulty: filters.difficulty,
+            companySlug: filters.companySlug,
+            prep: filters.prep,
+          }}
         />
       ) : null}
 

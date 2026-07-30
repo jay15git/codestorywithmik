@@ -7,6 +7,9 @@ A searchable website for browsing LeetCode data structures and algorithms soluti
 - Browse by LeetCode topic tags (multi-home — problems appear under every tag)
 - 3,500+ solution pages with C++, Java, Python, SQL, and TypeScript tabs when available
 - Company tag filters (enriched from LeetCode company-wise CSV data)
+- Local progress: solved / starred / revisit (stored in the browser)
+- Random unsolved problem from home, topic, or company lists
+- Company prep packs (Top 25 / 50 / 75 by interview frequency)
 - Cmd+K search
 - Syntax-highlighted code
 - Auto-sync from your fork on a schedule

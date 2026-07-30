@@ -101,7 +101,7 @@ function buildSolutionMeta(
     youtubeUrl: null,
     leetcodeUrl,
     gfgUrl: null,
-    companyTags: enrichCompanyTags([], leetcodeUrl, leetcodeCompanyTagIndex),
+    ...enrichCompanyTags([], leetcodeUrl, leetcodeCompanyTagIndex),
     timeComplexity: null,
     spaceComplexity: null,
     difficulty: meta?.difficulty ?? null,

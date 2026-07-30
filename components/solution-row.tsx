@@ -4,6 +4,7 @@ import { CompanyTagLink } from "@/components/company-tag-link"
 import { CompactTagOverflow } from "@/components/compact-tag-overflow"
 import { DifficultyBadge } from "@/components/difficulty-badge"
 import { SolutionExternalLinks } from "@/components/solution-external-links"
+import { SolutionStatusMarkers } from "@/components/solution-status-controls"
 import { TitleUnderline } from "@/components/title-underline"
 import { sortCompanyTags } from "@/lib/content/sort-company-tags"
 import { companySlug, topicSlugFromName } from "@/lib/content/slug"
@@ -17,7 +18,7 @@ interface SolutionRowProps {
 
 const MAX_GRID_COMPANIES = 3
 const LIST_ROW_GRID =
-  "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_3.5rem] items-center gap-x-2 sm:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_3.5rem] sm:gap-x-3 md:grid-cols-[3.5rem_minmax(0,1.4fr)_minmax(7rem,1fr)_minmax(7rem,1fr)_3.5rem]"
+  "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_2.5rem_3.5rem] items-center gap-x-2 sm:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_2.5rem_3.5rem] sm:gap-x-3 md:grid-cols-[3.5rem_minmax(0,1.4fr)_minmax(7rem,1fr)_minmax(7rem,1fr)_2.5rem_3.5rem]"
 
 function buildTopicItems(topicTags: string[]) {
   return [...new Set(topicTags)]
@@ -70,6 +71,10 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           <CompactTagOverflow items={companyItems} maxVisible={3} />
         </div>
 
+        <div className="relative z-10 flex min-h-6 items-center justify-center pointer-events-none">
+          <SolutionStatusMarkers slug={solution.slug} />
+        </div>
+
         <div className="relative z-10 flex min-h-6 items-center justify-end pointer-events-auto">
           {hasExternalLinks ? (
             <SolutionExternalLinks
@@ -100,10 +105,13 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           <div className="min-w-0 text-base font-medium leading-snug text-balance md:text-lg">
             <TitleUnderline>{solution.title}</TitleUnderline>
           </div>
-          <DifficultyBadge
-            difficulty={solution.difficulty}
-            className="shrink-0"
-          />
+          <div className="flex shrink-0 items-center gap-2">
+            <SolutionStatusMarkers slug={solution.slug} />
+            <DifficultyBadge
+              difficulty={solution.difficulty}
+              className="shrink-0"
+            />
+          </div>
         </div>
 
         {(topicItems.length > 0 ||
