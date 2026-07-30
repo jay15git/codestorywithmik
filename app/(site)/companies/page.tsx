@@ -12,7 +12,7 @@ import { getCompanies, getSolutions } from "@/lib/content/get-content"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
-  title: "Companies — Interview Solutions",
+  title: "Companies — LeetSeek",
   description:
     "Browse LeetCode solutions by company. Sort by name or interview frequency.",
 }

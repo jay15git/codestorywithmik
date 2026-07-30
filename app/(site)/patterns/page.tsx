@@ -10,7 +10,7 @@ import {
 } from "@/lib/content/patterns"
 
 export const metadata: Metadata = {
-  title: "Patterns — Interview Solutions",
+  title: "Patterns — LeetSeek",
   description:
     "Study LeetCode solutions by interview pattern: two pointers, DP, BFS/DFS, and more.",
 }

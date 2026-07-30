@@ -21,8 +21,9 @@ interface SolutionRowProps {
 }
 
 const MAX_GRID_COMPANIES = 3
+/** Title flexes; topic/company columns capped so tags don't float in empty 1fr space. */
 const LIST_ROW_GRID =
-  "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_2.5rem_3.5rem] items-center gap-x-2 sm:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_2.5rem_3.5rem] sm:gap-x-3 md:grid-cols-[3.5rem_minmax(0,1.4fr)_minmax(7rem,1fr)_minmax(7rem,1fr)_2.5rem_3.5rem]"
+  "grid w-full items-center gap-x-2 grid-cols-[3.25rem_minmax(0,1fr)_2rem_2.75rem] sm:grid-cols-[3.25rem_minmax(0,1fr)_minmax(0,8.5rem)_minmax(0,10rem)_2rem_2.75rem] sm:gap-x-2.5 md:grid-cols-[3.25rem_minmax(0,1fr)_minmax(0,10.5rem)_minmax(0,12.5rem)_2rem_2.75rem] lg:grid-cols-[3.25rem_minmax(0,1fr)_minmax(0,12rem)_minmax(0,14rem)_2rem_2.75rem]"
 
 function buildTopicItems(topicTags: string[]) {
   return [...new Set(topicTags)]
@@ -72,11 +73,11 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
         </div>
 
         <div className="relative z-10 hidden min-w-0 items-center pointer-events-auto sm:flex">
-          <CompactTagOverflow items={topicItems} maxVisible={3} />
+          <CompactTagOverflow items={topicItems} />
         </div>
 
         <div className="relative z-10 hidden min-w-0 items-center pointer-events-auto sm:flex">
-          <CompactTagOverflow items={companyItems} maxVisible={3} />
+          <CompactTagOverflow items={companyItems} />
         </div>
 
         <div className="relative z-10 flex min-h-6 items-center justify-center pointer-events-none">
@@ -129,7 +130,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           <div className="flex flex-1 flex-col">
             {topicItems.length > 0 && (
               <div className="mt-(--spacing-solution-title-meta) pointer-events-auto">
-                <CompactTagOverflow items={topicItems} maxVisible={4} />
+                <CompactTagOverflow items={topicItems} />
               </div>
             )}
 

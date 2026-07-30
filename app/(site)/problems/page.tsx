@@ -18,7 +18,7 @@ import {
 import { getSolutions } from "@/lib/content/get-content"
 
 export const metadata: Metadata = {
-  title: "All Problems — Interview Solutions",
+  title: "All Problems — LeetSeek",
   description:
     "Browse every indexed LeetCode solution. Filter by topic, company, difficulty, and sort the list.",
 }

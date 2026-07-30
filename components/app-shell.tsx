@@ -1,9 +1,8 @@
-import { MenuIcon } from "lucide-react"
-
 import { GithubRepoButton } from "@/components/github-repo-button"
 import { ProgressSidebarSummary } from "@/components/progress-sidebar-summary"
 import { SearchLazy } from "@/components/search-lazy"
 import { SidebarBrand } from "@/components/sidebar-brand"
+import { SiteNav } from "@/components/site-nav"
 import { SolutionProgressProvider } from "@/components/solution-progress-provider"
 import { StudyStorageProvider } from "@/components/study-storage-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -48,14 +47,10 @@ export function AppShell({ children }: AppShellProps) {
           </Sidebar>
 
           <SidebarInset>
-            <header className="sticky top-0 z-20 flex h-14 items-center gap-3 bg-background/90 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-              <SidebarTrigger className="md:hidden">
-                <MenuIcon />
-              </SidebarTrigger>
-
-              <div className="flex min-w-0 flex-1" />
-
-              <div className="flex items-center gap-2">
+            <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-background/90 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:gap-3 sm:px-4">
+              <SidebarTrigger />
+              <SiteNav className="min-w-0 flex-1" />
+              <div className="flex shrink-0 items-center gap-2">
                 <SearchLazy />
                 <GithubRepoButton />
                 <ThemeToggle />

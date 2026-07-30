@@ -11,7 +11,7 @@ import {
 } from "@/lib/content/study-plans"
 
 export const metadata: Metadata = {
-  title: "Study Plans — Interview Solutions",
+  title: "Study Plans — LeetSeek",
   description:
     "Work through Blind 75 and NeetCode 150 with local progress tracking.",
 }

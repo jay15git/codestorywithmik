@@ -1,16 +1,17 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ChevronDownIcon } from "lucide-react"
 import { useLayoutEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
+  DropdownContent,
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  DropdownTrigger,
+} from "@/components/ui/dropdown"
+import { MenuItem } from "@/components/ui/menu-item"
 import { cn } from "@/lib/utils"
 
 export interface CompactTagItem {
@@ -20,13 +21,13 @@ export interface CompactTagItem {
 
 interface CompactTagOverflowProps {
   items: CompactTagItem[]
-  /** Hard cap on visible tags even when space allows more */
+  /** Optional hard cap; omit to fit as many as the column allows */
   maxVisible?: number
   className?: string
 }
 
-const ITEM_GAP_PX = 10
-const SEPARATOR_WIDTH_PX = 10
+/** Matches Tailwind `gap-1.5` (6px) — tight space between tags */
+const ITEM_GAP_PX = 6
 
 function computeVisibleCount(
   itemWidths: readonly number[],
@@ -42,19 +43,19 @@ function computeVisibleCount(
   let count = 0
 
   for (let index = 0; index < total; index++) {
-    const separator = count > 0 ? SEPARATOR_WIDTH_PX : 0
+    const gap = count > 0 ? ITEM_GAP_PX : 0
     const itemWidth = itemWidths[index]
     const remaining = total - index - 1
     const moreReserve = remaining > 0 ? ITEM_GAP_PX + moreButtonWidth : 0
-    const nextUsed = used + separator + itemWidth + moreReserve
+    const nextUsed = used + gap + itemWidth + moreReserve
 
     if (nextUsed <= containerWidth) {
-      used += separator + itemWidth
+      used += gap + itemWidth
       count = index + 1
       continue
     }
 
-    const fitsWithoutMore = used + separator + itemWidth <= containerWidth
+    const fitsWithoutMore = used + gap + itemWidth <= containerWidth
     if (remaining === 0 && fitsWithoutMore) {
       count = index + 1
     }
@@ -71,15 +72,14 @@ function computeVisibleCount(
 
 export function CompactTagOverflow({
   items,
-  maxVisible = 4,
+  maxVisible,
   className,
 }: CompactTagOverflowProps) {
+  const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
   const measureRef = useRef<HTMLDivElement>(null)
   const moreMeasureRef = useRef<HTMLButtonElement>(null)
-  const [visibleCount, setVisibleCount] = useState(
-    Math.min(items.length, maxVisible),
-  )
+  const [visibleCount, setVisibleCount] = useState(items.length)
 
   useLayoutEffect(() => {
     const container = containerRef.current
@@ -100,8 +100,12 @@ export function CompactTagOverflow({
       )
       const moreWidth = moreButton.offsetWidth
       const fitCount = computeVisibleCount(widths, containerWidth, moreWidth)
+      const capped =
+        typeof maxVisible === "number"
+          ? Math.min(fitCount, maxVisible, items.length)
+          : Math.min(fitCount, items.length)
 
-      setVisibleCount(Math.min(fitCount, maxVisible, items.length))
+      setVisibleCount(capped)
     }
 
     update()
@@ -116,7 +120,7 @@ export function CompactTagOverflow({
     return null
   }
 
-  const cappedVisible = Math.min(visibleCount, maxVisible, items.length)
+  const cappedVisible = Math.min(visibleCount, items.length)
   const visibleItems = items.slice(0, cappedVisible)
   const overflowItems = items.slice(cappedVisible)
 
@@ -125,7 +129,7 @@ export function CompactTagOverflow({
       <div
         ref={measureRef}
         aria-hidden
-        className="pointer-events-none invisible absolute flex items-center gap-2.5 whitespace-nowrap"
+        className="pointer-events-none invisible absolute flex items-center gap-1.5 whitespace-nowrap"
       >
         {items.map((item) => (
           <span key={item.href} className="text-xs font-medium">
@@ -141,31 +145,27 @@ export function CompactTagOverflow({
         aria-hidden
         className="pointer-events-none invisible absolute inline-flex items-center gap-0.5 px-1.5 text-xs font-medium"
       >
-        +99 more
+        +99
         <ChevronDownIcon className="size-3" />
       </button>
 
       <div
         ref={containerRef}
-        className="flex min-w-0 items-center gap-2.5 overflow-hidden whitespace-nowrap"
+        className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap"
       >
-        {visibleItems.map((item, index) => (
-          <span key={item.href} className="inline-flex shrink-0 items-center">
-            {index > 0 ? (
-              <span className="mr-2.5 text-xs text-muted-foreground">·</span>
-            ) : null}
-            <Link
-              href={item.href}
-              className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {item.label}
-            </Link>
-          </span>
+        {visibleItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="shrink-0 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {item.label}
+          </Link>
         ))}
 
         {overflowItems.length > 0 ? (
           <DropdownMenu>
-            <DropdownMenuTrigger
+            <DropdownTrigger
               render={
                 <Button
                   variant="ghost"
@@ -175,19 +175,19 @@ export function CompactTagOverflow({
                 />
               }
             >
-              +{overflowItems.length} more
+              +{overflowItems.length}
               <ChevronDownIcon className="size-3" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="max-h-64 w-56">
-              {overflowItems.map((item) => (
-                <DropdownMenuItem
+            </DropdownTrigger>
+            <DropdownContent align="start" className="max-h-64 min-w-40">
+              {overflowItems.map((item, index) => (
+                <MenuItem
                   key={item.href}
-                  render={<Link href={item.href} />}
-                >
-                  <span className="truncate">{item.label}</span>
-                </DropdownMenuItem>
+                  label={item.label}
+                  index={index}
+                  onSelect={() => router.push(item.href)}
+                />
               ))}
-            </DropdownMenuContent>
+            </DropdownContent>
           </DropdownMenu>
         ) : null}
       </div>

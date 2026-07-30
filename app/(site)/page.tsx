@@ -12,7 +12,7 @@ import {
 } from "@/lib/content/study-plans"
 
 export const metadata: Metadata = {
-  title: "Interview Solutions — LeetCode DS & Algo",
+  title: "LeetSeek — LeetCode DS & Algo",
   description:
     "Browse LeetCode solutions by topic and company, with C++ and Java code from walkccc/LeetCode (MIT).",
 }

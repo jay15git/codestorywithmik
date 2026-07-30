@@ -1,4 +1,4 @@
-# Interview Solutions — LeetCode DS & Algo
+# LeetSeek — LeetCode DS & Algo
 
 A searchable website for browsing LeetCode data structures and algorithms solutions from [walkccc/LeetCode](https://github.com/walkccc/LeetCode) (MIT), with company tags from community CSV data.
 
@@ -59,7 +59,7 @@ walkccc/LeetCode
         ↓ (every 6h, optional workflow)
 jay15git/LeetCode  ← your fork
         ↓ (hourly cron on Vercel)
-Interview Solutions site rebuild
+LeetSeek site rebuild
 ```
 
 1. **Fork sync** (optional): add `FORK_SYNC_TOKEN` (PAT with `repo` scope on your fork) to this repo’s GitHub secrets. The workflow `.github/workflows/sync-fork-upstream.yml` merges upstream `main` into your fork every 6 hours.

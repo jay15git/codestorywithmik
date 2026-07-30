@@ -15,7 +15,7 @@ import { getSolutions } from "@/lib/content/get-content"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
-  title: "Daily & Weekly — Interview Solutions",
+  title: "Daily & Weekly — LeetSeek",
   description:
     "Deterministic problem of the day and weekly practice set. Same for everyone, no account needed.",
 }

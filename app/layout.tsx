@@ -15,8 +15,8 @@ const fontMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Interview Solutions — LeetCode DS & Algo",
-    template: "%s | Interview Solutions",
+    default: "LeetSeek — LeetCode DS & Algo",
+    template: "%s | LeetSeek",
   },
   description:
     "Browse LeetCode data structures and algorithms solutions by topic, company, and problem.",

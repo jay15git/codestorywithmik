@@ -1,9 +1,8 @@
 "use client"
 
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 
-import { Badge } from "@/components/ui/badge"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { FilterSelect } from "@/components/filter-select"
 import { buildListHref, type ListHrefParams } from "@/lib/content/filter-solutions"
 import {
   PREP_PACK_VALUES,
@@ -11,6 +10,14 @@ import {
   type PrepPack,
 } from "@/lib/content/prep-packs"
 import { cn } from "@/lib/utils"
+
+const PREP_OPTIONS: Array<{ label: string; value: string }> = [
+  { label: "All", value: "all" },
+  ...PREP_PACK_VALUES.map((pack) => ({
+    label: prepPackLabel(pack),
+    value: pack,
+  })),
+]
 
 export function PrepPackFilter({
   basePath,
@@ -23,44 +30,26 @@ export function PrepPackFilter({
   hrefParams?: Omit<ListHrefParams, "prep" | "page">
   className?: string
 }) {
-  const allHref = buildListHref(basePath, { ...hrefParams, prep: null })
+  const router = useRouter()
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-2", className)}>
-      <span className="text-sm text-muted-foreground">Prep pack</span>
-      <ToggleGroup
-        variant="outline"
-        size="sm"
-        value={prep ? [prep] : ["all"]}
-        className="flex-wrap"
-      >
-        <ToggleGroupItem
-          value="all"
-          nativeButton={false}
-          render={<Link href={allHref} />}
-          aria-label="All problems"
-        >
-          All
-        </ToggleGroupItem>
-        {PREP_PACK_VALUES.map((pack) => (
-          <ToggleGroupItem
-            key={pack}
-            value={pack}
-            nativeButton={false}
-            render={
-              <Link
-                href={buildListHref(basePath, { ...hrefParams, prep: pack })}
-              />
-            }
-            aria-label={prepPackLabel(pack)}
-          >
-            {prepPackLabel(pack)}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-      {prep ? (
-        <Badge variant="secondary">{prepPackLabel(prep)}</Badge>
-      ) : null}
+    <div className={cn(className)}>
+      <FilterSelect
+        label="Prep pack"
+        emptyLabel="All"
+        values={[prep ?? "all"]}
+        options={PREP_OPTIONS}
+        multiple={false}
+        onCommit={(next) => {
+          const value = next[0] ?? "all"
+          router.push(
+            buildListHref(basePath, {
+              ...hrefParams,
+              prep: value === "all" ? null : (value as PrepPack),
+            }),
+          )
+        }}
+      />
     </div>
   )
 }

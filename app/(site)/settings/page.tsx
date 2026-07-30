@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { DataBackupPanel } from "@/components/data-backup-panel"
 
 export const metadata: Metadata = {
-  title: "Settings — Interview Solutions",
+  title: "Settings — LeetSeek",
   description:
     "Export or import local study data: progress, notes, and review cards.",
 }
