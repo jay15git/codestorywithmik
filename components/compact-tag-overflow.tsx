@@ -192,6 +192,8 @@ export function CompactTagOverflow({
           <Link
             key={item.href}
             href={item.href}
+            data-cuelume-press=""
+            data-cuelume-release=""
             className="shrink-0 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             {item.label}

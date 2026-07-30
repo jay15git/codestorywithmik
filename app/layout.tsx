@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import type { Metadata } from "next"
 
 import "./globals.css"
+import { CuelumeProvider } from "@/components/cuelume-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
@@ -35,6 +36,7 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
+          <CuelumeProvider />
           <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
       </body>

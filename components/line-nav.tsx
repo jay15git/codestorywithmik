@@ -85,6 +85,9 @@ function LineNavItem({
       <Link
         ref={ref}
         aria-current={active ? "page" : undefined}
+        data-cuelume-hover="tick"
+        data-cuelume-press=""
+        data-cuelume-release=""
         className="group/line-nav relative flex h-px items-center gap-3 after:absolute after:top-1/2 after:left-0 after:size-full after:-translate-y-1/2 after:p-3.5"
         href={href}
         onClick={onClick}

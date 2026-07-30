@@ -245,6 +245,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
           <div
             ref={mergeRef}
             data-proximity-index={index}
+            data-cuelume-toggle=""
             aria-label={label}
             onClick={handleActivate}
             className={itemClassName}
@@ -259,6 +260,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
       <div
         ref={mergeRef}
         data-proximity-index={index}
+        data-cuelume-toggle=""
         // Disabled items are never the roving tab stop.
         tabIndex={!disabled && index === (checkedIndex ?? 0) ? 0 : -1}
         role={typeof checked === "boolean" ? "menuitemradio" : "menuitem"}

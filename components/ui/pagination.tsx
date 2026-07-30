@@ -50,6 +50,8 @@ function PaginationLink({
       variant={isActive ? "outline" : "ghost"}
       size={size}
       className={cn(className)}
+      data-cuelume-press="page"
+      data-cuelume-release={undefined}
       nativeButton={false}
       render={
         <Link

@@ -33,6 +33,8 @@ export function SiteNav({ className }: { className?: string }) {
           <Link
             key={link.href}
             href={link.href}
+            data-cuelume-press=""
+            data-cuelume-release=""
             className={cn(
               "shrink-0 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors duration-quick ease-smooth-out",
               active

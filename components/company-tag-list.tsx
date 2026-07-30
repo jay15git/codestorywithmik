@@ -177,6 +177,8 @@ export function CompanyTagList({ companies, className }: CompanyTagListProps) {
         {!expanded && hasOverflow ? (
           <button
             type="button"
+            data-cuelume-press=""
+            data-cuelume-release=""
             onClick={() => setExpanded(true)}
             className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
@@ -187,6 +189,8 @@ export function CompanyTagList({ companies, className }: CompanyTagListProps) {
         {expanded && hasOverflow ? (
           <button
             type="button"
+            data-cuelume-press=""
+            data-cuelume-release=""
             onClick={() => setExpanded(false)}
             className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >

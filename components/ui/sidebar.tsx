@@ -265,6 +265,9 @@ function SidebarTrigger({
       variant="ghost"
       size="icon-sm"
       className={cn(className)}
+      data-cuelume-press={undefined}
+      data-cuelume-release={undefined}
+      data-cuelume-toggle=""
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()

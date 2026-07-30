@@ -5,6 +5,7 @@ import { SidebarBrand } from "@/components/sidebar-brand"
 import { SiteNav } from "@/components/site-nav"
 import { SolutionProgressProvider } from "@/components/solution-progress-provider"
 import { SolutionTagsProvider } from "@/components/solution-tags-provider"
+import { SoundToggle } from "@/components/sound-toggle"
 import { StudyStorageProvider } from "@/components/study-storage-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { TopicSidebar } from "@/components/topic-sidebar"
@@ -55,6 +56,7 @@ export function AppShell({ children }: AppShellProps) {
               <div className="flex shrink-0 items-center gap-2">
                 <SearchLazy />
                 <GithubRepoButton />
+                <SoundToggle />
                 <ThemeToggle />
               </div>
             </header>

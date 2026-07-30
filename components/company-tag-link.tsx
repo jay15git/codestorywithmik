@@ -12,6 +12,8 @@ export function CompanyTagLink({ company, className }: CompanyTagLinkProps) {
   return (
     <Link
       href={`/companies/${companySlug(company)}`}
+      data-cuelume-press=""
+      data-cuelume-release=""
       className={cn(
         "text-xs font-medium text-muted-foreground transition-colors duration-quick ease-smooth-out hover:text-foreground",
         className,

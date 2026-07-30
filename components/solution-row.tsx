@@ -68,6 +68,8 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           className="absolute inset-0 z-0"
           aria-label={solution.title}
           data-solution-row
+          data-cuelume-press=""
+          data-cuelume-release=""
         />
 
         <div className="relative z-10 flex min-h-7 items-center pointer-events-none">
@@ -116,6 +118,8 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
         className="absolute inset-0 z-0 rounded-lg"
         aria-label={solution.title}
         data-solution-row
+        data-cuelume-press=""
+        data-cuelume-release=""
       />
 
       <div className="pointer-events-none relative z-10 flex min-w-0 flex-1 flex-col">

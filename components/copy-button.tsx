@@ -1,5 +1,6 @@
 "use client"
 
+import { play } from "cuelume"
 import { CheckIcon, CopyIcon } from "lucide-react"
 import * as React from "react"
 
@@ -14,6 +15,7 @@ export function CopyButton({ value }: CopyButtonProps) {
 
   async function handleCopy() {
     await navigator.clipboard.writeText(value)
+    play("success")
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1500)
   }
@@ -23,6 +25,8 @@ export function CopyButton({ value }: CopyButtonProps) {
       variant="ghost"
       size="icon-xs"
       aria-label="Copy code"
+      data-cuelume-press={undefined}
+      data-cuelume-release={undefined}
       onClick={handleCopy}
     >
       <span className="t-icon-swap" data-state={copied ? "b" : "a"}>

@@ -2,7 +2,12 @@ import Link from "next/link"
 
 export function SidebarBrand() {
   return (
-    <Link href="/" className="flex h-10 items-center gap-3">
+    <Link
+      href="/"
+      data-cuelume-press=""
+      data-cuelume-release=""
+      className="flex h-10 items-center gap-3"
+    >
       <img
         src="/codestorywithmik-logo.png"
         alt=""

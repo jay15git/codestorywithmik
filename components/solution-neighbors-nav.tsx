@@ -112,6 +112,8 @@ export function SolutionNeighborsNav({
       {prev ? (
         <Link
           href={hrefFor(prev.slug)}
+          data-cuelume-press=""
+          data-cuelume-release=""
           className={cn(
             buttonVariants({ variant: "outline", size: "sm" }),
             "h-auto max-w-[50%] flex-col items-start gap-0.5 px-3 py-2 whitespace-normal",
@@ -132,6 +134,8 @@ export function SolutionNeighborsNav({
       {next ? (
         <Link
           href={hrefFor(next.slug)}
+          data-cuelume-press=""
+          data-cuelume-release=""
           className={cn(
             buttonVariants({ variant: "outline", size: "sm" }),
             "h-auto max-w-[50%] flex-col items-end gap-0.5 px-3 py-2 whitespace-normal",

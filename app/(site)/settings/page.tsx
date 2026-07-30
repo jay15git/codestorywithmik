@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { DataBackupPanel } from "@/components/data-backup-panel"
+import { SoundPreferencePanel } from "@/components/sound-preference-panel"
 
 export const metadata: Metadata = {
   title: "Settings — LeetSeek",
@@ -18,6 +19,7 @@ export default function SettingsPage() {
         </p>
       </section>
 
+      <SoundPreferencePanel />
       <DataBackupPanel />
     </div>
   )

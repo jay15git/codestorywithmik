@@ -27,6 +27,8 @@ export function RelatedSolutions({
           <li key={solution.slug}>
             <Link
               href={`/solutions/${solution.slug}`}
+              data-cuelume-press=""
+              data-cuelume-release=""
               className="flex items-center gap-3 px-3 py-2.5 transition-colors duration-quick ease-smooth-out hover:bg-muted/40"
             >
               <DifficultyBadge difficulty={solution.difficulty} />

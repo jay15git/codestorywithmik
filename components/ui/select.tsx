@@ -289,6 +289,8 @@ const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
         <SelectPrimitive.Trigger
           ref={ref}
           aria-invalid={!!error || undefined}
+          data-cuelume-press=""
+          data-cuelume-release=""
           className={cn(
             triggerVariants({ variant }),
             shape.input,
@@ -703,6 +705,7 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
             }}
             data-proximity-index={index}
             data-value={value}
+            data-cuelume-toggle=""
             className={cn(
               // Fixed height (was py-2 around a 19.5px line box ≈ 35.5px) so
               // the text-box trim on the item text doesn't shrink the row.

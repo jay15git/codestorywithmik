@@ -135,6 +135,8 @@ export function ReviewQueue({
               <li key={item.slug}>
                 <Link
                   href={`/solutions/${item.slug}`}
+                  data-cuelume-press=""
+                  data-cuelume-release=""
                   className="flex items-center gap-3 px-3 py-2.5 transition-colors duration-quick ease-smooth-out hover:bg-muted/40"
                 >
                   <DifficultyBadge difficulty={item.solution.difficulty} />
@@ -159,6 +161,8 @@ export function ReviewQueue({
               <li key={item.slug}>
                 <Link
                   href={`/solutions/${item.slug}`}
+                  data-cuelume-press=""
+                  data-cuelume-release=""
                   className="flex items-center gap-3 px-3 py-2.5 transition-colors duration-quick ease-smooth-out hover:bg-muted/40"
                 >
                   <DifficultyBadge difficulty={item.solution!.difficulty} />

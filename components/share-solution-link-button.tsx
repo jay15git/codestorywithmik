@@ -1,5 +1,6 @@
 "use client"
 
+import { play } from "cuelume"
 import { CheckIcon, LinkIcon } from "lucide-react"
 import { useState } from "react"
 
@@ -21,6 +22,7 @@ export function ShareSolutionLinkButton({
     url.searchParams.set("lang", language)
     // Keep list nav context if present; always set lang
     await navigator.clipboard.writeText(url.toString())
+    play("success")
     setCopied(true)
     window.setTimeout(() => setCopied(false), 1500)
   }
@@ -30,6 +32,8 @@ export function ShareSolutionLinkButton({
       variant="ghost"
       size="icon-xs"
       aria-label="Copy link with language"
+      data-cuelume-press={undefined}
+      data-cuelume-release={undefined}
       onClick={handleCopy}
     >
       {copied ? <CheckIcon /> : <LinkIcon />}

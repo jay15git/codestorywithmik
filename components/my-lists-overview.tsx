@@ -34,7 +34,12 @@ export function MyListsOverview() {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       {listCards.map((list) => (
-        <Link key={list.id} href={`/lists/${list.id}`}>
+        <Link
+          key={list.id}
+          href={`/lists/${list.id}`}
+          data-cuelume-press=""
+          data-cuelume-release=""
+        >
           <Card className="h-full bg-card transition-colors hover:bg-muted/40">
             <CardHeader>
               <CardTitle className="text-base">
