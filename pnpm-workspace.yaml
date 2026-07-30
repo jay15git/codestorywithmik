@@ -18,7 +18,6 @@ minimumReleaseAgeExclude:
   - fs-extra
   - hono
   - ip-address
-  - isomorphic-dompurify
   - jose
   - lucide-react
   - media-typer
