@@ -5,36 +5,42 @@ import { useMemo } from "react"
 import { ListKeyboardNav } from "@/components/list-keyboard-nav"
 import { SolutionView } from "@/components/solution-view-list"
 import { useSolutionProgress } from "@/components/solution-progress-provider"
+import { useSolutionTags } from "@/components/solution-tags-provider"
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { matchesSolutionListFilters } from "@/lib/content/list-progress-filters"
 import type { SolutionMeta, Topic } from "@/lib/content/types"
 import type { StatusFilterValue } from "@/lib/progress/filters"
-import { matchesAnyStatusFilter } from "@/lib/progress/store"
 
 export function StatusAwareTopicSections({
   topic,
   solutions,
   statuses,
+  tagIds = [],
 }: {
   topic: Topic
   solutions: SolutionMeta[]
   statuses: StatusFilterValue[]
+  tagIds?: string[]
 }) {
   const { map } = useSolutionProgress()
+  const { assignments } = useSolutionTags()
 
   const filtered = useMemo(() => {
-    if (statuses.length === 0) {
-      return solutions
-    }
-
     return solutions.filter((solution) =>
-      matchesAnyStatusFilter(map, solution.slug, statuses),
+      matchesSolutionListFilters(
+        solution.slug,
+        map,
+        assignments,
+        statuses,
+        tagIds,
+      ),
     )
-  }, [solutions, statuses, map])
+  }, [solutions, statuses, tagIds, map, assignments])
 
   if (filtered.length === 0) {
     return (
@@ -42,7 +48,7 @@ export function StatusAwareTopicSections({
         <EmptyHeader>
           <EmptyTitle>No solutions match these filters.</EmptyTitle>
           <EmptyDescription>
-            {statuses.length === 0
+            {statuses.length === 0 && tagIds.length === 0
               ? "Try a different difficulty or company filter."
               : "Mark problems from a solution page, or clear the progress filter."}
           </EmptyDescription>

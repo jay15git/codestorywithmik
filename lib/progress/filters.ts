@@ -8,9 +8,10 @@ export type StatusFilterValue = Exclude<StatusFilter, "all">
 const STATUS_FILTER_VALUES = [
   "solved",
   "unsolved",
-  "starred",
-  "revisit",
 ] as const satisfies readonly StatusFilterValue[]
+
+/** Legacy status values migrated to tag filters. */
+const LEGACY_TAG_STATUS_VALUES = ["starred", "revisit"] as const
 
 export function parseStatusFilter(value: string | undefined): StatusFilter {
   const [first] = parseStatusFilters(value)
@@ -37,6 +38,28 @@ export function parseStatusFilters(
   return [...seen]
 }
 
+export function parseLegacyTagIdsFromStatus(
+  value: string | undefined,
+): string[] {
+  if (!value) {
+    return []
+  }
+
+  const seen = new Set<string>()
+  for (const part of value.split(",")) {
+    const trimmed = part.trim()
+    if (
+      LEGACY_TAG_STATUS_VALUES.includes(
+        trimmed as typeof LEGACY_TAG_STATUS_VALUES[number],
+      ) &&
+      !seen.has(trimmed)
+    ) {
+      seen.add(trimmed)
+    }
+  }
+  return [...seen]
+}
+
 export function getProgressEntry(
   map: SolutionProgressMap,
   slug: string,
@@ -58,10 +81,6 @@ export function matchesStatusFilter(
       return Boolean(entry.solved)
     case "unsolved":
       return !entry.solved
-    case "starred":
-      return Boolean(entry.starred)
-    case "revisit":
-      return Boolean(entry.revisit)
     default:
       return true
   }

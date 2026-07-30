@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import { DifficultyBadge } from "@/components/difficulty-badge"
-import { useSolutionProgress } from "@/components/solution-progress-provider"
+import { useSolutionTags } from "@/components/solution-tags-provider"
 import { TitleUnderline } from "@/components/title-underline"
 import { Button } from "@/components/ui/button"
 import {
@@ -38,7 +38,7 @@ export function ReviewQueue({
   solutions: ReviewSolutionItem[]
 }) {
   const router = useRouter()
-  const { map: progressMap } = useSolutionProgress()
+  const { assignments } = useSolutionTags()
   const srsMap = useSyncExternalStore(
     subscribeToSrs,
     readSrsMap,
@@ -55,8 +55,8 @@ export function ReviewQueue({
 
   const today = toUtcDateKey()
   const queue = useMemo(
-    () => buildReviewQueue(srsMap, progressMap, today),
-    [srsMap, progressMap, today],
+    () => buildReviewQueue(srsMap, assignments, today),
+    [srsMap, assignments, today],
   )
 
   const resolved = queue

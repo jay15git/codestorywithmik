@@ -84,6 +84,7 @@ export default async function TopicPage({
     companySlugs: filters.companySlugs,
     difficulties: filters.difficulties,
     statuses: filters.statuses,
+    tagIds: filters.tagIds,
   })
 
   return (
@@ -98,6 +99,7 @@ export default async function TopicPage({
               <FilteredCount
                 solutions={solutions}
                 statuses={filters.statuses}
+                tagIds={filters.tagIds}
                 ofTotal={allSolutions.length}
               />
             </div>
@@ -119,6 +121,7 @@ export default async function TopicPage({
             <StatusAwareSolutionList
               solutions={solutions}
               statuses={filters.statuses}
+              tagIds={filters.tagIds}
               basePath={basePath}
               page={filters.page}
               query={{
@@ -132,6 +135,7 @@ export default async function TopicPage({
               topic={topic}
               solutions={solutions}
               statuses={filters.statuses}
+              tagIds={filters.tagIds}
             />
           )}
         </div>

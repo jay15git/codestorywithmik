@@ -6,7 +6,9 @@ import {
   StarIcon,
 } from "lucide-react"
 
+import { SolutionSaveTagsDialog } from "@/components/solution-save-tags-dialog"
 import { useSolutionProgress } from "@/components/solution-progress-provider"
+import { useSolutionTags } from "@/components/solution-tags-provider"
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
@@ -14,18 +16,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import type { ProgressFlag } from "@/lib/progress/types"
+import { Badge } from "@/components/ui/badge"
+import { REVISIT_TAG_ID, STARRED_TAG_ID } from "@/lib/tags/constants"
 import { cn } from "@/lib/utils"
-
-const CONTROLS: Array<{
-  flag: ProgressFlag
-  label: string
-  Icon: typeof CheckIcon
-}> = [
-  { flag: "solved", label: "Solved", Icon: CheckIcon },
-  { flag: "starred", label: "Starred", Icon: StarIcon },
-  { flag: "revisit", label: "Revisit", Icon: RotateCcwIcon },
-]
 
 export function SolutionStatusControls({
   slug,
@@ -36,34 +29,34 @@ export function SolutionStatusControls({
 }) {
   const { hasFlag, toggleFlag } = useSolutionProgress()
 
+  const solved = hasFlag(slug, "solved")
+
   return (
     <TooltipProvider>
       <div className={cn("flex flex-wrap items-center gap-2", className)}>
-        {CONTROLS.map(({ flag, label, Icon }) => {
-          const active = hasFlag(slug, flag)
-          return (
-            <Tooltip key={flag}>
-              <TooltipTrigger
-                render={
-                  <Button
-                    type="button"
-                    variant={active ? "default" : "outline"}
-                    size="sm"
-                    aria-pressed={active}
-                    aria-label={`${active ? "Unset" : "Mark"} ${label.toLowerCase()}`}
-                    onClick={() => toggleFlag(slug, flag)}
-                  />
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                type="button"
+                variant={solved ? "default" : "outline"}
+                size="sm"
+                aria-pressed={solved}
+                aria-label={
+                  solved ? "Unset solved" : "Mark as solved"
                 }
-              >
-                <Icon data-icon="inline-start" />
-                {label}
-              </TooltipTrigger>
-              <TooltipContent>
-                {active ? `Remove ${label.toLowerCase()}` : `Mark as ${label.toLowerCase()}`}
-              </TooltipContent>
-            </Tooltip>
-          )
-        })}
+                onClick={() => toggleFlag(slug, "solved")}
+              />
+            }
+          >
+            <CheckIcon data-icon="inline-start" />
+            Solved
+          </TooltipTrigger>
+          <TooltipContent>
+            {solved ? "Remove solved" : "Mark as solved"}
+          </TooltipContent>
+        </Tooltip>
+        <SolutionSaveTagsDialog slug={slug} />
       </div>
     </TooltipProvider>
   )
@@ -77,11 +70,13 @@ export function SolutionStatusMarkers({
   className?: string
 }) {
   const { hasFlag } = useSolutionProgress()
-  const solved = hasFlag(slug, "solved")
-  const starred = hasFlag(slug, "starred")
-  const revisit = hasFlag(slug, "revisit")
+  const { tags, getTagIds } = useSolutionTags()
 
-  if (!solved && !starred && !revisit) {
+  const solved = hasFlag(slug, "solved")
+  const assignedIds = getTagIds(slug)
+  const assignedTags = tags.filter((tag) => assignedIds.includes(tag.id))
+
+  if (!solved && assignedTags.length === 0) {
     return null
   }
 
@@ -90,8 +85,7 @@ export function SolutionStatusMarkers({
       className={cn("flex items-center gap-1 text-muted-foreground", className)}
       aria-label={[
         solved ? "Solved" : null,
-        starred ? "Starred" : null,
-        revisit ? "Revisit" : null,
+        ...assignedTags.map((tag) => tag.name),
       ]
         .filter(Boolean)
         .join(", ")}
@@ -99,10 +93,28 @@ export function SolutionStatusMarkers({
       {solved ? (
         <CheckIcon className="size-3.5 text-emerald-600 dark:text-emerald-400" />
       ) : null}
-      {starred ? (
-        <StarIcon className="size-3.5 text-amber-600 dark:text-amber-400" />
-      ) : null}
-      {revisit ? <RotateCcwIcon className="size-3.5" /> : null}
+      {assignedTags.map((tag) => {
+        if (tag.id === STARRED_TAG_ID) {
+          return (
+            <StarIcon
+              key={tag.id}
+              className="size-3.5 text-amber-600 dark:text-amber-400"
+            />
+          )
+        }
+        if (tag.id === REVISIT_TAG_ID) {
+          return <RotateCcwIcon key={tag.id} className="size-3.5" />
+        }
+        return (
+          <Badge
+            key={tag.id}
+            variant="secondary"
+            className="h-5 px-1.5 text-[10px] font-normal"
+          >
+            {tag.name}
+          </Badge>
+        )
+      })}
     </div>
   )
 }

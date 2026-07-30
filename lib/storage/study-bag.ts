@@ -8,16 +8,20 @@ import type { SolutionNotesMap } from "@/lib/notes/types"
 import type { SolutionProgressMap } from "@/lib/progress/types"
 import { coerceSrsMap as coerceSrsMapFromLib } from "@/lib/srs/migrate-legacy"
 import type { SrsMap } from "@/lib/srs/types"
+import { coerceTagState } from "@/lib/tags/migrate"
 
 import { idbGet, idbSet, STUDY_BAG_KEY } from "./idb"
 import {
   buildStudyBagFromLegacyStorage,
   createEmptyStudyBag,
+  migrateStudyBagV1ToV2,
   LEGACY_STORAGE_KEYS,
 } from "./migrate"
 import type {
+  LegacyProgressEntry,
   StudyBag,
   StudyBagPatch,
+  StudyBagV1,
   StudyBackup,
   ViewMode,
 } from "./types"
@@ -46,8 +50,44 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value)
 }
 
+function coerceLegacyProgressMap(
+  value: unknown,
+): Record<string, LegacyProgressEntry> {
+  if (!isRecord(value)) {
+    return {}
+  }
+
+  const result: Record<string, LegacyProgressEntry> = {}
+  for (const [slug, entry] of Object.entries(value)) {
+    if (!isRecord(entry)) {
+      continue
+    }
+    const legacy: LegacyProgressEntry = {}
+    if (entry.solved) legacy.solved = true
+    if (entry.starred) legacy.starred = true
+    if (entry.revisit) legacy.revisit = true
+    if (Object.keys(legacy).length > 0) {
+      result[slug] = legacy
+    }
+  }
+  return result
+}
+
 function coerceProgressMap(value: unknown): SolutionProgressMap {
-  return isRecord(value) ? (value as SolutionProgressMap) : {}
+  if (!isRecord(value)) {
+    return {}
+  }
+
+  const result: SolutionProgressMap = {}
+  for (const [slug, entry] of Object.entries(value)) {
+    if (!isRecord(entry)) {
+      continue
+    }
+    if (entry.solved) {
+      result[slug] = { solved: true }
+    }
+  }
+  return result
 }
 
 function coerceNotesMap(value: unknown): SolutionNotesMap {
@@ -73,19 +113,42 @@ function coerceViewMode(value: unknown): ViewMode {
   return value === "list" ? "list" : "grid"
 }
 
-export function parseStudyBackup(json: unknown): StudyBag {
-  if (!isRecord(json) || json.version !== 1) {
+function normalizeStudyBag(json: unknown): StudyBag {
+  if (!isRecord(json)) {
     throw new Error("Unsupported backup format")
   }
 
-  return {
+  const version = json.version
+  if (version !== 1 && version !== 2) {
+    throw new Error("Unsupported backup format")
+  }
+
+  if (version === 2) {
+    return {
+      version: 2,
+      progress: coerceProgressMap(json.progress),
+      notes: coerceNotesMap(json.notes),
+      srs: coerceSrsMap(json.srs),
+      language: coerceLanguage(json.language),
+      viewMode: coerceViewMode(json.viewMode),
+      tags: coerceTagState(json.tags),
+    }
+  }
+
+  const v1: StudyBagV1 = {
     version: 1,
-    progress: coerceProgressMap(json.progress),
+    progress: coerceLegacyProgressMap(json.progress),
     notes: coerceNotesMap(json.notes),
     srs: coerceSrsMap(json.srs),
     language: coerceLanguage(json.language),
     viewMode: coerceViewMode(json.viewMode),
   }
+
+  return migrateStudyBagV1ToV2(v1)
+}
+
+export function parseStudyBackup(json: unknown): StudyBag {
+  return normalizeStudyBag(json)
 }
 
 export function subscribeStudyBag(listener: () => void) {
@@ -116,17 +179,13 @@ export function hydrateStudyBag(): Promise<void> {
 
   if (!hydratePromise) {
     hydratePromise = (async () => {
-      const stored = await idbGet<StudyBag>(STUDY_BAG_KEY)
+      const stored = await idbGet<StudyBag | StudyBagV1>(STUDY_BAG_KEY)
 
-      if (stored?.version === 1) {
-        memoryBag = {
-          version: 1,
-          progress: coerceProgressMap(stored.progress),
-          notes: coerceNotesMap(stored.notes),
-          srs: coerceSrsMap(stored.srs),
-          language: coerceLanguage(stored.language),
-          viewMode: coerceViewMode(stored.viewMode),
-        }
+      if (stored?.version === 2) {
+        memoryBag = normalizeStudyBag(stored)
+      } else if (stored?.version === 1) {
+        memoryBag = migrateStudyBagV1ToV2(stored)
+        await idbSet(STUDY_BAG_KEY, memoryBag)
       } else {
         const { bag, keysToRemove } = buildStudyBagFromLegacyStorage((key) =>
           window.localStorage.getItem(key),
@@ -161,14 +220,7 @@ export function patchStudyBag(patch: StudyBagPatch): StudyBag {
 }
 
 export function replaceStudyBag(bag: StudyBag): StudyBag {
-  memoryBag = {
-    version: 1,
-    progress: coerceProgressMap(bag.progress),
-    notes: coerceNotesMap(bag.notes),
-    srs: coerceSrsMap(bag.srs),
-    language: coerceLanguage(bag.language),
-    viewMode: coerceViewMode(bag.viewMode),
-  }
+  memoryBag = normalizeStudyBag(bag)
   notify()
   persistBag(memoryBag)
   return memoryBag

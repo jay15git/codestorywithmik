@@ -11,6 +11,8 @@ import {
 } from "@/components/solution-view"
 import { StatusAwareStudyPlanGroups } from "@/components/status-aware-study-plan-groups"
 import { StatusFilterDropdown } from "@/components/status-filter-dropdown"
+import { TagFilterDropdown } from "@/components/tag-filter-dropdown"
+import { parseProgressListParams } from "@/lib/content/filter-solutions"
 import { getSolutions } from "@/lib/content/get-content"
 import { listFiltersToNavParams } from "@/lib/content/solution-nav"
 import {
@@ -20,12 +22,13 @@ import {
   getStudyPlans,
   studyPlanIdCount,
 } from "@/lib/content/study-plans"
-import { parseStatusFilter } from "@/lib/progress/filters"
+import type { StatusFilter } from "@/lib/progress/types"
 
 interface StudyPlanPageProps {
   params: Promise<{ slug: string }>
   searchParams: Promise<{
     status?: string
+    tag?: string
   }>
 }
 
@@ -61,15 +64,19 @@ export default async function StudyPlanPage({
     notFound()
   }
 
-  const status = parseStatusFilter(query.status)
-  const statuses = status === "all" ? [] : [status]
+  const progressFilters = parseProgressListParams(query)
+  const statuses = progressFilters.statuses
+  const tagIds = progressFilters.tagIds
+  const dropdownStatus: StatusFilter =
+    statuses.length === 1 ? statuses[0] : "all"
   const allSolutions = getSolutions()
   const solutions = getSolutionsForStudyPlan(plan, allSolutions)
   const groups = getStudyPlanGroupsWithSolutions(plan, allSolutions)
   const basePath = `/plans/${plan.slug}`
   const navParams = listFiltersToNavParams("plan", {
     planSlug: plan.slug,
-    status,
+    status: dropdownStatus,
+    tagIds,
   })
   const curated = studyPlanIdCount(plan)
 
@@ -96,6 +103,7 @@ export default async function StudyPlanPage({
               <FilteredCount
                 solutions={solutions}
                 statuses={statuses}
+                tagIds={tagIds}
                 trailing={
                   solutions.length !== curated
                     ? `· ${curated} curated`
@@ -109,9 +117,24 @@ export default async function StudyPlanPage({
             </div>
           </div>
 
-          <StatusFilterDropdown basePath={basePath} status={status} />
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusFilterDropdown
+              basePath={basePath}
+              status={dropdownStatus}
+              hrefParams={{ tagIds }}
+            />
+            <TagFilterDropdown
+              basePath={basePath}
+              tagIds={tagIds}
+              hrefParams={{ status: dropdownStatus }}
+            />
+          </div>
 
-          <StatusAwareStudyPlanGroups groups={groups} status={status} />
+          <StatusAwareStudyPlanGroups
+            groups={groups}
+            status={dropdownStatus}
+            tagIds={tagIds}
+          />
         </div>
       </SolutionListNavProvider>
     </SolutionViewProvider>

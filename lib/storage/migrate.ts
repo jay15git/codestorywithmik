@@ -3,10 +3,13 @@ import {
   type SolutionLanguage,
 } from "@/lib/content/solution-languages"
 import type { SolutionNotesMap } from "@/lib/notes/types"
-import type { SolutionProgressMap } from "@/lib/progress/types"
 import { coerceSrsMap } from "@/lib/srs/migrate-legacy"
+import {
+  createDefaultTagState,
+  migrateProgressFlagsToTags,
+} from "@/lib/tags/migrate"
 
-import type { StudyBag, ViewMode } from "./types"
+import type { LegacyProgressEntry, StudyBag, StudyBagV1, ViewMode } from "./types"
 
 export const LEGACY_STORAGE_KEYS = {
   progress: "solution-progress-v1",
@@ -18,12 +21,13 @@ export const LEGACY_STORAGE_KEYS = {
 
 export function createEmptyStudyBag(): StudyBag {
   return {
-    version: 1,
+    version: 2,
     progress: {},
     notes: {},
     srs: {},
     language: null,
     viewMode: "grid",
+    tags: createDefaultTagState(),
   }
 }
 
@@ -60,47 +64,74 @@ function parseViewMode(raw: string | null): ViewMode {
   return raw === "list" ? "list" : "grid"
 }
 
+export function migrateStudyBagV1ToV2(bag: StudyBagV1): StudyBag {
+  const tags = createDefaultTagState()
+  const migrated = migrateProgressFlagsToTags(bag.progress, tags.assignments)
+
+  return {
+    version: 2,
+    progress: migrated.progress,
+    notes: bag.notes,
+    srs: bag.srs,
+    language: bag.language,
+    viewMode: bag.viewMode,
+    tags: {
+      definitions: tags.definitions,
+      assignments: migrated.assignments,
+    },
+  }
+}
+
 export function buildStudyBagFromLegacyStorage(
   getItem: (key: string) => string | null,
 ): { bag: StudyBag; keysToRemove: string[] } {
   const keysToRemove: string[] = []
-  const bag = createEmptyStudyBag()
+  const v1Bag: StudyBagV1 = {
+    version: 1,
+    progress: {},
+    notes: {},
+    srs: {},
+    language: null,
+    viewMode: "grid",
+  }
 
   const progressRaw = getItem(LEGACY_STORAGE_KEYS.progress)
-  const progress = parseJsonRecord<SolutionProgressMap>(progressRaw)
+  const progress = parseJsonRecord<Record<string, LegacyProgressEntry>>(
+    progressRaw,
+  )
   if (progress) {
-    bag.progress = progress
+    v1Bag.progress = progress
     keysToRemove.push(LEGACY_STORAGE_KEYS.progress)
   }
 
   const notesRaw = getItem(LEGACY_STORAGE_KEYS.notes)
   const notes = parseJsonRecord<SolutionNotesMap>(notesRaw)
   if (notes) {
-    bag.notes = notes
+    v1Bag.notes = notes
     keysToRemove.push(LEGACY_STORAGE_KEYS.notes)
   }
 
   const srsRaw = getItem(LEGACY_STORAGE_KEYS.srs)
   const srs = parseJsonRecord<Record<string, unknown>>(srsRaw)
   if (srs) {
-    bag.srs = coerceSrsMap(srs)
+    v1Bag.srs = coerceSrsMap(srs)
     keysToRemove.push(LEGACY_STORAGE_KEYS.srs)
   }
 
   const languageRaw = getItem(LEGACY_STORAGE_KEYS.language)
   const language = parseLanguage(languageRaw)
   if (language) {
-    bag.language = language
+    v1Bag.language = language
     keysToRemove.push(LEGACY_STORAGE_KEYS.language)
   }
 
   const viewModeRaw = getItem(LEGACY_STORAGE_KEYS.viewMode)
   if (viewModeRaw !== null) {
-    bag.viewMode = parseViewMode(viewModeRaw)
+    v1Bag.viewMode = parseViewMode(viewModeRaw)
     keysToRemove.push(LEGACY_STORAGE_KEYS.viewMode)
   }
 
-  return { bag, keysToRemove }
+  return { bag: migrateStudyBagV1ToV2(v1Bag), keysToRemove }
 }
 
 export function hasLegacyStudyData(

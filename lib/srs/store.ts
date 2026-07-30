@@ -1,6 +1,7 @@
 "use client"
 
-import type { SolutionProgressMap } from "@/lib/progress/types"
+import { REVISIT_TAG_ID } from "@/lib/tags/constants"
+import type { TagAssignmentsMap } from "@/lib/tags/types"
 import { isDueOnOrBefore, toUtcDateKey } from "@/lib/srs/dates"
 import {
   applySrsRating,
@@ -91,7 +92,7 @@ export function rateSrsCard(slug: string, rating: SrsRating): SrsMap {
 
 export function buildReviewQueue(
   srsMap: SrsMap,
-  progressMap: SolutionProgressMap,
+  tagAssignments: TagAssignmentsMap,
   today: string = toUtcDateKey(),
 ): SrsQueueItem[] {
   const items: SrsQueueItem[] = []
@@ -103,8 +104,8 @@ export function buildReviewQueue(
     seen.add(slug)
   }
 
-  for (const [slug, entry] of Object.entries(progressMap)) {
-    if (!entry.revisit || seen.has(slug)) continue
+  for (const [slug, tagIds] of Object.entries(tagAssignments)) {
+    if (!tagIds.includes(REVISIT_TAG_ID) || seen.has(slug)) continue
     items.push({ slug, dueAt: today, source: "revisit" })
     seen.add(slug)
   }
@@ -120,8 +121,8 @@ export function buildReviewQueue(
 
 export function countDue(
   srsMap: SrsMap,
-  progressMap: SolutionProgressMap,
+  tagAssignments: TagAssignmentsMap,
   today: string = toUtcDateKey(),
 ): number {
-  return buildReviewQueue(srsMap, progressMap, today).length
+  return buildReviewQueue(srsMap, tagAssignments, today).length
 }

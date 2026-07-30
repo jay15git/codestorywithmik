@@ -56,6 +56,7 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
             <FilteredCount
               solutions={solutions}
               statuses={filters.statuses}
+              tagIds={filters.tagIds}
               ofTotal={allSolutions.length}
             />
           </div>
@@ -76,6 +77,7 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
         <StatusAwareSolutionList
           solutions={solutions}
           statuses={filters.statuses}
+          tagIds={filters.tagIds}
           basePath={basePath}
           page={filters.page}
           query={{

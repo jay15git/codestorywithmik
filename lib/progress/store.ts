@@ -11,6 +11,8 @@ import {
   patchStudyBag,
   subscribeStudyBag,
 } from "@/lib/storage/study-bag"
+import { REVISIT_TAG_ID } from "@/lib/tags/constants"
+import { clearTag, setTag } from "@/lib/tags/store"
 
 export {
   getProgressEntry,
@@ -18,6 +20,7 @@ export {
   matchesStatusFilter,
   parseStatusFilter,
   parseStatusFilters,
+  parseLegacyTagIdsFromStatus,
 } from "@/lib/progress/filters"
 
 export const PROGRESS_STORAGE_KEY = "solution-progress-v1"
@@ -68,17 +71,13 @@ export function toggleProgressFlag(
   if (next) {
     entry[flag] = true
     if (flag === "solved") {
-      delete entry.revisit
-    }
-    if (flag === "revisit") {
-      delete entry.solved
+      clearTag(slug, REVISIT_TAG_ID)
     }
   } else {
     delete entry[flag]
   }
 
-  const hasAny = entry.solved || entry.starred || entry.revisit
-  if (hasAny) {
+  if (entry.solved) {
     map[slug] = entry
   } else {
     delete map[slug]
@@ -99,17 +98,13 @@ export function setProgressFlag(
   if (value) {
     entry[flag] = true
     if (flag === "solved") {
-      delete entry.revisit
-    }
-    if (flag === "revisit") {
-      delete entry.solved
+      clearTag(slug, REVISIT_TAG_ID)
     }
   } else {
     delete entry[flag]
   }
 
-  const hasAny = entry.solved || entry.starred || entry.revisit
-  if (hasAny) {
+  if (entry.solved) {
     map[slug] = entry
   } else {
     delete map[slug]
@@ -121,19 +116,13 @@ export function setProgressFlag(
 
 export function countProgress(map: SolutionProgressMap): ProgressCounts {
   let solved = 0
-  let starred = 0
-  let revisit = 0
 
   for (const entry of Object.values(map)) {
     if (entry.solved) solved += 1
-    if (entry.starred) starred += 1
-    if (entry.revisit) revisit += 1
   }
 
   return {
     solved,
-    starred,
-    revisit,
     totalTracked: Object.keys(map).length,
   }
 }

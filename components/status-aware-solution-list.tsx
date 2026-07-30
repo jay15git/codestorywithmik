@@ -6,6 +6,7 @@ import { ListKeyboardNav } from "@/components/list-keyboard-nav"
 import { SolutionsPagination } from "@/components/solutions-pagination"
 import { SolutionView } from "@/components/solution-view-list"
 import { useSolutionProgress } from "@/components/solution-progress-provider"
+import { useSolutionTags } from "@/components/solution-tags-provider"
 import {
   Empty,
   EmptyDescription,
@@ -16,13 +17,14 @@ import {
   LIST_PAGE_SIZE,
   type ListHrefParams,
 } from "@/lib/content/filter-solutions"
+import { matchesSolutionListFilters } from "@/lib/content/list-progress-filters"
 import type { SolutionMeta } from "@/lib/content/types"
-import { matchesAnyStatusFilter } from "@/lib/progress/store"
 import type { StatusFilterValue } from "@/lib/progress/filters"
 
 export function StatusAwareSolutionList({
   solutions,
   statuses,
+  tagIds = [],
   basePath,
   page,
   query = {},
@@ -31,24 +33,28 @@ export function StatusAwareSolutionList({
 }: {
   solutions: SolutionMeta[]
   statuses: StatusFilterValue[]
+  tagIds?: string[]
   basePath: string
   page: number
-  query?: Omit<ListHrefParams, "page" | "status" | "statuses">
+  query?: Omit<ListHrefParams, "page" | "status" | "statuses" | "tagIds">
   emptyTitle?: string
   /** When false, render full filtered list (e.g. study-plan groups). */
   paginated?: boolean
 }) {
   const { map } = useSolutionProgress()
+  const { assignments } = useSolutionTags()
 
   const filtered = useMemo(() => {
-    if (statuses.length === 0) {
-      return solutions
-    }
-
     return solutions.filter((solution) =>
-      matchesAnyStatusFilter(map, solution.slug, statuses),
+      matchesSolutionListFilters(
+        solution.slug,
+        map,
+        assignments,
+        statuses,
+        tagIds,
+      ),
     )
-  }, [solutions, statuses, map])
+  }, [solutions, statuses, tagIds, map, assignments])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / LIST_PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -62,7 +68,7 @@ export function StatusAwareSolutionList({
         <EmptyHeader>
           <EmptyTitle>{emptyTitle}</EmptyTitle>
           <EmptyDescription>
-            {statuses.length === 0
+            {statuses.length === 0 && tagIds.length === 0
               ? "Try a different difficulty or company filter."
               : "Mark problems from a solution page, or clear the progress filter."}
           </EmptyDescription>
@@ -81,7 +87,7 @@ export function StatusAwareSolutionList({
           basePath={basePath}
           page={safePage}
           totalPages={totalPages}
-          query={{ ...query, statuses }}
+          query={{ ...query, statuses, tagIds }}
         />
       ) : null}
     </div>

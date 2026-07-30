@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import { FilterSelect } from "@/components/filter-select"
+import { useSolutionTags } from "@/components/solution-tags-provider"
 import { Button } from "@/components/ui/button"
 import {
   buildListHref,
@@ -22,8 +23,6 @@ const SORT_OPTIONS: Array<{ label: string; value: ListSort }> = [
 const STATUS_OPTIONS: Array<{ label: string; value: StatusFilterValue }> = [
   { label: "Unsolved", value: "unsolved" },
   { label: "Solved", value: "solved" },
-  { label: "Starred", value: "starred" },
-  { label: "Revisit", value: "revisit" },
 ]
 
 export function SolutionFilters({
@@ -43,6 +42,7 @@ export function SolutionFilters({
     | "topicSlugs"
     | "prep"
     | "statuses"
+    | "tagIds"
     | "sort"
   >
   companies?: Array<{ slug: string; name: string }>
@@ -52,6 +52,7 @@ export function SolutionFilters({
   showSort?: boolean
 }) {
   const router = useRouter()
+  const { tags } = useSolutionTags()
 
   const hasActiveFilters = Boolean(
     filters.difficulties.length > 0 ||
@@ -59,6 +60,7 @@ export function SolutionFilters({
       filters.topicSlugs.length > 0 ||
       filters.prep ||
       filters.statuses.length > 0 ||
+      filters.tagIds.length > 0 ||
       (showSort && filters.sort && filters.sort !== "id"),
   )
 
@@ -68,6 +70,7 @@ export function SolutionFilters({
     topicSlugs: filters.topicSlugs,
     prep: filters.prep,
     statuses: filters.statuses,
+    tagIds: filters.tagIds,
     sort: filters.sort,
   }
 
@@ -95,6 +98,11 @@ export function SolutionFilters({
   const statusOptions = STATUS_OPTIONS.map((option) => ({
     label: option.label,
     value: option.value,
+  }))
+
+  const tagOptions = tags.map((tag) => ({
+    label: tag.name,
+    value: tag.id,
   }))
 
   return (
@@ -157,6 +165,17 @@ export function SolutionFilters({
               statuses: statuses as StatusFilterValue[],
             })
           }
+        />
+      ) : null}
+
+      {showStatus && tagOptions.length > 0 ? (
+        <FilterSelect
+          label="Tags"
+          emptyLabel="All tags"
+          values={filters.tagIds}
+          options={tagOptions}
+          className="min-w-40"
+          onCommit={(tagIds) => pushFilters({ tagIds })}
         />
       ) : null}
 

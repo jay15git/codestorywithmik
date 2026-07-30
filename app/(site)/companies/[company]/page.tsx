@@ -95,6 +95,7 @@ export default async function CompanyPage({
     difficulties: filters.difficulties,
     prep: filters.prep,
     statuses: filters.statuses,
+    tagIds: filters.tagIds,
   })
 
   return (
@@ -109,6 +110,7 @@ export default async function CompanyPage({
               <FilteredCount
                 solutions={solutions}
                 statuses={filters.statuses}
+                tagIds={filters.tagIds}
                 ofTotal={allSolutions.length}
                 trailing={
                   filters.prep
@@ -131,6 +133,7 @@ export default async function CompanyPage({
                 difficulties: filters.difficulties,
                 topicSlugs: filters.topicSlugs,
                 statuses: filters.statuses,
+                tagIds: filters.tagIds,
               }}
             />
             <SolutionFilters
@@ -143,6 +146,7 @@ export default async function CompanyPage({
           <StatusAwareSolutionList
             solutions={solutions}
             statuses={filters.statuses}
+            tagIds={filters.tagIds}
             basePath={basePath}
             page={filters.page}
             query={{

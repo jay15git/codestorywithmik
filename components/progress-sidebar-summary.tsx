@@ -3,6 +3,7 @@
 import { CheckIcon, RotateCcwIcon, StarIcon } from "lucide-react"
 
 import { useSolutionProgress } from "@/components/solution-progress-provider"
+import { useSolutionTags } from "@/components/solution-tags-provider"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
@@ -15,6 +16,7 @@ export function ProgressSidebarSummary({
   className?: string
 }) {
   const { counts } = useSolutionProgress()
+  const { counts: tagCounts } = useSolutionTags()
   const percent =
     totalSolutions > 0
       ? Math.min(100, Math.round((counts.solved / totalSolutions) * 100))
@@ -40,11 +42,11 @@ export function ProgressSidebarSummary({
           </div>
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <StarIcon className="size-3.5 text-amber-600 dark:text-amber-400" />
-            <span className="tabular-nums">{counts.starred}</span>
+            <span className="tabular-nums">{tagCounts.starred}</span>
           </div>
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <RotateCcwIcon className="size-3.5" />
-            <span className="tabular-nums">{counts.revisit}</span>
+            <span className="tabular-nums">{tagCounts.revisit}</span>
           </div>
         </div>
       </div>

@@ -14,6 +14,7 @@ import {
   replaceStudyBag,
   resetStudyBagForTests,
 } from "./study-bag"
+import { STARRED_TAG_ID } from "@/lib/tags/constants"
 
 describe("study bag migrate", () => {
   it("builds bag from legacy localStorage keys", () => {
@@ -48,7 +49,7 @@ describe("study bag migrate", () => {
       storage.get(key) ?? null,
     )
 
-    assert.equal(bag.version, 1)
+    assert.equal(bag.version, 2)
     assert.equal(bag.progress["two-sum"]?.solved, true)
     assert.equal(bag.notes["two-sum"]?.markdown, "note")
     assert.equal(bag.srs["two-sum"]?.dueAt, "2026-07-30")
@@ -67,23 +68,45 @@ describe("study bag migrate", () => {
 })
 
 describe("study bag", () => {
-  it("parses valid backup json", () => {
+  it("parses valid v2 backup json", () => {
     const bag = parseStudyBackup({
-      version: 1,
+      version: 2,
       progress: { a: { solved: true } },
       notes: {},
       srs: {},
       language: "java",
       viewMode: "list",
+      tags: {
+        definitions: [
+          { id: STARRED_TAG_ID, name: "Starred", kind: "default" },
+        ],
+        assignments: { a: [STARRED_TAG_ID] },
+      },
     })
 
     assert.equal(bag.progress.a?.solved, true)
     assert.equal(bag.language, "java")
     assert.equal(bag.viewMode, "list")
+    assert.deepEqual(bag.tags.assignments.a, [STARRED_TAG_ID])
+  })
+
+  it("migrates v1 backup json to v2", () => {
+    const bag = parseStudyBackup({
+      version: 1,
+      progress: { bar: { starred: true } },
+      notes: {},
+      srs: {},
+      language: null,
+      viewMode: "grid",
+    })
+
+    assert.equal(bag.version, 2)
+    assert.equal(bag.progress.bar, undefined)
+    assert.deepEqual(bag.tags.assignments.bar, [STARRED_TAG_ID])
   })
 
   it("rejects unsupported backup versions", () => {
-    assert.throws(() => parseStudyBackup({ version: 2 }), /Unsupported backup/)
+    assert.throws(() => parseStudyBackup({ version: 3 }), /Unsupported backup/)
     assert.throws(() => parseStudyBackup(null), /Unsupported backup/)
   })
 
@@ -99,15 +122,19 @@ describe("study bag", () => {
     assert.equal(getStudyBag().language, "python")
 
     replaceStudyBag({
-      version: 1,
-      progress: { bar: { starred: true } },
+      version: 2,
+      progress: {},
       notes: {},
       srs: {},
       language: null,
       viewMode: "grid",
+      tags: {
+        definitions: createEmptyStudyBag().tags.definitions,
+        assignments: { bar: [STARRED_TAG_ID] },
+      },
     })
 
-    assert.equal(getStudyBag().progress.bar?.starred, true)
+    assert.deepEqual(getStudyBag().tags.assignments.bar, [STARRED_TAG_ID])
     assert.equal(getStudyBag().progress.foo, undefined)
   })
 })

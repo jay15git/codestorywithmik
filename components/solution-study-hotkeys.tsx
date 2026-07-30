@@ -4,6 +4,8 @@ import { useEffect } from "react"
 
 import { useBlindMode } from "@/components/blind-code-section"
 import { useSolutionProgress } from "@/components/solution-progress-provider"
+import { useSolutionTags } from "@/components/solution-tags-provider"
+import { STARRED_TAG_ID } from "@/lib/tags/constants"
 
 function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -18,9 +20,10 @@ function isTypingTarget(target: EventTarget | null): boolean {
   )
 }
 
-/** Solution page hotkeys: s star, d done/solved, b blind toggle. */
+/** Solution page hotkeys: s star tag, d done/solved, b blind toggle. */
 export function SolutionStudyHotkeys({ slug }: { slug: string }) {
   const { toggleFlag } = useSolutionProgress()
+  const { toggleTag } = useSolutionTags()
   const blind = useBlindMode()
 
   useEffect(() => {
@@ -36,7 +39,7 @@ export function SolutionStudyHotkeys({ slug }: { slug: string }) {
 
       if (key === "s") {
         event.preventDefault()
-        toggleFlag(slug, "starred")
+        toggleTag(slug, STARRED_TAG_ID)
         return
       }
 
@@ -54,7 +57,7 @@ export function SolutionStudyHotkeys({ slug }: { slug: string }) {
 
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
-  }, [slug, toggleFlag, blind])
+  }, [slug, toggleFlag, toggleTag, blind])
 
   return null
 }

@@ -63,7 +63,7 @@ describe("solution nav", () => {
       parseSolutionNavParams({
         from: "pattern",
         pattern: "two-pointers",
-        status: "starred",
+        status: "solved",
       }),
       {
         from: "pattern",
@@ -73,7 +73,7 @@ describe("solution nav", () => {
         planSlug: null,
         difficulty: null,
         prep: null,
-        status: "starred",
+        status: "solved",
         lang: null,
       },
     )
@@ -106,9 +106,9 @@ describe("solution nav", () => {
         from: "company",
         companySlug: "google",
         prep: "top50",
-        status: "starred",
+        tagIds: ["starred"],
       }),
-      "/solutions/two-sum?from=company&company=google&prep=top50&status=starred",
+      "/solutions/two-sum?from=company&company=google&prep=top50&tag=starred",
     )
   })
 

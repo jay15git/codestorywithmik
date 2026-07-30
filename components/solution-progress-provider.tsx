@@ -31,11 +31,6 @@ async function scheduleSolved(slug: string) {
   ensureScheduledOnSolve(slug)
 }
 
-async function scheduleRevisit(slug: string) {
-  const { markDueToday } = await import("@/lib/srs/store")
-  markDueToday(slug)
-}
-
 interface SolutionProgressContextValue {
   map: SolutionProgressMap
   counts: ProgressCounts
@@ -78,9 +73,6 @@ export function SolutionProgressProvider({
     if (flag === "solved" && after) {
       void scheduleSolved(slug)
     }
-    if (flag === "revisit" && after) {
-      void scheduleRevisit(slug)
-    }
   }, [])
 
   const setFlag = useCallback(
@@ -88,9 +80,6 @@ export function SolutionProgressProvider({
       setProgressFlag(slug, flag, value)
       if (flag === "solved" && value) {
         void scheduleSolved(slug)
-      }
-      if (flag === "revisit" && value) {
-        void scheduleRevisit(slug)
       }
     },
     [],

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 
 export const SITE_NAV_LINKS = [
   { href: "/problems", label: "Problems", match: "/problems" },
+  { href: "/lists", label: "Lists", match: "/lists" },
   { href: "/plans", label: "Plans", match: "/plans" },
   { href: "/daily", label: "Daily", match: "/daily" },
   { href: "/review", label: "Review", match: "/review" },

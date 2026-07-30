@@ -11,6 +11,8 @@ import {
 } from "@/components/solution-view"
 import { StatusAwareSolutionList } from "@/components/status-aware-solution-list"
 import { StatusFilterDropdown } from "@/components/status-filter-dropdown"
+import { TagFilterDropdown } from "@/components/tag-filter-dropdown"
+import { parseProgressListParams } from "@/lib/content/filter-solutions"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { getSolutions } from "@/lib/content/get-content"
 import {
@@ -20,7 +22,7 @@ import {
   patternTopicHrefs,
 } from "@/lib/content/patterns"
 import { listFiltersToNavParams } from "@/lib/content/solution-nav"
-import { parseStatusFilter, parseStatusFilters } from "@/lib/progress/filters"
+import type { StatusFilter } from "@/lib/progress/types"
 import { cn } from "@/lib/utils"
 
 interface PatternPageProps {
@@ -28,6 +30,7 @@ interface PatternPageProps {
   searchParams: Promise<{
     page?: string
     status?: string
+    tag?: string
   }>
 }
 
@@ -64,14 +67,18 @@ export default async function PatternPage({
   }
 
   const page = Math.max(1, Number.parseInt(query.page ?? "1", 10) || 1)
-  const statuses = parseStatusFilters(query.status)
-  const status = parseStatusFilter(query.status)
+  const progressFilters = parseProgressListParams(query)
+  const statuses = progressFilters.statuses
+  const tagIds = progressFilters.tagIds
+  const dropdownStatus: StatusFilter =
+    statuses.length === 1 ? statuses[0] : "all"
   const solutions = getSolutionsForPattern(pattern, getSolutions())
   const topicLinks = patternTopicHrefs(pattern)
   const basePath = `/patterns/${pattern.slug}`
   const navParams = listFiltersToNavParams("pattern", {
     patternSlug: pattern.slug,
-    status,
+    status: dropdownStatus,
+    tagIds,
   })
 
   return (
@@ -97,6 +104,7 @@ export default async function PatternPage({
               <FilteredCount
                 solutions={solutions}
                 statuses={statuses}
+                tagIds={tagIds}
                 trailing="· Easy → Hard"
               />
               <div className="flex flex-wrap gap-2">
@@ -119,11 +127,23 @@ export default async function PatternPage({
             </div>
           </div>
 
-          <StatusFilterDropdown basePath={basePath} status={status} />
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusFilterDropdown
+              basePath={basePath}
+              status={dropdownStatus}
+              hrefParams={{ tagIds }}
+            />
+            <TagFilterDropdown
+              basePath={basePath}
+              tagIds={tagIds}
+              hrefParams={{ status: dropdownStatus }}
+            />
+          </div>
 
           <StatusAwareSolutionList
             solutions={solutions}
             statuses={statuses}
+            tagIds={tagIds}
             basePath={basePath}
             page={page}
             query={{}}

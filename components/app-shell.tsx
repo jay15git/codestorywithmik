@@ -4,6 +4,7 @@ import { SearchLazy } from "@/components/search-lazy"
 import { SidebarBrand } from "@/components/sidebar-brand"
 import { SiteNav } from "@/components/site-nav"
 import { SolutionProgressProvider } from "@/components/solution-progress-provider"
+import { SolutionTagsProvider } from "@/components/solution-tags-provider"
 import { StudyStorageProvider } from "@/components/study-storage-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { TopicSidebar } from "@/components/topic-sidebar"
@@ -29,7 +30,8 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <StudyStorageProvider>
-      <SolutionProgressProvider>
+      <SolutionTagsProvider>
+        <SolutionProgressProvider>
         <SidebarProvider>
           <Sidebar
             className="[&_[data-slot=sidebar-inner]]:bg-transparent [&_[data-slot=sidebar][data-mobile=true]]:bg-transparent"
@@ -63,6 +65,7 @@ export function AppShell({ children }: AppShellProps) {
           </SidebarInset>
         </SidebarProvider>
       </SolutionProgressProvider>
+      </SolutionTagsProvider>
     </StudyStorageProvider>
   )
 }

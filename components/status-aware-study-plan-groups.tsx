@@ -5,38 +5,49 @@ import { useMemo } from "react"
 import { ListKeyboardNav } from "@/components/list-keyboard-nav"
 import { SolutionView } from "@/components/solution-view-list"
 import { useSolutionProgress } from "@/components/solution-progress-provider"
+import { useSolutionTags } from "@/components/solution-tags-provider"
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { matchesSolutionListFilters } from "@/lib/content/list-progress-filters"
 import type { SolutionMeta } from "@/lib/content/types"
-import { matchesStatusFilter } from "@/lib/progress/store"
 import type { StatusFilter } from "@/lib/progress/types"
+import type { StatusFilterValue } from "@/lib/progress/filters"
 
 export function StatusAwareStudyPlanGroups({
   groups,
   status,
+  tagIds = [],
 }: {
   groups: Array<{ name: string; solutions: SolutionMeta[] }>
   status: StatusFilter
+  tagIds?: string[]
 }) {
   const { map } = useSolutionProgress()
+  const { assignments } = useSolutionTags()
+
+  const statuses: StatusFilterValue[] =
+    status === "all" ? [] : [status as StatusFilterValue]
 
   const visibleGroups = useMemo(() => {
     return groups
       .map((group) => {
-        const solutions =
-          status === "all"
-            ? group.solutions
-            : group.solutions.filter((solution) =>
-                matchesStatusFilter(map, solution.slug, status),
-              )
+        const solutions = group.solutions.filter((solution) =>
+          matchesSolutionListFilters(
+            solution.slug,
+            map,
+            assignments,
+            statuses,
+            tagIds,
+          ),
+        )
         return { name: group.name, solutions }
       })
       .filter((group) => group.solutions.length > 0)
-  }, [groups, status, map])
+  }, [groups, statuses, tagIds, map, assignments])
 
   if (visibleGroups.length === 0) {
     return (

@@ -8,7 +8,7 @@
     "prebuild": "pnpm run sync-content",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --test lib/content/**/*.test.ts lib/preferences/**/*.test.ts lib/srs/**/*.test.ts lib/storage/**/*.test.ts",
+    "test": "tsx --test lib/content/**/*.test.ts lib/preferences/**/*.test.ts lib/srs/**/*.test.ts lib/storage/**/*.test.ts lib/tags/**/*.test.ts",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit"

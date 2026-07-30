@@ -2,8 +2,9 @@ import { companySlug, topicSlugFromName } from "@/lib/content/slug"
 import type { PrepPack } from "@/lib/content/prep-packs"
 import { parsePrepPack } from "@/lib/content/prep-packs"
 import type { Difficulty, SolutionMeta } from "@/lib/content/types"
-import { parseStatusFilters, type StatusFilterValue } from "@/lib/progress/filters"
+import { parseStatusFilters, parseLegacyTagIdsFromStatus, type StatusFilterValue } from "@/lib/progress/filters"
 import type { StatusFilter } from "@/lib/progress/types"
+import { parseTagFilters } from "@/lib/tags/filters"
 
 export const LIST_PAGE_SIZE = 48
 
@@ -33,6 +34,7 @@ export interface ListFilterState {
   topicSlugs: string[]
   prep: PrepPack | null
   statuses: StatusFilterValue[]
+  tagIds: string[]
   page: number
   sort: ListSort
 }
@@ -43,6 +45,7 @@ export interface ListHrefParams {
   topicSlugs?: string[] | null
   prep?: PrepPack | null
   statuses?: StatusFilterValue[] | null
+  tagIds?: string[] | null
   /** @deprecated Prefer `statuses`. Kept for single-status callers. */
   status?: StatusFilter | null
   page?: number
@@ -95,6 +98,35 @@ export function parseSortParam(value: string | undefined): ListSort {
   return "id"
 }
 
+function uniqueStrings(values: string[]): string[] {
+  const seen = new Set<string>()
+  const result: string[] = []
+  for (const value of values) {
+    if (!seen.has(value)) {
+      seen.add(value)
+      result.push(value)
+    }
+  }
+  return result
+}
+
+export function parseProgressListParams(searchParams: {
+  status?: string
+  tag?: string
+}): {
+  statuses: StatusFilterValue[]
+  tagIds: string[]
+} {
+  const legacyTagIds = parseLegacyTagIdsFromStatus(searchParams.status)
+  return {
+    statuses: parseStatusFilters(searchParams.status),
+    tagIds: uniqueStrings([
+      ...parseTagFilters(searchParams.tag),
+      ...legacyTagIds,
+    ]),
+  }
+}
+
 export function parseListSearchParams(searchParams: {
   difficulty?: string
   company?: string
@@ -102,15 +134,19 @@ export function parseListSearchParams(searchParams: {
   lang?: string
   prep?: string
   status?: string
+  tag?: string
   page?: string
   sort?: string
 }): ListFilterState {
+  const progress = parseProgressListParams(searchParams)
+
   return {
     difficulties: parseDifficultyList(searchParams.difficulty),
     companySlugs: parseSlugList(searchParams.company),
     topicSlugs: parseSlugList(searchParams.topic),
     prep: parsePrepPack(searchParams.prep),
-    statuses: parseStatusFilters(searchParams.status),
+    statuses: progress.statuses,
+    tagIds: progress.tagIds,
     page: Math.max(1, Number.parseInt(searchParams.page ?? "1", 10) || 1),
     sort: parseSortParam(searchParams.sort),
   }
@@ -144,6 +180,8 @@ export function buildListHref(
     params.statuses ??
     (params.status && params.status !== "all" ? [params.status] : [])
   setCsvParam(query, "status", statuses)
+
+  setCsvParam(query, "tag", params.tagIds ?? undefined)
 
   if (params.sort && params.sort !== "id") {
     query.set("sort", params.sort)

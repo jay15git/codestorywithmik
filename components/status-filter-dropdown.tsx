@@ -10,8 +10,6 @@ const STATUS_OPTIONS: Array<{ label: string; value: StatusFilter }> = [
   { label: "All", value: "all" },
   { label: "Unsolved", value: "unsolved" },
   { label: "Solved", value: "solved" },
-  { label: "Starred", value: "starred" },
-  { label: "Revisit", value: "revisit" },
 ]
 
 export function StatusFilterDropdown({

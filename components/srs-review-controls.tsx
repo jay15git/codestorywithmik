@@ -4,6 +4,7 @@ import { useMemo, useSyncExternalStore } from "react"
 import Link from "next/link"
 
 import { useSolutionProgress } from "@/components/solution-progress-provider"
+import { useSolutionTags } from "@/components/solution-tags-provider"
 import { Button } from "@/components/ui/button"
 import { getSrsStateLabel } from "@/lib/srs/state"
 import {
@@ -19,6 +20,7 @@ import {
   subscribeToSrs,
 } from "@/lib/srs/store"
 import type { SrsRating } from "@/lib/srs/types"
+import { REVISIT_TAG_ID } from "@/lib/tags/constants"
 
 const RATINGS: Array<{ rating: SrsRating; label: string }> = [
   { rating: "again", label: "Again" },
@@ -28,7 +30,8 @@ const RATINGS: Array<{ rating: SrsRating; label: string }> = [
 ]
 
 export function SrsReviewControls({ slug }: { slug: string }) {
-  const { hasFlag, setFlag } = useSolutionProgress()
+  const { setFlag } = useSolutionProgress()
+  const { hasTag, setTag } = useSolutionTags()
   const srsMap = useSyncExternalStore(
     subscribeToSrs,
     readSrsMap,
@@ -36,7 +39,7 @@ export function SrsReviewControls({ slug }: { slug: string }) {
   )
   const card = getSrsCard(srsMap, slug)
   const today = toUtcDateKey()
-  const revisit = hasFlag(slug, "revisit")
+  const revisit = hasTag(slug, REVISIT_TAG_ID)
   const due =
     revisit || (card ? isDueOnOrBefore(card.dueAt, today) : false)
   const previews = useMemo(
@@ -47,7 +50,7 @@ export function SrsReviewControls({ slug }: { slug: string }) {
   function handleRate(rating: SrsRating) {
     rateSrsCard(slug, rating)
     if (rating === "again") {
-      setFlag(slug, "revisit", true)
+      setTag(slug, REVISIT_TAG_ID, true)
     } else {
       setFlag(slug, "solved", true)
     }

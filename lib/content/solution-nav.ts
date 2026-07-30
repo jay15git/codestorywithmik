@@ -29,6 +29,7 @@ export type SolutionNavHrefParams = {
   difficulty?: Difficulty | null
   prep?: PrepPack | null
   status?: StatusFilter | null
+  tagIds?: string[] | null
   lang?: SolutionLanguage | string | null
 }
 
@@ -127,6 +128,10 @@ export function buildSolutionHref(
     query.set("status", params.status)
   }
 
+  if (params.tagIds && params.tagIds.length > 0) {
+    query.set("tag", params.tagIds.join(","))
+  }
+
   if (params.lang) {
     query.set("lang", params.lang)
   }
@@ -165,6 +170,7 @@ export function listFiltersToNavParams(
     prep?: PrepPack | null
     status?: StatusFilter | null
     statuses?: Array<Exclude<StatusFilter, "all">> | null
+    tagIds?: string[] | null
     lang?: SolutionLanguage | null
   },
 ): SolutionNavHrefParams {
@@ -177,6 +183,7 @@ export function listFiltersToNavParams(
     difficulty: filters.difficulty ?? filters.difficulties?.[0] ?? null,
     prep: filters.prep ?? null,
     status: filters.status ?? filters.statuses?.[0] ?? null,
+    tagIds: filters.tagIds ?? null,
     lang: filters.lang ?? null,
   }
 }
