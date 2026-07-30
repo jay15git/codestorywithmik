@@ -57,15 +57,7 @@ export function SrsReviewControls({ slug }: { slug: string }) {
   }
 
   if (!card && !revisit) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Mark solved to enroll in{" "}
-        <Link href="/review" className="underline underline-offset-2">
-          spaced review
-        </Link>
-        .
-      </p>
-    )
+    return null
   }
 
   return (
