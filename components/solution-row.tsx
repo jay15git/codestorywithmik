@@ -1,10 +1,12 @@
 import Link from "next/link"
 
 import { CompanyTagLink } from "@/components/company-tag-link"
+import { CompactTagOverflow } from "@/components/compact-tag-overflow"
 import { DifficultyBadge } from "@/components/difficulty-badge"
 import { SolutionExternalLinks } from "@/components/solution-external-links"
 import { TitleUnderline } from "@/components/title-underline"
 import { sortCompanyTags } from "@/lib/content/sort-company-tags"
+import { companySlug, topicSlugFromName } from "@/lib/content/slug"
 import type { SolutionMeta } from "@/lib/content/types"
 import { cn } from "@/lib/utils"
 
@@ -14,22 +16,34 @@ interface SolutionRowProps {
 }
 
 const MAX_GRID_COMPANIES = 3
-const MAX_LIST_COMPANIES = 3
-const MAX_LIST_COMPANIES_SM = 1
 const LIST_ROW_GRID =
-  "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_3.5rem] items-center gap-x-2 sm:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,7rem)_3.5rem] sm:gap-x-3 md:grid-cols-[3.5rem_minmax(0,1fr)_16rem_3.5rem]"
+  "grid w-full grid-cols-[3.5rem_minmax(0,1fr)_3.5rem] items-center gap-x-2 sm:grid-cols-[3.5rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_3.5rem] sm:gap-x-3 md:grid-cols-[3.5rem_minmax(0,1.4fr)_minmax(7rem,1fr)_minmax(7rem,1fr)_3.5rem]"
+
+function buildTopicItems(topicTags: string[]) {
+  return [...new Set(topicTags)]
+    .sort((left, right) => left.localeCompare(right))
+    .map((topic) => ({
+      label: topic,
+      href: `/topics/${topicSlugFromName(topic)}`,
+    }))
+}
+
+function buildCompanyItems(companyTags: string[]) {
+  return sortCompanyTags([...new Set(companyTags)]).map((company) => ({
+    label: company,
+    href: `/companies/${companySlug(company)}`,
+  }))
+}
 
 export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
   const companyTags = sortCompanyTags([...new Set(solution.companyTags)])
+  const topicItems = buildTopicItems(solution.topicTags)
+  const companyItems = buildCompanyItems(solution.companyTags)
   const hasExternalLinks =
     solution.youtubeUrl || solution.leetcodeUrl || solution.gfgUrl
   const solutionHref = `/solutions/${solution.slug}`
 
   if (variant === "list") {
-    const visibleCompanies = companyTags.slice(0, MAX_LIST_COMPANIES)
-    const overflowCountSm = companyTags.length - MAX_LIST_COMPANIES_SM
-    const overflowCountMd = companyTags.length - MAX_LIST_COMPANIES
-
     return (
       <div className={cn("group/row relative px-3 py-2.5", LIST_ROW_GRID)}>
         <Link
@@ -48,31 +62,12 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           </TitleUnderline>
         </div>
 
-        <div className="relative z-10 hidden min-h-6 w-full items-center justify-start gap-1.5 overflow-hidden whitespace-nowrap pointer-events-auto sm:flex">
-          {visibleCompanies.map((company, index) => (
-            <span
-              key={company}
-              className={cn(
-                "inline-flex items-center",
-                index >= MAX_LIST_COMPANIES_SM && "hidden md:inline-flex",
-              )}
-            >
-              {index > 0 ? (
-                <span className="mr-1.5 text-xs text-muted-foreground">·</span>
-              ) : null}
-              <CompanyTagLink company={company} />
-            </span>
-          ))}
-          {overflowCountSm > 0 && (
-            <span className="pointer-events-none text-xs text-muted-foreground tabular-nums md:hidden">
-              +{overflowCountSm}
-            </span>
-          )}
-          {overflowCountMd > 0 && (
-            <span className="pointer-events-none hidden text-xs text-muted-foreground tabular-nums md:inline">
-              +{overflowCountMd}
-            </span>
-          )}
+        <div className="relative z-10 hidden min-w-0 items-center pointer-events-auto sm:flex">
+          <CompactTagOverflow items={topicItems} maxVisible={3} />
+        </div>
+
+        <div className="relative z-10 hidden min-w-0 items-center pointer-events-auto sm:flex">
+          <CompactTagOverflow items={companyItems} maxVisible={3} />
         </div>
 
         <div className="relative z-10 flex min-h-6 items-center justify-end pointer-events-auto">
@@ -111,10 +106,18 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           />
         </div>
 
-        {(visibleCompanies.length > 0 || hasExternalLinks) && (
+        {(topicItems.length > 0 ||
+          visibleCompanies.length > 0 ||
+          hasExternalLinks) && (
           <div className="flex flex-1 flex-col">
+            {topicItems.length > 0 && (
+              <div className="mt-(--spacing-solution-title-meta) pointer-events-auto">
+                <CompactTagOverflow items={topicItems} maxVisible={4} />
+              </div>
+            )}
+
             {visibleCompanies.length > 0 && (
-              <div className="mt-(--spacing-solution-title-meta) pointer-events-auto flex flex-wrap items-center gap-x-2 gap-y-1">
+              <div className="mt-2 pointer-events-auto flex flex-wrap items-center gap-x-2 gap-y-1">
                 {visibleCompanies.map((company) => (
                   <CompanyTagLink key={company} company={company} />
                 ))}

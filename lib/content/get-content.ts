@@ -4,49 +4,48 @@ import path from "node:path"
 import contentIndexJson from "@/generated/content-index.json"
 import { GENERATED_SOLUTIONS_PATH } from "./constants"
 import {
-  getProblemDifficultyMap,
-  resolveSolutionDifficulty,
-} from "./difficulty"
-import { splitCodeBlocks } from "./parse-solution"
-import { slugify } from "./slug"
+  LANGUAGE_TO_GENERATED_EXTENSION,
+  SOLUTION_LANGUAGE_ORDER,
+  type SolutionLanguage,
+} from "./solution-languages"
+import { slugify, topicSlugFromName } from "./slug"
 import type {
   ContentIndex,
-  Difficulty,
   Solution,
+  SolutionCode,
   SolutionMeta,
   Topic,
 } from "./types"
 
-let cachedDifficultyMap: Map<string, Difficulty> | null = null
+const normalizedIndex = contentIndexJson as ContentIndex
 
-function getDifficultyMapForRuntime(): Map<string, Difficulty> {
-  if (cachedDifficultyMap) {
-    return cachedDifficultyMap
+function readLanguageFile(
+  slug: string,
+  language: SolutionLanguage,
+): string | null {
+  const filePath = path.join(
+    process.cwd(),
+    GENERATED_SOLUTIONS_PATH,
+    `${slug}.${LANGUAGE_TO_GENERATED_EXTENSION[language]}`,
+  )
+
+  if (!existsSync(filePath)) {
+    return null
   }
 
-  cachedDifficultyMap = getProblemDifficultyMap()
-  return cachedDifficultyMap
+  const content = readFileSync(filePath, "utf8").trim()
+  return content || null
 }
 
-function withResolvedDifficulty(solution: SolutionMeta): SolutionMeta {
-  if (solution.difficulty) {
-    return solution
-  }
-
+function loadSolutionCode(slug: string): SolutionCode {
   return {
-    ...solution,
-    difficulty: resolveSolutionDifficulty(solution, getDifficultyMapForRuntime()),
+    cpp: readLanguageFile(slug, "cpp"),
+    java: readLanguageFile(slug, "java"),
+    python: readLanguageFile(slug, "python"),
+    sql: readLanguageFile(slug, "sql"),
+    typescript: readLanguageFile(slug, "typescript"),
   }
 }
-
-function normalizeIndex(index: ContentIndex): ContentIndex {
-  return {
-    ...index,
-    solutions: index.solutions.map(withResolvedDifficulty),
-  }
-}
-
-const normalizedIndex = normalizeIndex(contentIndexJson as ContentIndex)
 
 export function getContentIndex(): ContentIndex {
   return normalizedIndex
@@ -74,18 +73,14 @@ export function getSolution(slug: string): Solution | undefined {
     return undefined
   }
 
-  const solutionPath = path.join(
-    process.cwd(),
-    GENERATED_SOLUTIONS_PATH,
-    `${slug}.cpp`,
-  )
+  const code = loadSolutionCode(slug)
+  const rawContent =
+    SOLUTION_LANGUAGE_ORDER.map((language) => code[language]).find(Boolean) ??
+    ""
 
-  if (!existsSync(solutionPath)) {
+  if (!rawContent) {
     return undefined
   }
-
-  const rawContent = readFileSync(solutionPath, "utf8")
-  const code = splitCodeBlocks(rawContent)
 
   return {
     ...meta,
@@ -95,7 +90,15 @@ export function getSolution(slug: string): Solution | undefined {
 }
 
 export function getSolutionsByTopic(topicSlug: string): SolutionMeta[] {
-  return getSolutions().filter((solution) => solution.topicSlug === topicSlug)
+  return getSolutions().filter((solution) => {
+    if (solution.topicSlug === topicSlug) {
+      return true
+    }
+
+    return solution.topicTags.some(
+      (tag) => topicSlugFromName(tag) === topicSlug,
+    )
+  })
 }
 
 export function getSolutionsByCompany(companySlug: string): SolutionMeta[] {

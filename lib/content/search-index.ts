@@ -52,6 +52,7 @@ export function buildSearchIndex(
       solution.subtopic,
       solution.difficulty,
       solution.slug,
+      ...solution.topicTags,
       ...solution.companyTags,
     ]),
   }))

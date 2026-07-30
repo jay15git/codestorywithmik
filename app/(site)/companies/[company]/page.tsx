@@ -10,6 +10,7 @@ import {
 } from "@/components/solution-view"
 import {
   filterSolutions,
+  LIST_PAGE_SIZE,
   parseListSearchParams,
 } from "@/lib/content/filter-solutions"
 import {
@@ -18,8 +19,6 @@ import {
   getSolutionsByCompany,
 } from "@/lib/content/get-content"
 import { slugify } from "@/lib/content/slug"
-
-const PAGE_SIZE = 48
 
 interface CompanyPageProps {
   params: Promise<{ company: string }>
@@ -63,11 +62,11 @@ export default async function CompanyPage({
 
   const allSolutions = getSolutionsByCompany(companySlug)
   const solutions = filterSolutions(allSolutions, filters)
-  const totalPages = Math.max(1, Math.ceil(solutions.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(solutions.length / LIST_PAGE_SIZE))
   const page = Math.min(filters.page, totalPages)
   const pageSolutions = solutions.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE,
+    (page - 1) * LIST_PAGE_SIZE,
+    page * LIST_PAGE_SIZE,
   )
   const basePath = `/companies/${companySlug}`
 

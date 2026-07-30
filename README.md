@@ -1,12 +1,12 @@
-# codestorywithMIK — Interview DS & Algo Solutions
+# Interview Solutions — LeetCode DS & Algo
 
-A calm, searchable website for browsing interview data structures and algorithms solutions from [jay15git/codestoryoriginal](https://github.com/jay15git/codestoryoriginal) (fork of [MAZHARMIK/Interview_DS_Algo](https://github.com/MAZHARMIK/Interview_DS_Algo), MIT licensed).
+A searchable website for browsing LeetCode data structures and algorithms solutions from [walkccc/LeetCode](https://github.com/walkccc/LeetCode) (MIT), with company tags from community CSV data.
 
 ## Features
 
-- Topic and subtopic browsing
-- 1,400+ solution pages with C++ / Java tabs
-- Company tag filters
+- Browse by LeetCode topic tags (multi-home — problems appear under every tag)
+- 3,500+ solution pages with C++, Java, Python, SQL, and TypeScript tabs when available
+- Company tag filters (enriched from LeetCode company-wise CSV data)
 - Cmd+K search
 - Syntax-highlighted code
 - Auto-sync from your fork on a schedule
@@ -24,7 +24,7 @@ pnpm dev
 ### Optional: git submodule
 
 ```bash
-git submodule add https://github.com/jay15git/codestoryoriginal.git content/upstream
+git submodule add https://github.com/jay15git/LeetCode.git content/upstream
 git submodule update --init --recursive
 ```
 
@@ -42,14 +42,14 @@ Every build runs `pnpm run sync-content` first, pulling the latest solutions fro
 ### Auto-update flow
 
 ```text
-MAZHARMIK/Interview_DS_Algo
+walkccc/LeetCode
         ↓ (every 6h, optional workflow)
-jay15git/codestoryoriginal  ← your fork
+jay15git/LeetCode  ← your fork
         ↓ (hourly cron on Vercel)
-codestorywithmik site rebuild
+Interview Solutions site rebuild
 ```
 
-1. **Fork sync** (optional): add `FORK_SYNC_TOKEN` (PAT with `repo` scope on your fork) to this repo’s GitHub secrets. The workflow `.github/workflows/sync-fork-upstream.yml` merges upstream `master` into your fork every 6 hours.
+1. **Fork sync** (optional): add `FORK_SYNC_TOKEN` (PAT with `repo` scope on your fork) to this repo’s GitHub secrets. The workflow `.github/workflows/sync-fork-upstream.yml` merges upstream `main` into your fork every 6 hours.
 2. **Site sync**: Vercel cron hits `/api/cron/sync` hourly. If the fork’s latest commit SHA differs from the last built SHA, it triggers a deploy hook rebuild.
 
 ### Manual deploy
@@ -60,12 +60,13 @@ Run the **Manual deploy** workflow in GitHub Actions (requires `VERCEL_DEPLOY_HO
 curl -X POST "$VERCEL_DEPLOY_HOOK_URL"
 ```
 
-## Content source
+## Content sources
 
 | Repo | Role |
 |------|------|
-| `jay15git/codestoryoriginal` | Content fork (cloned at build) |
-| `MAZHARMIK/Interview_DS_Algo` | Original upstream (MIT) |
+| `jay15git/LeetCode` | Solutions fork (cloned at build) |
+| `walkccc/LeetCode` | Original upstream (MIT) |
+| `snehasishroy/leetcode-companywise-interview-questions` | Company tag CSVs |
 
 ## Scripts
 

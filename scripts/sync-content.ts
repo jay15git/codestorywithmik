@@ -2,10 +2,8 @@ import {
   cpSync,
   existsSync,
   mkdirSync,
-  readdirSync,
   readFileSync,
   rmSync,
-  statSync,
   writeFileSync,
 } from "node:fs"
 import { execSync } from "node:child_process"
@@ -24,35 +22,21 @@ import {
   PUBLIC_SEARCH_INDEX_PATH,
 } from "../lib/content/constants"
 import {
-  getProblemDifficultyMap,
-  resolveSolutionDifficulty,
-} from "../lib/content/difficulty"
-import {
   enrichCompanyTags,
   loadLeetcodeCompanyTagIndex,
 } from "../lib/content/leetcode-company-tags"
-import {
-  parseCompanyTags,
-  parseSpaceComplexity,
-  parseTimeComplexity,
-  parseYoutubeUrl,
-  resolveProblemLinks,
-} from "../lib/content/parse-solution"
-import { slugify, slugifyParts, topicSlugFromName } from "../lib/content/slug"
+import { loadLeetcodeProblemMeta } from "../lib/content/leetcode-problem-meta"
 import { buildSearchIndex } from "../lib/content/search-index"
-import type { ContentIndex, SolutionMeta, Subtopic, Topic } from "../lib/content/types"
-
-const TOP_LEVEL_SKIP = new Set([
-  ".git",
-  ".github",
-  "LICENSE",
-  "README.md",
-  "codestorywithmik.png",
-  "github-user-contribution.svg",
-  "icon.png",
-  "icons8-youtube.gif",
-  "iPad PDF Notes",
-])
+import { slugify, topicSlugFromName } from "../lib/content/slug"
+import {
+  LANGUAGE_TO_GENERATED_EXTENSION,
+  WALKCCC_EXTENSION_TO_LANGUAGE,
+} from "../lib/content/solution-languages"
+import type { ContentIndex, SolutionMeta, Topic } from "../lib/content/types"
+import {
+  walkWalkcccSolutions,
+  WALKCCC_LANGUAGE_EXTENSIONS,
+} from "../lib/content/walkccc-source"
 
 function resolveSourceDir(): string {
   const submodulePath = path.join(process.cwd(), CONTENT_SUBMODULE_PATH)
@@ -64,7 +48,7 @@ function resolveSourceDir(): string {
 
   if (existsSync(path.join(cachePath, ".git"))) {
     console.log("Updating cached content repo...")
-    execSync("git fetch origin && git reset --hard origin/master", {
+    execSync(`git fetch origin && git reset --hard origin/${CONTENT_BRANCH}`, {
       cwd: cachePath,
       stdio: "inherit",
     })
@@ -87,65 +71,40 @@ function getUpstreamSha(sourceDir: string): string {
   }).trim()
 }
 
-function isTopicDirectory(name: string): boolean {
-  return !TOP_LEVEL_SKIP.has(name) && !name.startsWith(".")
-}
-
-function walkCppFiles(
-  dir: string,
-  relativePrefix = "",
-): Array<{ relativePath: string; absolutePath: string }> {
-  const entries = readdirSync(dir)
-  const files: Array<{ relativePath: string; absolutePath: string }> = []
-
-  for (const entry of entries) {
-    const absolutePath = path.join(dir, entry)
-    const relativePath = relativePrefix ? `${relativePrefix}/${entry}` : entry
-
-    if (statSync(absolutePath).isDirectory()) {
-      files.push(...walkCppFiles(absolutePath, relativePath))
-      continue
-    }
-
-    if (entry.toLowerCase().endsWith(".cpp")) {
-      files.push({ relativePath, absolutePath })
-    }
-  }
-
-  return files
-}
-
-function parseSolutionFile(
-  relativePath: string,
-  content: string,
-  upstreamSha: string,
+function buildSolutionMeta(
+  entry: ReturnType<typeof walkWalkcccSolutions>[number],
+  metaById: Awaited<ReturnType<typeof loadLeetcodeProblemMeta>>["byId"],
+  leetcodeCompanyTagIndex: ReturnType<typeof loadLeetcodeCompanyTagIndex>,
 ): SolutionMeta {
-  const segments = relativePath.split("/")
-  const fileName = segments.at(-1) ?? relativePath
-  const title = fileName.replace(/\.cpp$/i, "")
-  const topic = segments[0] ?? "Unknown"
-  const subtopic =
-    segments.length > 2 ? segments.slice(1, -1).join(" / ") : null
-
-  const slug = slugifyParts(...segments.map((part) => part.replace(/\.cpp$/i, "")))
-  const problemLinks = resolveProblemLinks(slug, content)
+  const meta = metaById.get(entry.leetcodeId)
+  const titleSlug =
+    meta?.titleSlug ??
+    entry.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+  const topicTags = meta?.topicTags ?? []
+  const primaryTopic = topicTags[0] ?? "Uncategorized"
+  const leetcodeUrl = `https://leetcode.com/problems/${titleSlug}/`
 
   return {
-    slug,
-    title,
-    topic,
-    topicSlug: topicSlugFromName(topic),
-    subtopic,
-    subtopicSlug: subtopic ? slugifyParts(topic, subtopic) : null,
-    relativePath,
-    githubUrl: `https://github.com/${CONTENT_REPO_SLUG}/blob/${upstreamSha}/${relativePath}`,
-    youtubeUrl: parseYoutubeUrl(content),
-    leetcodeUrl: problemLinks.leetcodeUrl,
-    gfgUrl: problemLinks.gfgUrl,
-    companyTags: parseCompanyTags(content),
-    timeComplexity: parseTimeComplexity(content),
-    spaceComplexity: parseSpaceComplexity(content),
-    difficulty: null,
+    slug: titleSlug,
+    title: meta?.title ?? entry.title,
+    leetcodeId: entry.leetcodeId,
+    topic: primaryTopic,
+    topicSlug: topicSlugFromName(primaryTopic),
+    topicTags,
+    subtopic: null,
+    subtopicSlug: null,
+    relativePath: entry.primaryRelativePath,
+    githubUrl: `https://github.com/${ORIGINAL_REPO_SLUG}/blob/${CONTENT_BRANCH}/${entry.primaryRelativePath}`,
+    youtubeUrl: null,
+    leetcodeUrl,
+    gfgUrl: null,
+    companyTags: enrichCompanyTags([], leetcodeUrl, leetcodeCompanyTagIndex),
+    timeComplexity: null,
+    spaceComplexity: null,
+    difficulty: meta?.difficulty ?? null,
   }
 }
 
@@ -153,60 +112,30 @@ function buildTopics(solutions: SolutionMeta[]): Topic[] {
   const topicMap = new Map<string, Topic>()
 
   for (const solution of solutions) {
-    let topic = topicMap.get(solution.topicSlug)
+    const tags =
+      solution.topicTags.length > 0 ? solution.topicTags : [solution.topic]
 
-    if (!topic) {
-      topic = {
-        name: solution.topic,
-        slug: solution.topicSlug,
-        solutionCount: 0,
-        subtopics: [],
-      }
-      topicMap.set(solution.topicSlug, topic)
-    }
+    for (const tagName of tags) {
+      const slug = topicSlugFromName(tagName)
+      let topic = topicMap.get(slug)
 
-    topic.solutionCount += 1
-
-    if (solution.subtopic && solution.subtopicSlug) {
-      let subtopic = topic.subtopics.find(
-        (item) => item.slug === solution.subtopicSlug,
-      )
-
-      if (!subtopic) {
-        subtopic = {
-          name: solution.subtopic,
-          slug: solution.subtopicSlug,
+      if (!topic) {
+        topic = {
+          name: tagName,
+          slug,
           solutionCount: 0,
+          subtopics: [],
         }
-        topic.subtopics.push(subtopic)
+        topicMap.set(slug, topic)
       }
 
-      subtopic.solutionCount += 1
+      topic.solutionCount += 1
     }
   }
 
-  return [...topicMap.values()]
-    .map((topic) => ({
-      ...topic,
-      subtopics: topic.subtopics.sort((a, b) => a.name.localeCompare(b.name)),
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name))
-}
-
-function ensureUniqueSlugs(solutions: SolutionMeta[]): SolutionMeta[] {
-  const slugCounts = new Map<string, number>()
-
-  return solutions.map((solution) => {
-    const count = slugCounts.get(solution.slug) ?? 0
-    slugCounts.set(solution.slug, count + 1)
-
-    if (count === 0) {
-      return solution
-    }
-
-    const uniqueSlug = `${solution.slug}-${count + 1}`
-    return { ...solution, slug: uniqueSlug }
-  })
+  return [...topicMap.values()].sort((left, right) =>
+    left.name.localeCompare(right.name),
+  )
 }
 
 function buildCompanyList(solutions: SolutionMeta[]): string[] {
@@ -221,7 +150,7 @@ function buildCompanyList(solutions: SolutionMeta[]): string[] {
     }
   }
 
-  return [...bySlug.values()].sort((a, b) => a.localeCompare(b))
+  return [...bySlug.values()].sort((left, right) => left.localeCompare(right))
 }
 
 function main() {
@@ -240,60 +169,61 @@ async function run() {
   mkdirSync(solutionsDir, { recursive: true })
   mkdirSync(generatedDir, { recursive: true })
 
-  const topicDirs = readdirSync(sourceDir).filter((entry) => {
-    const fullPath = path.join(sourceDir, entry)
-    return statSync(fullPath).isDirectory() && isTopicDirectory(entry)
-  })
+  const walkcccEntries = walkWalkcccSolutions(sourceDir)
+  console.log(`Found ${walkcccEntries.length} walkccc solution files`)
 
-  const cppFiles: Array<{ relativePath: string; absolutePath: string }> = []
+  const [{ byId: metaById }, leetcodeCompanyTagIndex] = await Promise.all([
+    loadLeetcodeProblemMeta(),
+    Promise.resolve(loadLeetcodeCompanyTagIndex()),
+  ])
 
-  for (const topicDir of topicDirs) {
-    cppFiles.push(...walkCppFiles(path.join(sourceDir, topicDir), topicDir))
-  }
-
-  console.log(`Found ${cppFiles.length} solution files`)
-
-  const leetcodeCompanyTagIndex = loadLeetcodeCompanyTagIndex()
   console.log(
     `Loaded company tags for ${leetcodeCompanyTagIndex.size} LeetCode problems`,
   )
 
-  let solutions = cppFiles.map(({ relativePath, absolutePath }) => {
-    const content = readFileSync(absolutePath, "utf8")
-    const solution = parseSolutionFile(relativePath, content, upstreamSha)
+  const solutions = walkcccEntries
+    .map((entry) => buildSolutionMeta(entry, metaById, leetcodeCompanyTagIndex))
+    .sort((left, right) => {
+      const leftId = left.leetcodeId ?? Number.MAX_SAFE_INTEGER
+      const rightId = right.leetcodeId ?? Number.MAX_SAFE_INTEGER
+      if (leftId !== rightId) {
+        return leftId - rightId
+      }
 
-    return {
-      ...solution,
-      companyTags: enrichCompanyTags(
-        solution.companyTags,
-        solution.leetcodeUrl,
-        leetcodeCompanyTagIndex,
-      ),
-    }
-  })
+      return left.title.localeCompare(right.title)
+    })
 
-  solutions = ensureUniqueSlugs(solutions)
-
-  const difficultyMap = getProblemDifficultyMap()
-  solutions = solutions.map((solution) => ({
-    ...solution,
-    difficulty: resolveSolutionDifficulty(solution, difficultyMap),
-  }))
-
-  const missingDifficulties = solutions.filter((solution) => !solution.difficulty)
-  if (missingDifficulties.length > 0) {
+  const missingMeta = solutions.filter(
+    (solution) => solution.topicTags.length === 0 || !solution.difficulty,
+  )
+  if (missingMeta.length > 0) {
     console.warn(
-      `Missing difficulties for ${missingDifficulties.length} solutions. Add entries to lib/content/problem-difficulties.json`,
+      `Missing LeetCode metadata for ${missingMeta.length} solutions (topic tags and/or difficulty)`,
     )
   }
 
-  for (const { absolutePath, relativePath } of cppFiles) {
-    const solution = solutions.find((item) => item.relativePath === relativePath)
+  for (const entry of walkcccEntries) {
+    const solution = solutions.find(
+      (item) => item.leetcodeId === entry.leetcodeId,
+    )
     if (!solution) {
       continue
     }
 
-    cpSync(absolutePath, path.join(solutionsDir, `${solution.slug}.cpp`))
+    for (const extension of WALKCCC_LANGUAGE_EXTENSIONS) {
+      const relativePath = entry.languagePaths[extension]
+      if (!relativePath) {
+        continue
+      }
+
+      const language = WALKCCC_EXTENSION_TO_LANGUAGE[extension]
+      const generatedExtension = LANGUAGE_TO_GENERATED_EXTENSION[language]
+
+      cpSync(
+        path.join(sourceDir, relativePath),
+        path.join(solutionsDir, `${solution.slug}.${generatedExtension}`),
+      )
+    }
   }
 
   const companies = buildCompanyList(solutions)
@@ -305,10 +235,10 @@ async function run() {
     contentRepo: CONTENT_REPO_SLUG,
     originalRepo: ORIGINAL_REPO_SLUG,
     solutionCount: solutions.length,
-    topicCount: new Set(solutions.map((solution) => solution.topicSlug)).size,
+    topicCount: topics.length,
     companyCount: companies.length,
     topics,
-    solutions: solutions.sort((a, b) => a.title.localeCompare(b.title)),
+    solutions,
     companies,
   }
 

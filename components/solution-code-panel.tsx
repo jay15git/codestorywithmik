@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
 import {
   CodeBlock,
@@ -9,15 +9,18 @@ import {
 } from "@/components/code-block/code-block"
 import { CopyButton } from "@/components/copy-button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  getAvailableLanguages,
+  SOLUTION_LANGUAGE_LABELS,
+  type SolutionLanguage,
+} from "@/lib/content/solution-languages"
 import { cn } from "@/lib/utils"
 
 import { sanitizeShikiHtml } from "@/lib/sanitize-shiki-html"
 
 interface SolutionCodePanelProps {
-  cpp: string | null
-  java: string | null
-  cppHtml: string | null
-  javaHtml: string | null
+  code: Record<SolutionLanguage, string | null>
+  highlighted: Partial<Record<SolutionLanguage, string | null>>
 }
 
 function HighlightedCode({ html }: { html: string }) {
@@ -29,55 +32,47 @@ function HighlightedCode({ html }: { html: string }) {
   )
 }
 
-export function SolutionCodePanel({
-  cpp,
-  java,
-  cppHtml,
-  javaHtml,
-}: SolutionCodePanelProps) {
-  const hasCpp = Boolean(cpp && cppHtml)
-  const hasJava = Boolean(java && javaHtml)
-  const [activeTab, setActiveTab] = useState<"cpp" | "java">("cpp")
+export function SolutionCodePanel({ code, highlighted }: SolutionCodePanelProps) {
+  const languages = useMemo(
+    () =>
+      getAvailableLanguages(code).filter(
+        (language) => code[language] && highlighted[language],
+      ),
+    [code, highlighted],
+  )
 
-  if (!hasCpp && !hasJava) {
+  const [activeTab, setActiveTab] = useState<SolutionLanguage>(
+    languages[0] ?? "cpp",
+  )
+
+  if (languages.length === 0) {
     return null
   }
 
-  if (hasCpp && !hasJava) {
+  if (languages.length === 1) {
+    const language = languages[0]
     return (
       <CodeBlock>
         <CodeBlockHeader>
-          <span className="text-xs font-medium text-muted-foreground">C++</span>
-          <CopyButton value={cpp!} />
+          <span className="text-xs font-medium text-muted-foreground">
+            {SOLUTION_LANGUAGE_LABELS[language]}
+          </span>
+          <CopyButton value={code[language]!} />
         </CodeBlockHeader>
         <CodeBlockContent>
-          <HighlightedCode html={cppHtml!} />
+          <HighlightedCode html={highlighted[language]!} />
         </CodeBlockContent>
       </CodeBlock>
     )
   }
 
-  if (!hasCpp && hasJava) {
-    return (
-      <CodeBlock>
-        <CodeBlockHeader>
-          <span className="text-xs font-medium text-muted-foreground">Java</span>
-          <CopyButton value={java!} />
-        </CodeBlockHeader>
-        <CodeBlockContent>
-          <HighlightedCode html={javaHtml!} />
-        </CodeBlockContent>
-      </CodeBlock>
-    )
-  }
-
-  const copyValue = activeTab === "cpp" ? cpp! : java!
+  const copyValue = code[activeTab] ?? languages[0]
 
   return (
     <CodeBlock>
       <Tabs
-        defaultValue="cpp"
-        onValueChange={(value) => setActiveTab(value as "cpp" | "java")}
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as SolutionLanguage)}
         className="gap-0"
       >
         <CodeBlockHeader>
@@ -85,35 +80,32 @@ export function SolutionCodePanel({
             variant="line"
             className="h-8 gap-1 bg-transparent p-0 text-muted-foreground"
           >
-            <TabsTrigger
-              value="cpp"
-              className={cn(
-                "h-7 px-2 text-xs data-active:bg-transparent",
-                "data-active:text-foreground",
-              )}
-            >
-              C++
-            </TabsTrigger>
-            <TabsTrigger
-              value="java"
-              className={cn(
-                "h-7 px-2 text-xs data-active:bg-transparent",
-                "data-active:text-foreground",
-              )}
-            >
-              Java
-            </TabsTrigger>
+            {languages.map((language) => (
+              <TabsTrigger
+                key={language}
+                value={language}
+                className={cn(
+                  "h-7 px-2 text-xs data-active:bg-transparent",
+                  "data-active:text-foreground",
+                )}
+              >
+                {SOLUTION_LANGUAGE_LABELS[language]}
+              </TabsTrigger>
+            ))}
           </TabsList>
-          <CopyButton value={copyValue} />
+          <CopyButton value={copyValue!} />
         </CodeBlockHeader>
 
         <CodeBlockContent>
-          <TabsContent value="cpp" className="mt-0 outline-none">
-            <HighlightedCode html={cppHtml!} />
-          </TabsContent>
-          <TabsContent value="java" className="mt-0 outline-none">
-            <HighlightedCode html={javaHtml!} />
-          </TabsContent>
+          {languages.map((language) => (
+            <TabsContent
+              key={language}
+              value={language}
+              className="mt-0 outline-none"
+            >
+              <HighlightedCode html={highlighted[language]!} />
+            </TabsContent>
+          ))}
         </CodeBlockContent>
       </Tabs>
     </CodeBlock>

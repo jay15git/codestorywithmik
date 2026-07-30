@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { CodeIcon } from "lucide-react"
 
 import { ButtonLink } from "@/components/button-link"
-import { CompanyTagLink } from "@/components/company-tag-link"
+import { CompanyTagList } from "@/components/company-tag-list"
 import { sortCompanyTags } from "@/lib/content/sort-company-tags"
 import { DifficultyBadge } from "@/components/difficulty-badge"
+import Link from "next/link"
 import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
 import { SimpleIconsGeeksforgeeks } from "@/components/icons/simple-icons/geeksforgeeks"
@@ -13,6 +13,12 @@ import { SolutionCodePanel } from "@/components/solution-code-panel"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { getSolution, getSolutions } from "@/lib/content/get-content"
 import { practiceLinkLabel } from "@/lib/content/practice-link-label"
+import {
+  getAvailableLanguages,
+  SOLUTION_LANGUAGE_SHIKI,
+  type SolutionLanguage,
+} from "@/lib/content/solution-languages"
+import { topicSlugFromName } from "@/lib/content/slug"
 import { highlightCode } from "@/lib/shiki"
 
 interface SolutionPageProps {
@@ -47,14 +53,23 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
     notFound()
   }
 
-  const [cppHtml, javaHtml] = await Promise.all([
-    solution.code.cpp
-      ? highlightCode(solution.code.cpp, "cpp")
-      : Promise.resolve(null),
-    solution.code.java
-      ? highlightCode(solution.code.java, "java")
-      : Promise.resolve(null),
-  ])
+  const availableLanguages = getAvailableLanguages(solution.code)
+  const highlighted = Object.fromEntries(
+    await Promise.all(
+      availableLanguages.map(async (language) => [
+        language,
+        await highlightCode(
+          solution.code[language]!,
+          SOLUTION_LANGUAGE_SHIKI[language] as
+            | "cpp"
+            | "java"
+            | "python"
+            | "sql"
+            | "typescript",
+        ),
+      ]),
+    ),
+  ) as Partial<Record<SolutionLanguage, string>>
 
   return (
     <div className="min-w-0 max-w-full space-y-8">
@@ -105,15 +120,6 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
                   Watch solution
                 </ButtonLink>
               )}
-              <ButtonLink
-                variant="outline"
-                size="sm"
-                href={solution.githubUrl}
-                external
-              >
-                <CodeIcon />
-                View on GitHub
-              </ButtonLink>
             </div>
 
             {(solution.timeComplexity || solution.spaceComplexity) && (
@@ -131,20 +137,25 @@ export default async function SolutionPage({ params }: SolutionPageProps) {
               </div>
             )}
 
-            <div className="mt-8 flex flex-wrap items-center gap-2">
-              {sortCompanyTags(solution.companyTags).map((company) => (
-                <CompanyTagLink key={company} company={company} />
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {solution.topicTags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={`/topics/${topicSlugFromName(tag)}`}
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                >
+                  {tag}
+                </Link>
               ))}
             </div>
+
+            <CompanyTagList
+              companies={sortCompanyTags(solution.companyTags)}
+            />
           </div>
         </div>
 
-        <SolutionCodePanel
-          cpp={solution.code.cpp}
-          java={solution.code.java}
-          cppHtml={cppHtml}
-          javaHtml={javaHtml}
-        />
+        <SolutionCodePanel code={solution.code} highlighted={highlighted} />
     </div>
   )
 }

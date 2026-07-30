@@ -1,6 +1,9 @@
 export interface SolutionCode {
   cpp: string | null
   java: string | null
+  python: string | null
+  sql: string | null
+  typescript: string | null
 }
 
 export type Difficulty = "Easy" | "Medium" | "Hard"
@@ -8,8 +11,10 @@ export type Difficulty = "Easy" | "Medium" | "Hard"
 export interface SolutionMeta {
   slug: string
   title: string
+  leetcodeId: number | null
   topic: string
   topicSlug: string
+  topicTags: string[]
   subtopic: string | null
   subtopicSlug: string | null
   relativePath: string

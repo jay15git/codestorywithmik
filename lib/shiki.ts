@@ -8,7 +8,7 @@ async function getHighlighter(): Promise<Highlighter> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
       themes: ["github-light", "github-dark"],
-      langs: ["cpp", "java"],
+      langs: ["cpp", "java", "python", "sql", "typescript"],
     })
   }
 
@@ -24,7 +24,7 @@ const lineNumbersTransformer: ShikiTransformer = {
 
 export async function highlightCode(
   code: string,
-  lang: "cpp" | "java",
+  lang: "cpp" | "java" | "python" | "sql" | "typescript",
 ): Promise<string> {
   const highlighter = await getHighlighter()
   const html = highlighter.codeToHtml(code, {

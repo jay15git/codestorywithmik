@@ -28,11 +28,13 @@ function FilterDropdown({
   value,
   options,
   className,
+  menuClassName,
 }: {
   label: string
   value: string
   options: Array<{ label: string; href: string; isActive: boolean }>
   className?: string
+  menuClassName?: string
 }) {
   return (
     <DropdownMenu>
@@ -51,7 +53,10 @@ function FilterDropdown({
         </span>
         <ChevronDownIcon data-icon="inline-end" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="max-h-64 w-56">
+      <DropdownMenuContent
+        align="start"
+        className={cn("max-h-64 w-56", menuClassName)}
+      >
         {options.map((option) => (
           <DropdownMenuItem
             key={option.href}
@@ -71,15 +76,32 @@ export function SolutionFilters({
   basePath,
   filters,
   companies,
+  topics,
+  currentTopicSlug,
 }: {
   basePath: string
   filters: Pick<ListFilterState, "difficulty" | "companySlug">
   companies?: Array<{ slug: string; name: string }>
+  topics?: Array<{ slug: string; name: string }>
+  currentTopicSlug?: string
 }) {
   const hasActiveFilters = Boolean(filters.difficulty || filters.companySlug)
   const selectedCompany =
     companies?.find((company) => company.slug === filters.companySlug)?.name ??
     "All companies"
+  const selectedTopic =
+    topics?.find((topic) => topic.slug === currentTopicSlug)?.name ?? "Category"
+
+  const topicOptions = topics
+    ? topics.map((topic) => ({
+        label: topic.name,
+        href: buildListHref(`/topics/${topic.slug}`, {
+          difficulty: filters.difficulty,
+          companySlug: filters.companySlug,
+        }),
+        isActive: topic.slug === currentTopicSlug,
+      }))
+    : []
 
   const difficultyOptions = DIFFICULTY_OPTIONS.map((option) => ({
     label: option.label,
@@ -113,6 +135,16 @@ export function SolutionFilters({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {topics && topics.length > 0 ? (
+        <FilterDropdown
+          label="Category"
+          value={selectedTopic}
+          options={topicOptions}
+          className="min-w-48"
+          menuClassName="max-h-80"
+        />
+      ) : null}
+
       <FilterDropdown
         label="Difficulty"
         value={filters.difficulty ?? "All"}

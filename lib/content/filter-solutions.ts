@@ -1,6 +1,8 @@
 import { companySlug } from "@/lib/content/slug"
 import type { Difficulty, SolutionMeta } from "@/lib/content/types"
 
+export const LIST_PAGE_SIZE = 48
+
 export const DIFFICULTY_VALUES = ["Easy", "Medium", "Hard"] as const satisfies readonly Difficulty[]
 
 export interface ListFilterState {

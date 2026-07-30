@@ -1,6 +1,5 @@
 import type { SolutionCode } from "./types"
 import { normalizeCompanyTags } from "./normalize-company-tags"
-import { PROBLEM_LINK_FALLBACKS } from "./problem-link-fallbacks"
 
 const YOUTUBE_PATTERNS = [
   /(?:MY\s+YOUTUBE\s+VIDEO[^:]*:|youtube[^:]*:)\s*(https?:\/\/[^\s*]+)/i,
@@ -122,19 +121,16 @@ export function parseGfgUrl(content: string): string | null {
 }
 
 export function resolveProblemLinks(
-  slug: string,
+  _slug: string,
   content: string,
 ): { leetcodeUrl: string | null; gfgUrl: string | null } {
   const leetcodeUrl = parseLeetcodeUrl(content)
   const gfgUrl = parseGfgUrl(content)
   const csesUrl = parseCsesUrl(content)
-  const fallback = PROBLEM_LINK_FALLBACKS[slug]
 
   return {
-    leetcodeUrl: leetcodeUrl ?? fallback?.leetcodeUrl ?? null,
-    gfgUrl: leetcodeUrl
-      ? null
-      : (gfgUrl ?? csesUrl ?? fallback?.gfgUrl ?? null),
+    leetcodeUrl,
+    gfgUrl: leetcodeUrl ? null : (gfgUrl ?? csesUrl ?? null),
   }
 }
 
@@ -170,6 +166,9 @@ export function splitCodeBlocks(content: string): SolutionCode {
     return {
       cpp: trimmed || null,
       java: null,
+      python: null,
+      sql: null,
+      typescript: null,
     }
   }
 
@@ -192,6 +191,9 @@ export function splitCodeBlocks(content: string): SolutionCode {
   return {
     cpp: joinBlocks(blocks.cpp),
     java: joinBlocks(blocks.java),
+    python: null,
+    sql: null,
+    typescript: null,
   }
 }
 

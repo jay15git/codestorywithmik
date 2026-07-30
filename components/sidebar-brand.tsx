@@ -9,7 +9,7 @@ export function SidebarBrand() {
         className="size-10 shrink-0 rounded-lg object-cover object-top"
       />
       <span className="text-base font-semibold tracking-tight leading-none">
-        codestorywithMIK
+        Interview Solutions
       </span>
     </Link>
   )

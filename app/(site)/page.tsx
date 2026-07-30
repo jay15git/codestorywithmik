@@ -6,9 +6,9 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { getContentIndex, getTopics } from "@/lib/content/get-content"
 
 export const metadata: Metadata = {
-  title: "codestorywithMIK — Interview DS & Algo Solutions",
+  title: "Interview Solutions — LeetCode DS & Algo",
   description:
-    "Browse Interview_DS_Algo solutions by topic and company, with C++/Java code, LeetCode links, and YouTube explanations.",
+    "Browse LeetCode solutions by topic and company, with C++ and Java code from walkccc/LeetCode (MIT).",
 }
 
 export default function HomePage() {
@@ -19,20 +19,20 @@ export default function HomePage() {
     <div className="space-y-10">
         <section className="space-y-4">
           <h1 className="max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl">
-            Interview DS &amp; Algo solutions from codestorywithMIK
+            LeetCode interview solutions
           </h1>
           <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
-            Solutions from the{" "}
+            Solutions from{" "}
             <a
-              href="https://github.com/MAZHARMIK/Interview_DS_Algo"
+              href="https://github.com/walkccc/LeetCode"
               target="_blank"
               rel="noreferrer"
               className="underline underline-offset-2 hover:text-foreground"
             >
-              Interview_DS_Algo GitHub repo
-            </a>
-            , organized by topic and company. Each page has the code, company
-            tags, and links to LeetCode and YouTube.
+              walkccc/LeetCode
+            </a>{" "}
+            (MIT), organized by LeetCode topic tags and company. Each page has
+            the code and links to practice on LeetCode.
           </p>
           <p className="max-w-2xl text-sm text-muted-foreground">
             Made by{" "}
@@ -61,7 +61,7 @@ export default function HomePage() {
               <CardTitle className="text-2xl tabular-nums">
                 {index.topicCount}
               </CardTitle>
-              <CardDescription>Topics covered</CardDescription>
+              <CardDescription>Topic tags</CardDescription>
             </CardHeader>
           </Card>
           <Card className="bg-card">
@@ -79,7 +79,7 @@ export default function HomePage() {
             <div>
               <h2 className="text-xl font-semibold">Browse by topic</h2>
               <p className="text-sm text-muted-foreground">
-                Pick a category to explore problems and techniques.
+                LeetCode topic tags — problems can appear in multiple topics.
               </p>
             </div>
           </div>
@@ -100,10 +100,7 @@ export default function HomePage() {
                     <TitleUnderline>{topic.name}</TitleUnderline>
                   </CardTitle>
                   <CardDescription>
-                    {topic.solutionCount} solutions
-                    {topic.subtopics.length > 0
-                      ? ` · ${topic.subtopics.length} subtopics`
-                      : ""}
+                    {topic.solutionCount} listings
                   </CardDescription>
                 </CardHeader>
               </Card>

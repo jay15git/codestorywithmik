@@ -27,7 +27,7 @@ export function TopicSidebar({ topics }: TopicSidebarProps) {
   }))
 
   useEffect(() => {
-    activeItemRef.current?.scrollIntoView({ block: "center" })
+    activeItemRef.current?.scrollIntoView({ block: "nearest" })
   }, [pathname])
 
   return (

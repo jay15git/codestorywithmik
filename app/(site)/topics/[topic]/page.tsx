@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { SolutionFilters } from "@/components/solution-filters"
+import { SolutionsPagination } from "@/components/solutions-pagination"
 import { SolutionView } from "@/components/solution-view-list"
 import {
   SolutionViewProvider,
@@ -10,6 +11,7 @@ import {
 import {
   filterSolutions,
   getCompanyOptions,
+  LIST_PAGE_SIZE,
   parseListSearchParams,
 } from "@/lib/content/filter-solutions"
 import {
@@ -23,6 +25,7 @@ interface TopicPageProps {
   searchParams: Promise<{
     difficulty?: string
     company?: string
+    page?: string
   }>
 }
 
@@ -41,7 +44,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${topic.name} — codestorywithMIK`,
+    title: `${topic.name} — Interview Solutions`,
     description: `Browse ${topic.solutionCount} ${topic.name} interview solutions.`,
   }
 }
@@ -53,6 +56,7 @@ export default async function TopicPage({
   const { topic: topicSlug } = await params
   const filters = parseListSearchParams(await searchParams)
   const topic = getTopic(topicSlug)
+  const topics = getTopics()
 
   if (!topic) {
     notFound()
@@ -61,6 +65,12 @@ export default async function TopicPage({
   const allSolutions = getSolutionsByTopic(topicSlug)
   const companyOptions = getCompanyOptions(allSolutions)
   const solutions = filterSolutions(allSolutions, filters)
+  const totalPages = Math.max(1, Math.ceil(solutions.length / LIST_PAGE_SIZE))
+  const page = Math.min(filters.page, totalPages)
+  const pageSolutions = solutions.slice(
+    (page - 1) * LIST_PAGE_SIZE,
+    page * LIST_PAGE_SIZE,
+  )
   const basePath = `/topics/${topicSlug}`
 
   return (
@@ -76,6 +86,7 @@ export default async function TopicPage({
               {solutions.length !== allSolutions.length
                 ? ` of ${allSolutions.length}`
                 : ""}
+              {totalPages > 1 ? ` · page ${page} of ${totalPages}` : ""}
             </p>
           </div>
           <SolutionViewToggle />
@@ -85,12 +96,27 @@ export default async function TopicPage({
           basePath={basePath}
           filters={filters}
           companies={companyOptions}
+          topics={topics.map((item) => ({ slug: item.slug, name: item.name }))}
+          currentTopicSlug={topicSlug}
         />
 
         {solutions.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No solutions match these filters.
           </p>
+        ) : topic.subtopics.length === 0 ? (
+          <>
+            <SolutionView solutions={pageSolutions} />
+            <SolutionsPagination
+              basePath={basePath}
+              page={page}
+              totalPages={totalPages}
+              query={{
+                difficulty: filters.difficulty,
+                companySlug: filters.companySlug,
+              }}
+            />
+          </>
         ) : (
           <>
             {topic.subtopics.map((subtopic) => {

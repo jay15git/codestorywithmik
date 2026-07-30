@@ -31,7 +31,7 @@ export function AppShell({ children }: AppShellProps) {
         <SidebarHeader className="gap-3 p-4">
           <SidebarBrand />
         </SidebarHeader>
-        <SidebarContent className="flex flex-1 items-center justify-center">
+        <SidebarContent className="px-2 pb-4">
           <TopicSidebar topics={topics} />
         </SidebarContent>
         <SidebarRail />

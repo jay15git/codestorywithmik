@@ -15,11 +15,11 @@ const fontMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "codestorywithMIK — Interview DS & Algo",
-    template: "%s | codestorywithMIK",
+    default: "Interview Solutions — LeetCode DS & Algo",
+    template: "%s | Interview Solutions",
   },
   description:
-    "Browse interview data structures and algorithms solutions by topic, company, and problem.",
+    "Browse LeetCode data structures and algorithms solutions by topic, company, and problem.",
 }
 
 export default function RootLayout({
