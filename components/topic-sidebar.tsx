@@ -13,9 +13,8 @@ interface TopicSidebarProps {
 }
 
 const QUICK_LINKS = [
+  { href: "/problems", label: "Problems", match: "/problems" },
   { href: "/plans", label: "Plans", match: "/plans" },
-  { href: "/patterns", label: "Patterns", match: "/patterns" },
-  { href: "/companies", label: "Companies", match: "/companies" },
   { href: "/daily", label: "Daily", match: "/daily" },
   { href: "/review", label: "Review", match: "/review" },
   { href: "/settings", label: "Settings", match: "/settings" },

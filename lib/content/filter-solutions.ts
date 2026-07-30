@@ -15,6 +15,20 @@ export const DIFFICULTY_VALUES = [
   "Hard",
 ] as const satisfies readonly Difficulty[]
 
+export const LIST_SORT_VALUES = [
+  "id",
+  "title",
+  "difficulty",
+] as const
+
+export type ListSort = (typeof LIST_SORT_VALUES)[number]
+
+const DIFFICULTY_RANK: Record<Difficulty, number> = {
+  Easy: 0,
+  Medium: 1,
+  Hard: 2,
+}
+
 export interface ListFilterState {
   difficulty: Difficulty | null
   companySlug: string | null
@@ -23,6 +37,7 @@ export interface ListFilterState {
   prep: PrepPack | null
   status: StatusFilter
   page: number
+  sort: ListSort
 }
 
 export interface ListHrefParams {
@@ -33,6 +48,7 @@ export interface ListHrefParams {
   prep?: PrepPack | null
   status?: StatusFilter | null
   page?: number
+  sort?: ListSort | null
 }
 
 export function parseDifficultyParam(
@@ -47,6 +63,14 @@ export function parseDifficultyParam(
     : null
 }
 
+export function parseSortParam(value: string | undefined): ListSort {
+  if (value && LIST_SORT_VALUES.includes(value as ListSort)) {
+    return value as ListSort
+  }
+
+  return "id"
+}
+
 export function parseListSearchParams(searchParams: {
   difficulty?: string
   company?: string
@@ -55,6 +79,7 @@ export function parseListSearchParams(searchParams: {
   prep?: string
   status?: string
   page?: string
+  sort?: string
 }): ListFilterState {
   return {
     difficulty: parseDifficultyParam(searchParams.difficulty),
@@ -64,6 +89,7 @@ export function parseListSearchParams(searchParams: {
     prep: parsePrepPack(searchParams.prep),
     status: parseStatusFilter(searchParams.status),
     page: Math.max(1, Number.parseInt(searchParams.page ?? "1", 10) || 1),
+    sort: parseSortParam(searchParams.sort),
   }
 }
 
@@ -95,6 +121,10 @@ export function buildListHref(
 
   if (params.status && params.status !== "all") {
     query.set("status", params.status)
+  }
+
+  if (params.sort && params.sort !== "id") {
+    query.set("sort", params.sort)
   }
 
   if (params.page && params.page > 1) {
@@ -148,6 +178,39 @@ export function filterSolutions(
 
     return true
   })
+}
+
+export function sortSolutions(
+  solutions: SolutionMeta[],
+  sort: ListSort,
+): SolutionMeta[] {
+  const copy = [...solutions]
+
+  copy.sort((left, right) => {
+    if (sort === "title") {
+      return left.title.localeCompare(right.title)
+    }
+
+    if (sort === "difficulty") {
+      const leftDiff = left.difficulty ? DIFFICULTY_RANK[left.difficulty] : 99
+      const rightDiff = right.difficulty
+        ? DIFFICULTY_RANK[right.difficulty]
+        : 99
+      if (leftDiff !== rightDiff) {
+        return leftDiff - rightDiff
+      }
+    }
+
+    const leftId = left.leetcodeId ?? Number.MAX_SAFE_INTEGER
+    const rightId = right.leetcodeId ?? Number.MAX_SAFE_INTEGER
+    if (leftId !== rightId) {
+      return leftId - rightId
+    }
+
+    return left.title.localeCompare(right.title)
+  })
+
+  return copy
 }
 
 export function getCompanyOptions(

@@ -6,10 +6,6 @@ import { TitleUnderline } from "@/components/title-underline"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getContentIndex, getSolutions, getTopics } from "@/lib/content/get-content"
 import {
-  getPatterns,
-  getSolutionsForPattern,
-} from "@/lib/content/patterns"
-import {
   getSolutionsForStudyPlan,
   getStudyPlans,
   studyPlanIdCount,
@@ -25,10 +21,6 @@ export default function HomePage() {
   const index = getContentIndex()
   const topics = getTopics()
   const solutions = getSolutions()
-  const patterns = getPatterns().map((pattern) => ({
-    pattern,
-    count: getSolutionsForPattern(pattern, solutions).length,
-  }))
   const plans = getStudyPlans().map((plan) => ({
     plan,
     available: getSolutionsForStudyPlan(plan, solutions).length,
@@ -42,11 +34,19 @@ export default function HomePage() {
           <h1 className="max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl">
             LeetCode interview solutions
           </h1>
-          <RandomProblemButton
-            slugs={solutions.map((solution) => solution.slug)}
-            label="Random unsolved"
-            size="default"
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/problems"
+              className="text-sm font-medium underline underline-offset-2 hover:text-foreground"
+            >
+              All problems
+            </Link>
+            <RandomProblemButton
+              slugs={solutions.map((solution) => solution.slug)}
+              label="Random unsolved"
+              size="default"
+            />
+          </div>
         </div>
         <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
           Solutions from{" "}
@@ -105,10 +105,10 @@ export default function HomePage() {
         <div>
           <h2 className="text-xl font-semibold">Study plans</h2>
           <p className="text-sm text-muted-foreground">
-            Blind 75 and NeetCode 150 — curated by LeetCode id.
+            Blind 75, NeetCode 150, and NeetCode 250 — curated by LeetCode id.
           </p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {plans.map(({ plan, available, curated }) => (
             <Link key={plan.slug} href={`/plans/${plan.slug}`}>
               <Card className="h-full bg-card transition-colors hover:bg-muted/40">
@@ -125,39 +125,6 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
-      </section>
-
-      <section className="flex flex-col gap-4">
-        <div>
-          <h2 className="text-xl font-semibold">Study by pattern</h2>
-          <p className="text-sm text-muted-foreground">
-            Interview patterns mapped to topic tags, ordered Easy → Hard.
-          </p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {patterns.slice(0, 8).map(({ pattern, count }) => (
-            <Link key={pattern.slug} href={`/patterns/${pattern.slug}`}>
-              <Card className="h-full bg-card transition-colors hover:bg-muted/40">
-                <CardHeader>
-                  <CardTitle className="text-base">
-                    <TitleUnderline>{pattern.name}</TitleUnderline>
-                  </CardTitle>
-                  <CardDescription className="tabular-nums">
-                    {count} problems
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-          ))}
-        </div>
-        <p>
-          <Link
-            href="/patterns"
-            className="text-sm underline underline-offset-2 hover:text-foreground"
-          >
-            All patterns
-          </Link>
-        </p>
       </section>
 
       <section className="flex flex-col gap-4">

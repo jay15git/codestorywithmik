@@ -104,12 +104,12 @@ export default function DailyPage() {
 
       <p>
         <Link
-          href="/patterns"
+          href="/problems"
           className={cn(
             buttonVariants({ variant: "outline", size: "sm" }),
           )}
         >
-          Browse patterns
+          All problems
         </Link>
       </p>
     </div>

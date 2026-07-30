@@ -15,6 +15,7 @@ import {
   buildListHref,
   DIFFICULTY_VALUES,
   type ListFilterState,
+  type ListSort,
 } from "@/lib/content/filter-solutions"
 import {
   SOLUTION_LANGUAGE_LABELS,
@@ -39,6 +40,18 @@ const LANG_OPTIONS: Array<{
     value,
   })),
 ]
+
+const SORT_OPTIONS: Array<{ label: string; value: ListSort }> = [
+  { label: "LeetCode id", value: "id" },
+  { label: "Title", value: "title" },
+  { label: "Difficulty", value: "difficulty" },
+]
+
+const SORT_LABELS: Record<ListSort, string> = {
+  id: "LeetCode id",
+  title: "Title",
+  difficulty: "Difficulty",
+}
 
 function FilterDropdown({
   label,
@@ -97,17 +110,25 @@ export function SolutionFilters({
   currentTopicSlug,
   showStatus = true,
   showLanguage = true,
+  showSort = false,
 }: {
   basePath: string
   filters: Pick<
     ListFilterState,
-    "difficulty" | "companySlug" | "topicSlug" | "prep" | "status" | "lang"
+    | "difficulty"
+    | "companySlug"
+    | "topicSlug"
+    | "prep"
+    | "status"
+    | "lang"
+    | "sort"
   >
   companies?: Array<{ slug: string; name: string }>
   topics?: Array<{ slug: string; name: string }>
   currentTopicSlug?: string
   showStatus?: boolean
   showLanguage?: boolean
+  showSort?: boolean
 }) {
   const hasActiveFilters = Boolean(
     filters.difficulty ||
@@ -115,7 +136,8 @@ export function SolutionFilters({
       filters.topicSlug ||
       filters.lang ||
       filters.prep ||
-      (filters.status && filters.status !== "all"),
+      (filters.status && filters.status !== "all") ||
+      (showSort && filters.sort && filters.sort !== "id"),
   )
   const selectedCompany =
     companies?.find((company) => company.slug === filters.companySlug)?.name ??
@@ -132,6 +154,7 @@ export function SolutionFilters({
     prep: filters.prep,
     status: filters.status,
     lang: filters.lang,
+    sort: filters.sort,
   }
 
   const topicOptions = topics
@@ -156,6 +179,7 @@ export function SolutionFilters({
                 companySlug: filters.companySlug,
                 status: filters.status,
                 lang: filters.lang,
+                sort: filters.sort,
               })
             : buildListHref(basePath, {
                 ...shared,
@@ -206,6 +230,15 @@ export function SolutionFilters({
     isActive: filters.lang === option.value,
   }))
 
+  const sortOptions = SORT_OPTIONS.map((option) => ({
+    label: option.label,
+    href: buildListHref(basePath, {
+      ...shared,
+      sort: option.value,
+    }),
+    isActive: (filters.sort ?? "id") === option.value,
+  }))
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       {topics && topics.length > 0 ? (
@@ -243,6 +276,14 @@ export function SolutionFilters({
         />
       ) : null}
 
+      {showSort ? (
+        <FilterDropdown
+          label="Sort"
+          value={SORT_LABELS[filters.sort ?? "id"]}
+          options={sortOptions}
+        />
+      ) : null}
+
       {showStatus ? (
         <StatusFilterDropdown
           basePath={basePath}
@@ -253,6 +294,7 @@ export function SolutionFilters({
             topicSlug: filters.topicSlug,
             prep: filters.prep,
             lang: filters.lang,
+            sort: filters.sort,
           }}
         />
       ) : null}
