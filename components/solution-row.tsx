@@ -59,7 +59,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
     return (
       <div
         className={cn(
-          "group/row relative px-(--spacing-solution-row-x) py-(--spacing-solution-row-y) transition-colors hover:bg-muted/40",
+          "group/row relative px-(--spacing-solution-row-x) py-(--spacing-solution-row-y) transition-colors duration-quick ease-smooth-out hover:bg-muted/40",
           LIST_ROW_GRID,
         )}
       >

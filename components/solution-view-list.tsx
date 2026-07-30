@@ -18,26 +18,30 @@ export function SolutionView({
     return null
   }
 
-  if (viewMode === "list") {
-    return (
+  return (
+    <div className={cn("solution-view-stack", className)}>
       <div
         className={cn(
           "solution-view-list divide-y rounded-lg border bg-card",
-          className,
+          viewMode !== "list" && "solution-view-inactive",
         )}
+        aria-hidden={viewMode !== "list"}
       >
         {solutions.map((solution) => (
           <SolutionRow key={solution.slug} solution={solution} variant="list" />
         ))}
       </div>
-    )
-  }
-
-  return (
-    <div className={cn("solution-view-grid grid gap-3 md:grid-cols-2", className)}>
-      {solutions.map((solution) => (
-        <SolutionRow key={solution.slug} solution={solution} variant="grid" />
-      ))}
+      <div
+        className={cn(
+          "solution-view-grid grid gap-3 md:grid-cols-2",
+          viewMode !== "grid" && "solution-view-inactive",
+        )}
+        aria-hidden={viewMode !== "grid"}
+      >
+        {solutions.map((solution) => (
+          <SolutionRow key={solution.slug} solution={solution} variant="grid" />
+        ))}
+      </div>
     </div>
   )
 }

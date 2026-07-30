@@ -13,7 +13,7 @@ export function CompanyTagLink({ company, className }: CompanyTagLinkProps) {
     <Link
       href={`/companies/${companySlug(company)}`}
       className={cn(
-        "text-xs font-medium text-muted-foreground transition-colors hover:text-foreground",
+        "text-xs font-medium text-muted-foreground transition-colors duration-quick ease-smooth-out hover:text-foreground",
         className,
       )}
     >

@@ -34,7 +34,7 @@ export function SiteNav({ className }: { className?: string }) {
             key={link.href}
             href={link.href}
             className={cn(
-              "shrink-0 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors",
+              "shrink-0 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors duration-quick ease-smooth-out",
               active
                 ? "bg-muted text-foreground"
                 : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",

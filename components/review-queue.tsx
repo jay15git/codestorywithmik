@@ -135,7 +135,7 @@ export function ReviewQueue({
               <li key={item.slug}>
                 <Link
                   href={`/solutions/${item.slug}`}
-                  className="flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-muted/40"
+                  className="flex items-center gap-3 px-3 py-2.5 transition-colors duration-quick ease-smooth-out hover:bg-muted/40"
                 >
                   <DifficultyBadge difficulty={item.solution.difficulty} />
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">
@@ -159,7 +159,7 @@ export function ReviewQueue({
               <li key={item.slug}>
                 <Link
                   href={`/solutions/${item.slug}`}
-                  className="flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-muted/40"
+                  className="flex items-center gap-3 px-3 py-2.5 transition-colors duration-quick ease-smooth-out hover:bg-muted/40"
                 >
                   <DifficultyBadge difficulty={item.solution!.difficulty} />
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">

@@ -1,24 +1,25 @@
+/** Framer Motion spring tiers aligned to transitions.dev motion tokens. */
 export const spring = {
+  /** Dropdown/modal open — --duration-fast (250ms), close --duration-quick (150ms) */
   fast: {
     type: "spring" as const,
-    duration: 0.08,
+    duration: 0.25,
     bounce: 0,
-    exit: { duration: 0.06 },
+    exit: { duration: 0.15 },
   },
-  // Critically damped: same perceived speed as a bouncier tier, but lands
-  // exactly with no overshoot — for short travel and panels/sheets that must
-  // settle precisely (dropdowns, tabs, drawers, merged selection backgrounds).
+  // Critically damped: proximity overlays, merged selection backgrounds.
   moderate: {
     type: "spring" as const,
-    duration: 0.16,
+    duration: 0.25,
     bounce: 0,
-    exit: { duration: 0.12 },
+    exit: { duration: 0.15 },
   },
+  /** Panel open — --duration-slow (400ms), close --duration-medium (350ms) */
   slow: {
     type: "spring" as const,
-    duration: 0.24,
-    bounce: 0.12,
-    exit: { duration: 0.16 },
+    duration: 0.4,
+    bounce: 0,
+    exit: { duration: 0.35 },
   },
 } as const;
 

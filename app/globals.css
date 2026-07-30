@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./motion-tokens.css";
+@import "./transitions.css";
 @import "./shiki.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -78,6 +80,14 @@
     --color-dm-hi-high: var(--dm-hi-high);
     --color-dm-hi-mid: var(--dm-hi-mid);
     --color-dm-hi-base: var(--dm-hi-base);
+    --duration-stagger: 40ms;
+    --duration-micro: 80ms;
+    --duration-quick: 150ms;
+    --duration-fast: 250ms;
+    --duration-medium: 350ms;
+    --duration-slow: 400ms;
+    --duration-very-slow: 500ms;
+    --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
     --shadow-8: var(--shadow-8);
     --shadow-7: var(--shadow-7);
     --shadow-6: var(--shadow-6);
@@ -215,13 +225,6 @@
     }
 }
 
-.solution-view-root[data-view-mode="grid"] .solution-view-list {
-  display: none;
-}
-
-.solution-view-root[data-view-mode="list"] .solution-view-grid {
-  display: none;
-}
 
 .solution-list-section {
   content-visibility: auto;

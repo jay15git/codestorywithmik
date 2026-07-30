@@ -461,11 +461,11 @@ const DropdownContent = forwardRef<HTMLDivElement, DropdownContentProps>(
           className="z-50 outline-none"
         >
           <motion.div
-            initial={{ opacity: 0, y: -4, scaleY: 0.96 }}
+            initial={{ opacity: 0, y: -4, scaleY: 0.97 }}
             animate={
               open
                 ? { opacity: 1, y: 0, scaleY: 1 }
-                : { opacity: 0, y: -4, scaleY: 0.96 }
+                : { opacity: 0, y: -4, scaleY: 0.97 }
             }
             transition={open ? spring.fast : spring.fast.exit}
             style={{ transformOrigin: "top center" }}

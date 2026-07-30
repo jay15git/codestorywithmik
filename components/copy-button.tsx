@@ -25,7 +25,14 @@ export function CopyButton({ value }: CopyButtonProps) {
       aria-label="Copy code"
       onClick={handleCopy}
     >
-      {copied ? <CheckIcon /> : <CopyIcon />}
+      <span className="t-icon-swap" data-state={copied ? "b" : "a"}>
+        <span className="t-icon" data-icon="a">
+          <CopyIcon />
+        </span>
+        <span className="t-icon" data-icon="b">
+          <CheckIcon />
+        </span>
+      </span>
     </Button>
   )
 }

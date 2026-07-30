@@ -91,13 +91,13 @@ function LineNavItem({
       >
         <span
           className={cn(
-            "block h-px shrink-0 bg-foreground/20 transition-[width,background-color] duration-200 ease-out motion-reduce:transition-none",
+            "block h-px shrink-0 bg-foreground/20 motion-line motion-reduce:transition-none",
             active
               ? "w-10 bg-foreground"
               : "w-6 group-hover/line-nav:w-10 group-hover/line-nav:bg-foreground",
           )}
         />
-        <span className="flex items-center whitespace-nowrap text-sm text-muted-foreground transition-[color] duration-200 ease-out motion-reduce:transition-none group-hover/line-nav:text-foreground group-aria-[current=page]/line-nav:text-foreground">
+        <span className="motion-line flex items-center whitespace-nowrap text-sm text-muted-foreground motion-reduce:transition-none group-hover/line-nav:text-foreground group-aria-[current=page]/line-nav:text-foreground">
           {prefix && (
             <span className="mr-4 min-w-[1.25rem] text-xs tabular-nums text-muted-foreground/40 group-hover/line-nav:text-muted-foreground/60 group-aria-[current=page]/line-nav:text-muted-foreground/70">
               {prefix}

@@ -158,7 +158,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
               size={16}
               strokeWidth={isActive || checked ? 2 : 1.5}
               className={cn(
-                "col-start-1 row-start-1 transition-[color,stroke-width] duration-80",
+                "col-start-1 row-start-1 transition-[color,stroke-width] duration-micro",
                 isActive || checked
                   ? "text-foreground"
                   : "text-muted-foreground"
@@ -178,7 +178,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
           </span>
           <span
             className={cn(
-              "col-start-1 row-start-1 transition-[color,font-variation-settings] duration-80 [text-box:trim-both_cap_alphabetic]",
+              "col-start-1 row-start-1 transition-[color,font-variation-settings] duration-micro [text-box:trim-both_cap_alphabetic]",
               isActive || checked
                 ? "text-foreground"
                 : "text-muted-foreground"
