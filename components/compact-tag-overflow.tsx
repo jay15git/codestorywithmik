@@ -29,45 +29,76 @@ interface CompactTagOverflowProps {
 /** Matches Tailwind `gap-2` (8px) — tag cluster gutters */
 const ITEM_GAP_PX = 8
 
+function sumItemWidths(itemWidths: readonly number[], count: number): number {
+  let sum = 0
+  for (let index = 0; index < count; index++) {
+    sum += itemWidths[index] + (index > 0 ? ITEM_GAP_PX : 0)
+  }
+  return sum
+}
+
+/**
+ * Fit as many tags as the column allows.
+ * 1. If every tag fits with no "+N" chip → show all.
+ * 2. Else pick max k where tags[0..k) + gap + real "+(total-k)" chip fit.
+ */
 function computeVisibleCount(
   itemWidths: readonly number[],
   containerWidth: number,
-  moreButtonWidth: number,
+  moreWidthForOverflow: (overflowCount: number) => number,
+  hardCap?: number,
 ): number {
   const total = itemWidths.length
   if (total === 0) {
     return 0
   }
 
-  let used = 0
-  let count = 0
+  const cappedTotal =
+    typeof hardCap === "number" ? Math.min(hardCap, total) : total
 
-  for (let index = 0; index < total; index++) {
-    const gap = count > 0 ? ITEM_GAP_PX : 0
-    const itemWidth = itemWidths[index]
-    const remaining = total - index - 1
-    const moreReserve = remaining > 0 ? ITEM_GAP_PX + moreButtonWidth : 0
-    const nextUsed = used + gap + itemWidth + moreReserve
-
-    if (nextUsed <= containerWidth) {
-      used += gap + itemWidth
-      count = index + 1
-      continue
-    }
-
-    const fitsWithoutMore = used + gap + itemWidth <= containerWidth
-    if (remaining === 0 && fitsWithoutMore) {
-      count = index + 1
-    }
-
-    break
+  // Hard cap below total always needs a more chip for the rest.
+  if (cappedTotal >= total && sumItemWidths(itemWidths, total) <= containerWidth) {
+    return total
   }
 
-  if (count === 0 && total > 0) {
+  const maxShow = Math.min(cappedTotal, total - 1)
+  let best = 0
+
+  for (let count = 1; count <= maxShow; count++) {
+    const overflow = total - count
+    const used =
+      sumItemWidths(itemWidths, count) +
+      ITEM_GAP_PX +
+      moreWidthForOverflow(overflow)
+
+    if (used <= containerWidth) {
+      best = count
+    }
+  }
+
+  if (best === 0 && total > 0) {
     return 1
   }
 
-  return count
+  return best
+}
+
+function moreWidthByDigits(
+  measureLabel: HTMLElement,
+  measureButton: HTMLElement,
+  overflowCount: number,
+  cache: Map<number, number>,
+): number {
+  const digits = String(overflowCount).length
+  const cached = cache.get(digits)
+  if (cached !== undefined) {
+    return cached
+  }
+
+  measureLabel.textContent = `+${"9".repeat(digits)}`
+  const width = measureButton.offsetWidth
+  cache.set(digits, width)
+  return width
 }
 
 export function CompactTagOverflow({
@@ -79,13 +110,15 @@ export function CompactTagOverflow({
   const containerRef = useRef<HTMLDivElement>(null)
   const measureRef = useRef<HTMLDivElement>(null)
   const moreMeasureRef = useRef<HTMLButtonElement>(null)
+  const moreLabelRef = useRef<HTMLSpanElement>(null)
   const [visibleCount, setVisibleCount] = useState(items.length)
 
   useLayoutEffect(() => {
     const container = containerRef.current
     const measure = measureRef.current
     const moreButton = moreMeasureRef.current
-    if (!container || !measure || !moreButton) {
+    const moreLabel = moreLabelRef.current
+    if (!container || !measure || !moreButton || !moreLabel) {
       return
     }
 
@@ -98,14 +131,16 @@ export function CompactTagOverflow({
       const widths = [...measure.children].map(
         (child) => (child as HTMLElement).offsetWidth,
       )
-      const moreWidth = moreButton.offsetWidth
-      const fitCount = computeVisibleCount(widths, containerWidth, moreWidth)
-      const capped =
-        typeof maxVisible === "number"
-          ? Math.min(fitCount, maxVisible, items.length)
-          : Math.min(fitCount, items.length)
+      const digitWidthCache = new Map<number, number>()
+      const fitCount = computeVisibleCount(
+        widths,
+        containerWidth,
+        (overflow) =>
+          moreWidthByDigits(moreLabel, moreButton, overflow, digitWidthCache),
+        maxVisible,
+      )
 
-      setVisibleCount(capped)
+      setVisibleCount(Math.min(fitCount, items.length))
     }
 
     update()
@@ -145,7 +180,7 @@ export function CompactTagOverflow({
         aria-hidden
         className="pointer-events-none invisible absolute inline-flex items-center gap-0.5 px-1.5 text-xs font-medium"
       >
-        +99
+        <span ref={moreLabelRef}>+99</span>
         <ChevronDownIcon className="size-3" />
       </button>
 
