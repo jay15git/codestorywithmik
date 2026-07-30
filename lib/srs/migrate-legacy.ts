@@ -1,9 +1,5 @@
-import { State, createEmptyCard } from "ts-fsrs"
-
-import {
-  fromFsrsCard,
-  utcDateKeyToDate,
-} from "@/lib/srs/fsrs-engine"
+import { toUtcDateKeyFromDate, utcDateKeyToDate } from "@/lib/srs/dates"
+import { SrsState } from "@/lib/srs/state"
 import type { SrsCard } from "@/lib/srs/types"
 
 interface LegacySrsCard {
@@ -50,27 +46,37 @@ function isFsrsSrsCard(value: unknown): value is SrsCard {
   )
 }
 
+function createEmptySrsCard(due: Date, updatedAt: string): SrsCard {
+  return {
+    dueAt: toUtcDateKeyFromDate(due),
+    due: due.toISOString(),
+    stability: 0,
+    difficulty: 0,
+    elapsed_days: 0,
+    scheduled_days: 0,
+    learning_steps: 0,
+    reps: 0,
+    lapses: 0,
+    state: SrsState.New,
+    updatedAt,
+  }
+}
+
 export function migrateLegacySrsCard(legacy: LegacySrsCard): SrsCard {
   const due = utcDateKeyToDate(legacy.dueAt)
 
   if (legacy.repetitions > 0) {
-    const empty = createEmptyCard(due)
-    return fromFsrsCard(
-      {
-        ...empty,
-        due,
-        state: State.Review,
-        stability: Math.max(legacy.intervalDays, 0.1),
-        scheduled_days: legacy.intervalDays,
-        reps: legacy.repetitions,
-        last_review: new Date(legacy.updatedAt),
-      },
-      legacy.updatedAt,
-    )
+    return {
+      ...createEmptySrsCard(due, legacy.updatedAt),
+      state: SrsState.Review,
+      stability: Math.max(legacy.intervalDays, 0.1),
+      scheduled_days: legacy.intervalDays,
+      reps: legacy.repetitions,
+      last_review: legacy.updatedAt,
+    }
   }
 
-  const empty = createEmptyCard(due)
-  return fromFsrsCard({ ...empty, due }, legacy.updatedAt)
+  return createEmptySrsCard(due, legacy.updatedAt)
 }
 
 export function coerceSrsCard(value: unknown): SrsCard | null {

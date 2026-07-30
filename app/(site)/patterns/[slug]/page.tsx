@@ -20,7 +20,7 @@ import {
   patternTopicHrefs,
 } from "@/lib/content/patterns"
 import { listFiltersToNavParams } from "@/lib/content/solution-nav"
-import { parseStatusFilter } from "@/lib/progress/store"
+import { parseStatusFilter } from "@/lib/progress/filters"
 import { cn } from "@/lib/utils"
 
 interface PatternPageProps {

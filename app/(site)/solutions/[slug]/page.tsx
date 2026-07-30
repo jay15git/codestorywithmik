@@ -34,7 +34,7 @@ import {
   type SolutionLanguage,
 } from "@/lib/content/solution-languages"
 import { topicSlugFromName } from "@/lib/content/slug"
-import { parseLanguageParam } from "@/lib/preferences/language"
+import { parseLanguageParam } from "@/lib/preferences/language-param"
 import { highlightCode } from "@/lib/shiki"
 
 interface SolutionPageProps {

@@ -1,12 +1,10 @@
 import { companySlug, topicSlugFromName } from "@/lib/content/slug"
 import type { PrepPack } from "@/lib/content/prep-packs"
 import { parsePrepPack } from "@/lib/content/prep-packs"
-import {
-  parseLanguageParam,
-} from "@/lib/preferences/language"
+import { parseLanguageParam } from "@/lib/preferences/language-param"
 import type { Difficulty, SolutionMeta } from "@/lib/content/types"
 import type { SolutionLanguage } from "@/lib/content/solution-languages"
-import { parseStatusFilter } from "@/lib/progress/store"
+import { parseStatusFilter } from "@/lib/progress/filters"
 import type { StatusFilter } from "@/lib/progress/types"
 
 export const LIST_PAGE_SIZE = 48

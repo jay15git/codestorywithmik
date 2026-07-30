@@ -1,15 +1,22 @@
+"use client"
+
 import type {
   ProgressCounts,
   ProgressFlag,
   SolutionProgressEntry,
   SolutionProgressMap,
-  StatusFilter,
 } from "@/lib/progress/types"
 import {
   getStudyBag,
   patchStudyBag,
   subscribeStudyBag,
 } from "@/lib/storage/study-bag"
+
+export {
+  getProgressEntry,
+  matchesStatusFilter,
+  parseStatusFilter,
+} from "@/lib/progress/filters"
 
 export const PROGRESS_STORAGE_KEY = "solution-progress-v1"
 
@@ -39,19 +46,13 @@ function writeProgressMap(map: SolutionProgressMap) {
   })
 }
 
-export function getProgressEntry(
-  map: SolutionProgressMap,
-  slug: string,
-): SolutionProgressEntry {
-  return map[slug] ?? {}
-}
-
 export function isFlagSet(
   map: SolutionProgressMap,
   slug: string,
   flag: ProgressFlag,
 ): boolean {
-  return Boolean(getProgressEntry(map, slug)[flag])
+  const entry = map[slug] ?? {}
+  return Boolean(entry[flag])
 }
 
 export function toggleProgressFlag(
@@ -59,7 +60,7 @@ export function toggleProgressFlag(
   flag: ProgressFlag,
 ): SolutionProgressMap {
   const map = { ...readProgressMap() }
-  const entry = { ...getProgressEntry(map, slug) }
+  const entry = { ...(map[slug] ?? {}) }
   const next = !entry[flag]
 
   if (next) {
@@ -91,7 +92,7 @@ export function setProgressFlag(
   value: boolean,
 ): SolutionProgressMap {
   const map = { ...readProgressMap() }
-  const entry = { ...getProgressEntry(map, slug) }
+  const entry = { ...(map[slug] ?? {}) }
 
   if (value) {
     entry[flag] = true
@@ -132,40 +133,5 @@ export function countProgress(map: SolutionProgressMap): ProgressCounts {
     starred,
     revisit,
     totalTracked: Object.keys(map).length,
-  }
-}
-
-export function matchesStatusFilter(
-  map: SolutionProgressMap,
-  slug: string,
-  filter: StatusFilter,
-): boolean {
-  const entry = getProgressEntry(map, slug)
-
-  switch (filter) {
-    case "all":
-      return true
-    case "solved":
-      return Boolean(entry.solved)
-    case "unsolved":
-      return !entry.solved
-    case "starred":
-      return Boolean(entry.starred)
-    case "revisit":
-      return Boolean(entry.revisit)
-    default:
-      return true
-  }
-}
-
-export function parseStatusFilter(value: string | undefined): StatusFilter {
-  switch (value) {
-    case "solved":
-    case "unsolved":
-    case "starred":
-    case "revisit":
-      return value
-    default:
-      return "all"
   }
 }

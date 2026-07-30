@@ -1,3 +1,5 @@
+"use client"
+
 import {
   SOLUTION_LANGUAGE_ORDER,
   type SolutionLanguage,

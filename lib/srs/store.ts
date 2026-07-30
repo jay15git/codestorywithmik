@@ -1,10 +1,11 @@
+"use client"
+
 import type { SolutionProgressMap } from "@/lib/progress/types"
+import { isDueOnOrBefore, toUtcDateKey } from "@/lib/srs/dates"
 import {
   applySrsRating,
   createDueTodayCard,
   createInitialCard,
-  isDueOnOrBefore,
-  toUtcDateKey,
 } from "@/lib/srs/schedule"
 import type {
   SrsCard,

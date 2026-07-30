@@ -5,8 +5,8 @@ import Link from "next/link"
 
 import { useSolutionProgress } from "@/components/solution-progress-provider"
 import { Button } from "@/components/ui/button"
+import { getSrsStateLabel } from "@/lib/srs/state"
 import {
-  getSrsStateLabel,
   isDueOnOrBefore,
   previewSrsRatings,
   toUtcDateKey,

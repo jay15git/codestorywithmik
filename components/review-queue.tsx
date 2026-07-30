@@ -22,7 +22,7 @@ import {
   readSrsMap,
   subscribeToSrs,
 } from "@/lib/srs/store"
-import { toUtcDateKey } from "@/lib/srs/schedule"
+import { toUtcDateKey } from "@/lib/srs/dates"
 import { cn } from "@/lib/utils"
 
 export interface ReviewSolutionItem {

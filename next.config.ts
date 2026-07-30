@@ -7,8 +7,12 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
+    "/companies": ["./generated/**/*"],
     "/companies/[company]": ["./generated/**/*"],
     "/topics/[topic]": ["./generated/**/*"],
+    "/solutions/[slug]": ["./generated/**/*"],
+    "/patterns/[slug]": ["./generated/**/*"],
+    "/plans/[slug]": ["./generated/**/*"],
   },
 }
 

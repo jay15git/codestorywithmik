@@ -1,20 +1,30 @@
+"use client"
+
 import {
   FSRS,
   Rating,
-  State,
   createEmptyCard,
   generatorParameters,
   type Card as FsrsCard,
   type Grade,
 } from "ts-fsrs"
 
+import { toUtcDateKeyFromDate, utcDateKeyToDate } from "@/lib/srs/dates"
+import { getSrsStateLabel } from "@/lib/srs/state"
 import type { SrsCard, SrsRating } from "@/lib/srs/types"
 
-export const srsEngine = new FSRS(
-  generatorParameters({ maximum_interval: 365 }),
-)
+export { getSrsStateLabel }
 
-export const RATING_TO_GRADE: Record<SrsRating, Grade> = {
+let srsEngine: FSRS | null = null
+
+function getSrsEngine(): FSRS {
+  if (!srsEngine) {
+    srsEngine = new FSRS(generatorParameters({ maximum_interval: 365 }))
+  }
+  return srsEngine
+}
+
+const RATING_TO_GRADE: Record<SrsRating, Grade> = {
   again: Rating.Again,
   hard: Rating.Hard,
   good: Rating.Good,
@@ -56,36 +66,10 @@ export function fromFsrsCard(
   }
 }
 
-export function toUtcDateKeyFromDate(date: Date): string {
-  const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0")
-  const day = String(date.getUTCDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
-}
-
-export function utcDateKeyToDate(dateKey: string): Date {
-  return new Date(`${dateKey}T00:00:00.000Z`)
-}
-
 export function createFsrsCardDueOn(dateKey: string): SrsCard {
   const due = utcDateKeyToDate(dateKey)
   const empty = createEmptyCard(due)
   return fromFsrsCard({ ...empty, due })
-}
-
-export function getSrsStateLabel(state: State): string {
-  switch (state) {
-    case State.New:
-      return "New"
-    case State.Learning:
-      return "Learning"
-    case State.Review:
-      return "Review"
-    case State.Relearning:
-      return "Relearning"
-    default:
-      return "Unknown"
-  }
 }
 
 export function formatIntervalPreview(from: Date, to: Date): string {
@@ -103,4 +87,31 @@ export function formatIntervalPreview(from: Date, to: Date): string {
 
   const months = Math.round(days / 30)
   return `${months}mo`
+}
+
+export function runFsrsNext(
+  card: SrsCard,
+  now: Date,
+  rating: SrsRating,
+): SrsCard {
+  const result = getSrsEngine().next(
+    toFsrsCard(card),
+    now,
+    RATING_TO_GRADE[rating],
+  )
+  return fromFsrsCard(result.card)
+}
+
+export function runFsrsPreview(
+  card: SrsCard,
+  now: Date,
+): Record<SrsRating, string> {
+  const preview = getSrsEngine().repeat(toFsrsCard(card), now)
+
+  return {
+    again: formatIntervalPreview(now, preview[Rating.Again].card.due),
+    hard: formatIntervalPreview(now, preview[Rating.Hard].card.due),
+    good: formatIntervalPreview(now, preview[Rating.Good].card.due),
+    easy: formatIntervalPreview(now, preview[Rating.Easy].card.due),
+  }
 }

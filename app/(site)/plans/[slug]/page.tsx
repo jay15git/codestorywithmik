@@ -20,7 +20,7 @@ import {
   getStudyPlans,
   studyPlanIdCount,
 } from "@/lib/content/study-plans"
-import { parseStatusFilter } from "@/lib/progress/store"
+import { parseStatusFilter } from "@/lib/progress/filters"
 
 interface StudyPlanPageProps {
   params: Promise<{ slug: string }>

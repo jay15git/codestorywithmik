@@ -1,4 +1,4 @@
-import type { State } from "ts-fsrs"
+import type { SrsState } from "@/lib/srs/state"
 
 export type SrsRating = "again" | "hard" | "good" | "easy"
 
@@ -14,7 +14,7 @@ export interface SrsCard {
   learning_steps: number
   reps: number
   lapses: number
-  state: State
+  state: SrsState
   last_review?: string
   updatedAt: string
 }

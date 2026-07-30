@@ -1,20 +1,21 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 
-import { State } from "ts-fsrs"
-
+import {
+  addUtcDays,
+  isDueOnOrBefore,
+  toUtcDateKey,
+} from "./dates"
 import {
   coerceSrsCard,
   migrateLegacySrsCard,
 } from "./migrate-legacy"
 import {
-  addUtcDays,
   applySrsRating,
   createInitialCard,
-  isDueOnOrBefore,
   previewSrsRatings,
-  toUtcDateKey,
 } from "./schedule"
+import { SrsState } from "./state"
 
 describe("srs schedule", () => {
   it("formats UTC date keys", () => {
@@ -32,7 +33,7 @@ describe("srs schedule", () => {
   it("enrolls first solve for tomorrow", () => {
     const card = createInitialCard("2026-07-30")
     assert.equal(card.dueAt, "2026-07-31")
-    assert.equal(card.state, State.New)
+    assert.equal(card.state, SrsState.New)
   })
 
   it("again schedules sooner than good on a mature review card", () => {
@@ -101,7 +102,7 @@ describe("legacy srs migration", () => {
 
     assert.equal(migrated.dueAt, "2026-07-30")
     assert.equal(migrated.reps, 2)
-    assert.equal(migrated.state, State.Review)
+    assert.equal(migrated.state, SrsState.Review)
     assert.equal(migrated.scheduled_days, 6)
     assert.equal(migrated.stability, 6)
     assert.equal(

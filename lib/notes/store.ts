@@ -1,3 +1,5 @@
+"use client"
+
 import type { SolutionNoteEntry, SolutionNotesMap } from "@/lib/notes/types"
 import {
   getStudyBag,
