@@ -41,3 +41,7 @@ next-env.d.ts
 /content/upstream/
 /public/search-index.json
 .vercel
+
+# cursor / agent skills (local install artifacts)
+.agents/
+skills-lock.json

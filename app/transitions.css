@@ -217,23 +217,6 @@
   animation-delay: calc(var(--digit-stagger) * 3);
 }
 
-/* Solution view crossfade */
-.solution-view-stack {
-  display: grid;
-}
-.solution-view-stack > .solution-view-list,
-.solution-view-stack > .solution-view-grid {
-  grid-area: 1 / 1;
-  transition:
-    opacity var(--duration-fast) var(--ease-smooth-out),
-    filter var(--duration-fast) var(--ease-smooth-out);
-}
-.solution-view-inactive {
-  opacity: 0;
-  filter: blur(var(--blur-small));
-  pointer-events: none;
-}
-
 /* Motion utility classes */
 .motion-line {
   transition-property: width, background-color, color;
@@ -255,9 +238,7 @@
   .t-tabs-pill,
   .t-tabs [data-slot="tabs-trigger"],
   .t-skel-skeleton,
-  .t-skel-content,
-  .solution-view-stack > .solution-view-list,
-  .solution-view-stack > .solution-view-grid {
+  .t-skel-content {
     transition: none !important;
   }
   .t-skel-skeleton.is-pulsing > *,
