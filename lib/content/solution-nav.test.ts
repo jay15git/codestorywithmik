@@ -44,6 +44,7 @@ describe("solution nav", () => {
         topicSlug: "array",
         companySlug: null,
         patternSlug: null,
+        planSlug: null,
         difficulty: "Easy",
         prep: null,
         status: "unsolved",
@@ -69,9 +70,31 @@ describe("solution nav", () => {
         topicSlug: null,
         companySlug: null,
         patternSlug: "two-pointers",
+        planSlug: null,
         difficulty: null,
         prep: null,
         status: "starred",
+        lang: null,
+      },
+    )
+  })
+
+  it("parses plan nav context", () => {
+    assert.deepEqual(
+      parseSolutionNavParams({
+        from: "plan",
+        plan: "blind-75",
+        status: "unsolved",
+      }),
+      {
+        from: "plan",
+        topicSlug: null,
+        companySlug: null,
+        patternSlug: null,
+        planSlug: "blind-75",
+        difficulty: null,
+        prep: null,
+        status: "unsolved",
         lang: null,
       },
     )

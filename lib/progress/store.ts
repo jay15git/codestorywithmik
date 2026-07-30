@@ -5,24 +5,19 @@ import type {
   SolutionProgressMap,
   StatusFilter,
 } from "@/lib/progress/types"
+import {
+  getStudyBag,
+  patchStudyBag,
+  subscribeStudyBag,
+} from "@/lib/storage/study-bag"
 
 export const PROGRESS_STORAGE_KEY = "solution-progress-v1"
 
 /** Stable empty snapshot for useSyncExternalStore (client + server). */
 export const EMPTY_PROGRESS_MAP: SolutionProgressMap = Object.freeze({})
 
-const listeners = new Set<() => void>()
-
-let cachedRaw: string | null | undefined
-let cachedMap: SolutionProgressMap = EMPTY_PROGRESS_MAP
-
-function notify() {
-  listeners.forEach((listener) => listener())
-}
-
 export function subscribeToProgress(listener: () => void) {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
+  return subscribeStudyBag(listener)
 }
 
 export function getServerProgressMap(): SolutionProgressMap {
@@ -34,39 +29,14 @@ export function readProgressMap(): SolutionProgressMap {
     return EMPTY_PROGRESS_MAP
   }
 
-  const raw = window.localStorage.getItem(PROGRESS_STORAGE_KEY)
-  if (raw === cachedRaw) {
-    return cachedMap
-  }
-
-  cachedRaw = raw
-
-  if (!raw) {
-    cachedMap = EMPTY_PROGRESS_MAP
-    return cachedMap
-  }
-
-  try {
-    const parsed = JSON.parse(raw) as unknown
-    if (!parsed || typeof parsed !== "object") {
-      cachedMap = EMPTY_PROGRESS_MAP
-      return cachedMap
-    }
-
-    cachedMap = parsed as SolutionProgressMap
-    return cachedMap
-  } catch {
-    cachedMap = EMPTY_PROGRESS_MAP
-    return cachedMap
-  }
+  const progress = getStudyBag().progress
+  return Object.keys(progress).length === 0 ? EMPTY_PROGRESS_MAP : progress
 }
 
 function writeProgressMap(map: SolutionProgressMap) {
-  const raw = JSON.stringify(map)
-  window.localStorage.setItem(PROGRESS_STORAGE_KEY, raw)
-  cachedRaw = raw
-  cachedMap = Object.keys(map).length === 0 ? EMPTY_PROGRESS_MAP : map
-  notify()
+  patchStudyBag({
+    progress: Object.keys(map).length === 0 ? {} : map,
+  })
 }
 
 export function getProgressEntry(

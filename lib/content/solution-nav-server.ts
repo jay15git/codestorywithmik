@@ -11,6 +11,10 @@ import {
   getSolutionsForPattern,
 } from "@/lib/content/patterns"
 import type { SolutionNavState } from "@/lib/content/solution-nav"
+import {
+  getStudyPlan,
+  getSolutionsForStudyPlan,
+} from "@/lib/content/study-plans"
 import type { SolutionMeta } from "@/lib/content/types"
 
 /** Build ordered list for prev/next (status applied client-side). Server-only. */
@@ -18,6 +22,14 @@ export function getSolutionsForNav(
   nav: SolutionNavState | null,
   fallbackTopicSlug: string,
 ): SolutionMeta[] {
+  if (nav?.from === "plan" && nav.planSlug) {
+    const plan = getStudyPlan(nav.planSlug)
+    if (!plan) {
+      return []
+    }
+    return getSolutionsForStudyPlan(plan, getSolutions())
+  }
+
   if (nav?.from === "pattern" && nav.patternSlug) {
     const pattern = getPattern(nav.patternSlug)
     if (!pattern) {

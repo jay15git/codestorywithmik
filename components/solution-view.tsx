@@ -11,11 +11,14 @@ import {
 import { LayoutGridIcon, ListIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import {
+  getServerViewMode,
+  readViewMode,
+  subscribeToViewMode,
+  writeViewMode,
+} from "@/lib/preferences/view-mode"
+import type { ViewMode } from "@/lib/storage/types"
 import { cn } from "@/lib/utils"
-
-const STORAGE_KEY = "solution-view-mode"
-
-type ViewMode = "grid" | "list"
 
 interface SolutionViewContextValue {
   viewMode: ViewMode
@@ -23,22 +26,6 @@ interface SolutionViewContextValue {
 }
 
 const SolutionViewContext = createContext<SolutionViewContextValue | null>(null)
-
-const viewModeListeners = new Set<() => void>()
-
-function readStoredViewMode(): ViewMode {
-  if (typeof window === "undefined") {
-    return "grid"
-  }
-
-  const stored = window.localStorage.getItem(STORAGE_KEY)
-  return stored === "list" ? "list" : "grid"
-}
-
-function subscribeToViewMode(callback: () => void) {
-  viewModeListeners.add(callback)
-  return () => viewModeListeners.delete(callback)
-}
 
 function useSolutionViewContext() {
   const context = useContext(SolutionViewContext)
@@ -53,13 +40,12 @@ export { useSolutionViewContext }
 export function SolutionViewProvider({ children }: { children: ReactNode }) {
   const viewMode = useSyncExternalStore<ViewMode>(
     subscribeToViewMode,
-    readStoredViewMode,
-    () => "grid",
+    readViewMode,
+    getServerViewMode,
   )
 
   const setViewMode = useCallback((mode: ViewMode) => {
-    window.localStorage.setItem(STORAGE_KEY, mode)
-    viewModeListeners.forEach((listener) => listener())
+    writeViewMode(mode)
   }, [])
 
   const contextValue = useMemo(

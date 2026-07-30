@@ -14,6 +14,7 @@ import { SolutionCodePanel } from "@/components/solution-code-panel"
 import { SolutionNeighborsNav } from "@/components/solution-neighbors-nav"
 import { SolutionNotes } from "@/components/solution-notes"
 import { SolutionStatusControls } from "@/components/solution-status-controls"
+import { SrsReviewControls } from "@/components/srs-review-controls"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { sortCompanyTags } from "@/lib/content/sort-company-tags"
 import { getRelatedSolutions } from "@/lib/content/related-solutions"
@@ -43,6 +44,7 @@ interface SolutionPageProps {
     topic?: string
     company?: string
     pattern?: string
+    plan?: string
     difficulty?: string
     prep?: string
     status?: string
@@ -117,6 +119,7 @@ export default async function SolutionPage({
           </h1>
 
           <SolutionStatusControls slug={solution.slug} />
+          <SrsReviewControls slug={solution.slug} />
 
           <div className="flex flex-wrap items-center gap-2">
             {solution.difficulty && (

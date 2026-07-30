@@ -25,6 +25,7 @@ import type {
   SolutionProgressEntry,
   SolutionProgressMap,
 } from "@/lib/progress/types"
+import { ensureScheduledOnSolve, markDueToday } from "@/lib/srs/store"
 
 interface SolutionProgressContextValue {
   map: SolutionProgressMap
@@ -62,12 +63,26 @@ export function SolutionProgressProvider({
   )
 
   const toggleFlag = useCallback((slug: string, flag: ProgressFlag) => {
+    const before = isFlagSet(readProgressMap(), slug, flag)
     toggleProgressFlag(slug, flag)
+    const after = !before
+    if (flag === "solved" && after) {
+      ensureScheduledOnSolve(slug)
+    }
+    if (flag === "revisit" && after) {
+      markDueToday(slug)
+    }
   }, [])
 
   const setFlag = useCallback(
     (slug: string, flag: ProgressFlag, value: boolean) => {
       setProgressFlag(slug, flag, value)
+      if (flag === "solved" && value) {
+        ensureScheduledOnSolve(slug)
+      }
+      if (flag === "revisit" && value) {
+        markDueToday(slug)
+      }
     },
     [],
   )

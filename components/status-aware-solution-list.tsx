@@ -27,6 +27,7 @@ export function StatusAwareSolutionList({
   page,
   query = {},
   emptyTitle = "No solutions match these filters.",
+  paginated = true,
 }: {
   solutions: SolutionMeta[]
   status: StatusFilter
@@ -34,6 +35,8 @@ export function StatusAwareSolutionList({
   page: number
   query?: Omit<ListHrefParams, "page" | "status">
   emptyTitle?: string
+  /** When false, render full filtered list (e.g. study-plan groups). */
+  paginated?: boolean
 }) {
   const { map } = useSolutionProgress()
 
@@ -49,10 +52,9 @@ export function StatusAwareSolutionList({
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / LIST_PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
-  const pageSolutions = filtered.slice(
-    (safePage - 1) * LIST_PAGE_SIZE,
-    safePage * LIST_PAGE_SIZE,
-  )
+  const pageSolutions = paginated
+    ? filtered.slice((safePage - 1) * LIST_PAGE_SIZE, safePage * LIST_PAGE_SIZE)
+    : filtered
 
   if (filtered.length === 0) {
     return (
@@ -74,12 +76,14 @@ export function StatusAwareSolutionList({
       <ListKeyboardNav>
         <SolutionView solutions={pageSolutions} />
       </ListKeyboardNav>
-      <SolutionsPagination
-        basePath={basePath}
-        page={safePage}
-        totalPages={totalPages}
-        query={{ ...query, status }}
-      />
+      {paginated ? (
+        <SolutionsPagination
+          basePath={basePath}
+          page={safePage}
+          totalPages={totalPages}
+          query={{ ...query, status }}
+        />
+      ) : null}
     </div>
   )
 }

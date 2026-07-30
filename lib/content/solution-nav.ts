@@ -6,13 +6,14 @@ import { parseLanguageParam } from "@/lib/preferences/language"
 import { parseStatusFilter } from "@/lib/progress/store"
 import type { StatusFilter } from "@/lib/progress/types"
 
-export type SolutionNavFrom = "topic" | "company" | "pattern"
+export type SolutionNavFrom = "topic" | "company" | "pattern" | "plan"
 
 export interface SolutionNavState {
   from: SolutionNavFrom
   topicSlug: string | null
   companySlug: string | null
   patternSlug: string | null
+  planSlug: string | null
   difficulty: Difficulty | null
   prep: PrepPack | null
   status: StatusFilter
@@ -24,6 +25,7 @@ export type SolutionNavHrefParams = {
   topicSlug?: string | null
   companySlug?: string | null
   patternSlug?: string | null
+  planSlug?: string | null
   difficulty?: Difficulty | null
   prep?: PrepPack | null
   status?: StatusFilter | null
@@ -35,6 +37,7 @@ export function parseSolutionNavParams(searchParams: {
   topic?: string
   company?: string
   pattern?: string
+  plan?: string
   difficulty?: string
   prep?: string
   status?: string
@@ -43,7 +46,8 @@ export function parseSolutionNavParams(searchParams: {
   const from =
     searchParams.from === "topic" ||
     searchParams.from === "company" ||
-    searchParams.from === "pattern"
+    searchParams.from === "pattern" ||
+    searchParams.from === "plan"
       ? searchParams.from
       : null
 
@@ -54,6 +58,7 @@ export function parseSolutionNavParams(searchParams: {
   const topicSlug = searchParams.topic?.trim() || null
   const companySlug = searchParams.company?.trim() || null
   const patternSlug = searchParams.pattern?.trim() || null
+  const planSlug = searchParams.plan?.trim() || null
 
   if (from === "topic" && !topicSlug) {
     return null
@@ -67,11 +72,16 @@ export function parseSolutionNavParams(searchParams: {
     return null
   }
 
+  if (from === "plan" && !planSlug) {
+    return null
+  }
+
   return {
     from,
     topicSlug,
     companySlug,
     patternSlug,
+    planSlug,
     difficulty: parseDifficultyParam(searchParams.difficulty),
     prep: parsePrepPack(searchParams.prep),
     status: parseStatusFilter(searchParams.status),
@@ -99,6 +109,10 @@ export function buildSolutionHref(
 
   if (params.patternSlug) {
     query.set("pattern", params.patternSlug)
+  }
+
+  if (params.planSlug) {
+    query.set("plan", params.planSlug)
   }
 
   if (params.difficulty) {
@@ -129,6 +143,7 @@ export function navStateToHrefParams(
     topicSlug: nav.topicSlug,
     companySlug: nav.companySlug,
     patternSlug: nav.patternSlug,
+    planSlug: nav.planSlug,
     difficulty: nav.difficulty,
     prep: nav.prep,
     status: nav.status,
@@ -142,6 +157,7 @@ export function listFiltersToNavParams(
     topicSlug?: string | null
     companySlug?: string | null
     patternSlug?: string | null
+    planSlug?: string | null
     difficulty?: Difficulty | null
     prep?: PrepPack | null
     status?: StatusFilter | null
@@ -153,6 +169,7 @@ export function listFiltersToNavParams(
     topicSlug: filters.topicSlug ?? null,
     companySlug: filters.companySlug ?? null,
     patternSlug: filters.patternSlug ?? null,
+    planSlug: filters.planSlug ?? null,
     difficulty: filters.difficulty ?? null,
     prep: filters.prep ?? null,
     status: filters.status ?? null,

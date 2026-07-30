@@ -2,21 +2,16 @@ import {
   SOLUTION_LANGUAGE_ORDER,
   type SolutionLanguage,
 } from "@/lib/content/solution-languages"
+import {
+  getStudyBag,
+  patchStudyBag,
+  subscribeStudyBag,
+} from "@/lib/storage/study-bag"
 
 export const LANGUAGE_STORAGE_KEY = "solution-language-v1"
 
-const listeners = new Set<() => void>()
-
-let cachedRaw: string | null | undefined
-let cachedLanguage: SolutionLanguage | null = null
-
 export function subscribeToLanguagePreference(listener: () => void) {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
-}
-
-function notify() {
-  listeners.forEach((listener) => listener())
+  return subscribeStudyBag(listener)
 }
 
 export function parseLanguageParam(
@@ -37,14 +32,7 @@ export function readLanguagePreference(): SolutionLanguage | null {
     return null
   }
 
-  const raw = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
-  if (raw === cachedRaw) {
-    return cachedLanguage
-  }
-
-  cachedRaw = raw
-  cachedLanguage = parseLanguageParam(raw)
-  return cachedLanguage
+  return getStudyBag().language
 }
 
 export function getServerLanguagePreference(): SolutionLanguage | null {
@@ -52,19 +40,11 @@ export function getServerLanguagePreference(): SolutionLanguage | null {
 }
 
 export function writeLanguagePreference(language: SolutionLanguage) {
-  if (
-    typeof window !== "undefined" &&
-    window.localStorage.getItem(LANGUAGE_STORAGE_KEY) === language
-  ) {
-    cachedRaw = language
-    cachedLanguage = language
+  if (typeof window !== "undefined" && getStudyBag().language === language) {
     return
   }
 
-  window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language)
-  cachedRaw = language
-  cachedLanguage = language
-  notify()
+  patchStudyBag({ language })
 }
 
 export function pickPreferredLanguage(

@@ -9,6 +9,11 @@ import {
   getPatterns,
   getSolutionsForPattern,
 } from "@/lib/content/patterns"
+import {
+  getSolutionsForStudyPlan,
+  getStudyPlans,
+  studyPlanIdCount,
+} from "@/lib/content/study-plans"
 
 export const metadata: Metadata = {
   title: "Interview Solutions — LeetCode DS & Algo",
@@ -23,6 +28,11 @@ export default function HomePage() {
   const patterns = getPatterns().map((pattern) => ({
     pattern,
     count: getSolutionsForPattern(pattern, solutions).length,
+  }))
+  const plans = getStudyPlans().map((plan) => ({
+    plan,
+    available: getSolutionsForStudyPlan(plan, solutions).length,
+    curated: studyPlanIdCount(plan),
   }))
 
   return (
@@ -89,6 +99,32 @@ export default function HomePage() {
             <CardDescription>Company tags</CardDescription>
           </CardHeader>
         </Card>
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <div>
+          <h2 className="text-xl font-semibold">Study plans</h2>
+          <p className="text-sm text-muted-foreground">
+            Blind 75 and NeetCode 150 — curated by LeetCode id.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {plans.map(({ plan, available, curated }) => (
+            <Link key={plan.slug} href={`/plans/${plan.slug}`}>
+              <Card className="h-full bg-card transition-colors hover:bg-muted/40">
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    <TitleUnderline>{plan.name}</TitleUnderline>
+                  </CardTitle>
+                  <CardDescription className="tabular-nums">
+                    {available} available
+                    {available !== curated ? ` · ${curated} curated` : null}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </section>
 
       <section className="flex flex-col gap-4">

@@ -1,21 +1,16 @@
 import type { SolutionNoteEntry, SolutionNotesMap } from "@/lib/notes/types"
+import {
+  getStudyBag,
+  patchStudyBag,
+  subscribeStudyBag,
+} from "@/lib/storage/study-bag"
 
 export const NOTES_STORAGE_KEY = "solution-notes-v1"
 
 export const EMPTY_NOTES_MAP: SolutionNotesMap = Object.freeze({})
 
-const listeners = new Set<() => void>()
-
-let cachedRaw: string | null | undefined
-let cachedMap: SolutionNotesMap = EMPTY_NOTES_MAP
-
-function notify() {
-  listeners.forEach((listener) => listener())
-}
-
 export function subscribeToNotes(listener: () => void) {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
+  return subscribeStudyBag(listener)
 }
 
 export function getServerNotesMap(): SolutionNotesMap {
@@ -27,39 +22,14 @@ export function readNotesMap(): SolutionNotesMap {
     return EMPTY_NOTES_MAP
   }
 
-  const raw = window.localStorage.getItem(NOTES_STORAGE_KEY)
-  if (raw === cachedRaw) {
-    return cachedMap
-  }
-
-  cachedRaw = raw
-
-  if (!raw) {
-    cachedMap = EMPTY_NOTES_MAP
-    return cachedMap
-  }
-
-  try {
-    const parsed = JSON.parse(raw) as unknown
-    if (!parsed || typeof parsed !== "object") {
-      cachedMap = EMPTY_NOTES_MAP
-      return cachedMap
-    }
-
-    cachedMap = parsed as SolutionNotesMap
-    return cachedMap
-  } catch {
-    cachedMap = EMPTY_NOTES_MAP
-    return cachedMap
-  }
+  const notes = getStudyBag().notes
+  return Object.keys(notes).length === 0 ? EMPTY_NOTES_MAP : notes
 }
 
 function writeNotesMap(map: SolutionNotesMap) {
-  const raw = JSON.stringify(map)
-  window.localStorage.setItem(NOTES_STORAGE_KEY, raw)
-  cachedRaw = raw
-  cachedMap = Object.keys(map).length === 0 ? EMPTY_NOTES_MAP : map
-  notify()
+  patchStudyBag({
+    notes: Object.keys(map).length === 0 ? {} : map,
+  })
 }
 
 export function getNoteEntry(
