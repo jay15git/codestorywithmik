@@ -36,6 +36,7 @@ export function PrepPackFilter({
       >
         <ToggleGroupItem
           value="all"
+          nativeButton={false}
           render={<Link href={allHref} />}
           aria-label="All problems"
         >
@@ -45,6 +46,7 @@ export function PrepPackFilter({
           <ToggleGroupItem
             key={pack}
             value={pack}
+            nativeButton={false}
             render={
               <Link
                 href={buildListHref(basePath, { ...hrefParams, prep: pack })}
