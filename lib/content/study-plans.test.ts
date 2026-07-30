@@ -36,14 +36,17 @@ describe("study plans", () => {
   it("looks up plan by slug", () => {
     assert.equal(getStudyPlan("blind-75")?.name, "Blind 75")
     assert.equal(getStudyPlan("neetcode-150")?.name, "NeetCode 150")
+    assert.equal(getStudyPlan("neetcode-250")?.name, "NeetCode 250")
     assert.equal(getStudyPlan("missing"), undefined)
   })
 
   it("counts curated ids", () => {
     const blind = getStudyPlan("blind-75")!
     const neet = getStudyPlan("neetcode-150")!
+    const neet250 = getStudyPlan("neetcode-250")!
     assert.equal(studyPlanIdCount(blind), 75)
     assert.equal(studyPlanIdCount(neet), 150)
+    assert.equal(studyPlanIdCount(neet250), 250)
   })
 
   it("resolves solutions in plan order and skips missing ids", () => {
