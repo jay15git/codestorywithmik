@@ -25,7 +25,16 @@ import type {
   SolutionProgressEntry,
   SolutionProgressMap,
 } from "@/lib/progress/types"
-import { ensureScheduledOnSolve, markDueToday } from "@/lib/srs/store"
+
+async function scheduleSolved(slug: string) {
+  const { ensureScheduledOnSolve } = await import("@/lib/srs/store")
+  ensureScheduledOnSolve(slug)
+}
+
+async function scheduleRevisit(slug: string) {
+  const { markDueToday } = await import("@/lib/srs/store")
+  markDueToday(slug)
+}
 
 interface SolutionProgressContextValue {
   map: SolutionProgressMap
@@ -67,10 +76,10 @@ export function SolutionProgressProvider({
     toggleProgressFlag(slug, flag)
     const after = !before
     if (flag === "solved" && after) {
-      ensureScheduledOnSolve(slug)
+      void scheduleSolved(slug)
     }
     if (flag === "revisit" && after) {
-      markDueToday(slug)
+      void scheduleRevisit(slug)
     }
   }, [])
 
@@ -78,10 +87,10 @@ export function SolutionProgressProvider({
     (slug: string, flag: ProgressFlag, value: boolean) => {
       setProgressFlag(slug, flag, value)
       if (flag === "solved" && value) {
-        ensureScheduledOnSolve(slug)
+        void scheduleSolved(slug)
       }
       if (flag === "revisit" && value) {
-        markDueToday(slug)
+        void scheduleRevisit(slug)
       }
     },
     [],

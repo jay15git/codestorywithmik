@@ -6,6 +6,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 })
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["ts-fsrs"],
   outputFileTracingIncludes: {
     "/companies": ["./generated/**/*"],
     "/companies/[company]": ["./generated/**/*"],
