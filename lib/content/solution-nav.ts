@@ -155,24 +155,28 @@ export function listFiltersToNavParams(
   from: SolutionNavFrom,
   filters: {
     topicSlug?: string | null
+    topicSlugs?: string[] | null
     companySlug?: string | null
+    companySlugs?: string[] | null
     patternSlug?: string | null
     planSlug?: string | null
     difficulty?: Difficulty | null
+    difficulties?: Difficulty[] | null
     prep?: PrepPack | null
     status?: StatusFilter | null
+    statuses?: Array<Exclude<StatusFilter, "all">> | null
     lang?: SolutionLanguage | null
   },
 ): SolutionNavHrefParams {
   return {
     from,
-    topicSlug: filters.topicSlug ?? null,
-    companySlug: filters.companySlug ?? null,
+    topicSlug: filters.topicSlug ?? filters.topicSlugs?.[0] ?? null,
+    companySlug: filters.companySlug ?? filters.companySlugs?.[0] ?? null,
     patternSlug: filters.patternSlug ?? null,
     planSlug: filters.planSlug ?? null,
-    difficulty: filters.difficulty ?? null,
+    difficulty: filters.difficulty ?? filters.difficulties?.[0] ?? null,
     prep: filters.prep ?? null,
-    status: filters.status ?? null,
+    status: filters.status ?? filters.statuses?.[0] ?? null,
     lang: filters.lang ?? null,
   }
 }

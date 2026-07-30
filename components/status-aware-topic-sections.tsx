@@ -12,29 +12,29 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import type { SolutionMeta, Topic } from "@/lib/content/types"
-import { matchesStatusFilter } from "@/lib/progress/store"
-import type { StatusFilter } from "@/lib/progress/types"
+import type { StatusFilterValue } from "@/lib/progress/filters"
+import { matchesAnyStatusFilter } from "@/lib/progress/store"
 
 export function StatusAwareTopicSections({
   topic,
   solutions,
-  status,
+  statuses,
 }: {
   topic: Topic
   solutions: SolutionMeta[]
-  status: StatusFilter
+  statuses: StatusFilterValue[]
 }) {
   const { map } = useSolutionProgress()
 
   const filtered = useMemo(() => {
-    if (status === "all") {
+    if (statuses.length === 0) {
       return solutions
     }
 
     return solutions.filter((solution) =>
-      matchesStatusFilter(map, solution.slug, status),
+      matchesAnyStatusFilter(map, solution.slug, statuses),
     )
-  }, [solutions, status, map])
+  }, [solutions, statuses, map])
 
   if (filtered.length === 0) {
     return (
@@ -42,7 +42,7 @@ export function StatusAwareTopicSections({
         <EmptyHeader>
           <EmptyTitle>No solutions match these filters.</EmptyTitle>
           <EmptyDescription>
-            {status === "all"
+            {statuses.length === 0
               ? "Try a different difficulty or company filter."
               : "Mark problems from a solution page, or clear the progress filter."}
           </EmptyDescription>

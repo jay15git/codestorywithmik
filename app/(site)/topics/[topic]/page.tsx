@@ -14,6 +14,7 @@ import {
 import {
   filterSolutions,
   getCompanyOptions,
+  getTopicOptions,
   parseListSearchParams,
 } from "@/lib/content/filter-solutions"
 import {
@@ -28,7 +29,7 @@ interface TopicPageProps {
   searchParams: Promise<{
     difficulty?: string
     company?: string
-    lang?: string
+    topic?: string
     page?: string
     status?: string
   }>
@@ -61,7 +62,6 @@ export default async function TopicPage({
   const { topic: topicSlug } = await params
   const filters = parseListSearchParams(await searchParams)
   const topic = getTopic(topicSlug)
-  const topics = getTopics()
 
   if (!topic) {
     notFound()
@@ -69,17 +69,21 @@ export default async function TopicPage({
 
   const allSolutions = getSolutionsByTopic(topicSlug)
   const companyOptions = getCompanyOptions(allSolutions)
+  const relatedTopics = getTopicOptions(allSolutions).filter(
+    (option) => option.slug !== topicSlug,
+  )
   const solutions = filterSolutions(allSolutions, {
-    ...filters,
-    topicSlug: null,
+    difficulties: filters.difficulties,
+    companySlugs: filters.companySlugs,
+    topicSlugs: filters.topicSlugs,
   })
   const basePath = `/topics/${topicSlug}`
   const navParams = listFiltersToNavParams("topic", {
     topicSlug,
-    companySlug: filters.companySlug,
-    difficulty: filters.difficulty,
-    status: filters.status,
-    lang: filters.lang,
+    topicSlugs: filters.topicSlugs,
+    companySlugs: filters.companySlugs,
+    difficulties: filters.difficulties,
+    statuses: filters.statuses,
   })
 
   return (
@@ -93,7 +97,7 @@ export default async function TopicPage({
               </h1>
               <FilteredCount
                 solutions={solutions}
-                status={filters.status}
+                statuses={filters.statuses}
                 ofTotal={allSolutions.length}
               />
             </div>
@@ -107,27 +111,27 @@ export default async function TopicPage({
             basePath={basePath}
             filters={filters}
             companies={companyOptions}
-            topics={topics.map((item) => ({ slug: item.slug, name: item.name }))}
+            topics={relatedTopics}
             currentTopicSlug={topicSlug}
           />
 
           {topic.subtopics.length === 0 ? (
             <StatusAwareSolutionList
               solutions={solutions}
-              status={filters.status}
+              statuses={filters.statuses}
               basePath={basePath}
               page={filters.page}
               query={{
-                difficulty: filters.difficulty,
-                companySlug: filters.companySlug,
-                lang: filters.lang,
+                difficulties: filters.difficulties,
+                companySlugs: filters.companySlugs,
+                topicSlugs: filters.topicSlugs,
               }}
             />
           ) : (
             <StatusAwareTopicSections
               topic={topic}
               solutions={solutions}
-              status={filters.status}
+              statuses={filters.statuses}
             />
           )}
         </div>

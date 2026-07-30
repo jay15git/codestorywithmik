@@ -20,7 +20,7 @@ import {
   patternTopicHrefs,
 } from "@/lib/content/patterns"
 import { listFiltersToNavParams } from "@/lib/content/solution-nav"
-import { parseStatusFilter } from "@/lib/progress/filters"
+import { parseStatusFilter, parseStatusFilters } from "@/lib/progress/filters"
 import { cn } from "@/lib/utils"
 
 interface PatternPageProps {
@@ -64,6 +64,7 @@ export default async function PatternPage({
   }
 
   const page = Math.max(1, Number.parseInt(query.page ?? "1", 10) || 1)
+  const statuses = parseStatusFilters(query.status)
   const status = parseStatusFilter(query.status)
   const solutions = getSolutionsForPattern(pattern, getSolutions())
   const topicLinks = patternTopicHrefs(pattern)
@@ -95,7 +96,7 @@ export default async function PatternPage({
               </p>
               <FilteredCount
                 solutions={solutions}
-                status={status}
+                statuses={statuses}
                 trailing="· Easy → Hard"
               />
               <div className="flex flex-wrap gap-2">
@@ -122,7 +123,7 @@ export default async function PatternPage({
 
           <StatusAwareSolutionList
             solutions={solutions}
-            status={status}
+            statuses={statuses}
             basePath={basePath}
             page={page}
             query={{}}

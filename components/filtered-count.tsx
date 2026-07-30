@@ -4,31 +4,31 @@ import { useMemo } from "react"
 
 import { useSolutionProgress } from "@/components/solution-progress-provider"
 import type { SolutionMeta } from "@/lib/content/types"
-import { matchesStatusFilter } from "@/lib/progress/store"
-import type { StatusFilter } from "@/lib/progress/types"
+import type { StatusFilterValue } from "@/lib/progress/filters"
+import { matchesAnyStatusFilter } from "@/lib/progress/store"
 
 export function FilteredCount({
   solutions,
-  status,
+  statuses,
   ofTotal,
   trailing,
 }: {
   solutions: SolutionMeta[]
-  status: StatusFilter
+  statuses: StatusFilterValue[]
   ofTotal?: number
   trailing?: string
 }) {
   const { map } = useSolutionProgress()
 
   const count = useMemo(() => {
-    if (status === "all") {
+    if (statuses.length === 0) {
       return solutions.length
     }
 
     return solutions.filter((solution) =>
-      matchesStatusFilter(map, solution.slug, status),
+      matchesAnyStatusFilter(map, solution.slug, statuses),
     ).length
-  }, [solutions, status, map])
+  }, [solutions, statuses, map])
 
   const baseline = ofTotal ?? solutions.length
   const showOf = count !== baseline

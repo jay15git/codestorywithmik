@@ -17,12 +17,12 @@ import {
   type ListHrefParams,
 } from "@/lib/content/filter-solutions"
 import type { SolutionMeta } from "@/lib/content/types"
-import { matchesStatusFilter } from "@/lib/progress/store"
-import type { StatusFilter } from "@/lib/progress/types"
+import { matchesAnyStatusFilter } from "@/lib/progress/store"
+import type { StatusFilterValue } from "@/lib/progress/filters"
 
 export function StatusAwareSolutionList({
   solutions,
-  status,
+  statuses,
   basePath,
   page,
   query = {},
@@ -30,10 +30,10 @@ export function StatusAwareSolutionList({
   paginated = true,
 }: {
   solutions: SolutionMeta[]
-  status: StatusFilter
+  statuses: StatusFilterValue[]
   basePath: string
   page: number
-  query?: Omit<ListHrefParams, "page" | "status">
+  query?: Omit<ListHrefParams, "page" | "status" | "statuses">
   emptyTitle?: string
   /** When false, render full filtered list (e.g. study-plan groups). */
   paginated?: boolean
@@ -41,14 +41,14 @@ export function StatusAwareSolutionList({
   const { map } = useSolutionProgress()
 
   const filtered = useMemo(() => {
-    if (status === "all") {
+    if (statuses.length === 0) {
       return solutions
     }
 
     return solutions.filter((solution) =>
-      matchesStatusFilter(map, solution.slug, status),
+      matchesAnyStatusFilter(map, solution.slug, statuses),
     )
-  }, [solutions, status, map])
+  }, [solutions, statuses, map])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / LIST_PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -62,7 +62,7 @@ export function StatusAwareSolutionList({
         <EmptyHeader>
           <EmptyTitle>{emptyTitle}</EmptyTitle>
           <EmptyDescription>
-            {status === "all"
+            {statuses.length === 0
               ? "Try a different difficulty or company filter."
               : "Mark problems from a solution page, or clear the progress filter."}
           </EmptyDescription>
@@ -81,7 +81,7 @@ export function StatusAwareSolutionList({
           basePath={basePath}
           page={safePage}
           totalPages={totalPages}
-          query={{ ...query, status }}
+          query={{ ...query, statuses }}
         />
       ) : null}
     </div>

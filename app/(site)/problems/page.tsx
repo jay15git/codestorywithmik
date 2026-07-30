@@ -28,7 +28,6 @@ interface ProblemsPageProps {
     difficulty?: string
     company?: string
     topic?: string
-    lang?: string
     page?: string
     status?: string
     sort?: string
@@ -56,7 +55,7 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
             </h1>
             <FilteredCount
               solutions={solutions}
-              status={filters.status}
+              statuses={filters.statuses}
               ofTotal={allSolutions.length}
             />
           </div>
@@ -76,14 +75,13 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
 
         <StatusAwareSolutionList
           solutions={solutions}
-          status={filters.status}
+          statuses={filters.statuses}
           basePath={basePath}
           page={filters.page}
           query={{
-            difficulty: filters.difficulty,
-            companySlug: filters.companySlug,
-            topicSlug: filters.topicSlug,
-            lang: filters.lang,
+            difficulties: filters.difficulties,
+            companySlugs: filters.companySlugs,
+            topicSlugs: filters.topicSlugs,
             sort: filters.sort,
           }}
         />

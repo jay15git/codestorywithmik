@@ -14,8 +14,10 @@ import {
 
 export {
   getProgressEntry,
+  matchesAnyStatusFilter,
   matchesStatusFilter,
   parseStatusFilter,
+  parseStatusFilters,
 } from "@/lib/progress/filters"
 
 export const PROGRESS_STORAGE_KEY = "solution-progress-v1"

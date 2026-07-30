@@ -35,7 +35,6 @@ interface CompanyPageProps {
     page?: string
     difficulty?: string
     topic?: string
-    lang?: string
     prep?: string
     status?: string
   }>
@@ -83,16 +82,19 @@ export default async function CompanyPage({
 
   const allSolutions = getSolutionsByCompany(companySlug)
   const topicOptions = getTopicOptions(allSolutions)
-  const filtered = filterSolutions(allSolutions, filters)
+  const filtered = filterSolutions(allSolutions, {
+    difficulties: filters.difficulties,
+    companySlugs: [],
+    topicSlugs: filters.topicSlugs,
+  })
   const solutions = applyPrepPack(filtered, company, filters.prep)
   const basePath = `/companies/${companySlug}`
   const navParams = listFiltersToNavParams("company", {
     companySlug,
-    topicSlug: filters.topicSlug,
-    difficulty: filters.difficulty,
+    topicSlugs: filters.topicSlugs,
+    difficulties: filters.difficulties,
     prep: filters.prep,
-    status: filters.status,
-    lang: filters.lang,
+    statuses: filters.statuses,
   })
 
   return (
@@ -106,7 +108,7 @@ export default async function CompanyPage({
               </h1>
               <FilteredCount
                 solutions={solutions}
-                status={filters.status}
+                statuses={filters.statuses}
                 ofTotal={allSolutions.length}
                 trailing={
                   filters.prep
@@ -126,10 +128,9 @@ export default async function CompanyPage({
               basePath={basePath}
               prep={filters.prep}
               hrefParams={{
-                difficulty: filters.difficulty,
-                topicSlug: filters.topicSlug,
-                status: filters.status,
-                lang: filters.lang,
+                difficulties: filters.difficulties,
+                topicSlugs: filters.topicSlugs,
+                statuses: filters.statuses,
               }}
             />
             <SolutionFilters
@@ -141,14 +142,13 @@ export default async function CompanyPage({
 
           <StatusAwareSolutionList
             solutions={solutions}
-            status={filters.status}
+            statuses={filters.statuses}
             basePath={basePath}
             page={filters.page}
             query={{
-              difficulty: filters.difficulty,
-              topicSlug: filters.topicSlug,
+              difficulties: filters.difficulties,
+              topicSlugs: filters.topicSlugs,
               prep: filters.prep,
-              lang: filters.lang,
             }}
           />
         </div>

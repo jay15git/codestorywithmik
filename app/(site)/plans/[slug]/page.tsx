@@ -62,6 +62,7 @@ export default async function StudyPlanPage({
   }
 
   const status = parseStatusFilter(query.status)
+  const statuses = status === "all" ? [] : [status]
   const allSolutions = getSolutions()
   const solutions = getSolutionsForStudyPlan(plan, allSolutions)
   const groups = getStudyPlanGroupsWithSolutions(plan, allSolutions)
@@ -94,7 +95,7 @@ export default async function StudyPlanPage({
               </p>
               <FilteredCount
                 solutions={solutions}
-                status={status}
+                statuses={statuses}
                 trailing={
                   solutions.length !== curated
                     ? `· ${curated} curated`

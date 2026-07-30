@@ -1,10 +1,8 @@
 import { companySlug, topicSlugFromName } from "@/lib/content/slug"
 import type { PrepPack } from "@/lib/content/prep-packs"
 import { parsePrepPack } from "@/lib/content/prep-packs"
-import { parseLanguageParam } from "@/lib/preferences/language-param"
 import type { Difficulty, SolutionMeta } from "@/lib/content/types"
-import type { SolutionLanguage } from "@/lib/content/solution-languages"
-import { parseStatusFilter } from "@/lib/progress/filters"
+import { parseStatusFilters, type StatusFilterValue } from "@/lib/progress/filters"
 import type { StatusFilter } from "@/lib/progress/types"
 
 export const LIST_PAGE_SIZE = 48
@@ -30,37 +28,63 @@ const DIFFICULTY_RANK: Record<Difficulty, number> = {
 }
 
 export interface ListFilterState {
-  difficulty: Difficulty | null
-  companySlug: string | null
-  topicSlug: string | null
-  lang: SolutionLanguage | null
+  difficulties: Difficulty[]
+  companySlugs: string[]
+  topicSlugs: string[]
   prep: PrepPack | null
-  status: StatusFilter
+  statuses: StatusFilterValue[]
   page: number
   sort: ListSort
 }
 
 export interface ListHrefParams {
-  difficulty?: Difficulty | null
-  companySlug?: string | null
-  topicSlug?: string | null
-  lang?: SolutionLanguage | null
+  difficulties?: Difficulty[] | null
+  companySlugs?: string[] | null
+  topicSlugs?: string[] | null
   prep?: PrepPack | null
+  statuses?: StatusFilterValue[] | null
+  /** @deprecated Prefer `statuses`. Kept for single-status callers. */
   status?: StatusFilter | null
   page?: number
   sort?: ListSort | null
 }
 
+function splitParam(value: string | undefined): string[] {
+  if (!value) {
+    return []
+  }
+
+  return value
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean)
+}
+
 export function parseDifficultyParam(
   value: string | undefined,
 ): Difficulty | null {
-  if (!value) {
-    return null
-  }
+  const [first] = parseDifficultyList(value)
+  return first ?? null
+}
 
-  return DIFFICULTY_VALUES.includes(value as Difficulty)
-    ? (value as Difficulty)
-    : null
+export function parseDifficultyList(value: string | undefined): Difficulty[] {
+  const seen = new Set<Difficulty>()
+  for (const part of splitParam(value)) {
+    if (DIFFICULTY_VALUES.includes(part as Difficulty)) {
+      seen.add(part as Difficulty)
+    }
+  }
+  return [...seen]
+}
+
+export function parseSlugList(value: string | undefined): string[] {
+  const seen = new Set<string>()
+  for (const part of splitParam(value)) {
+    if (!seen.has(part)) {
+      seen.add(part)
+    }
+  }
+  return [...seen]
 }
 
 export function parseSortParam(value: string | undefined): ListSort {
@@ -82,14 +106,23 @@ export function parseListSearchParams(searchParams: {
   sort?: string
 }): ListFilterState {
   return {
-    difficulty: parseDifficultyParam(searchParams.difficulty),
-    companySlug: searchParams.company?.trim() || null,
-    topicSlug: searchParams.topic?.trim() || null,
-    lang: parseLanguageParam(searchParams.lang),
+    difficulties: parseDifficultyList(searchParams.difficulty),
+    companySlugs: parseSlugList(searchParams.company),
+    topicSlugs: parseSlugList(searchParams.topic),
     prep: parsePrepPack(searchParams.prep),
-    status: parseStatusFilter(searchParams.status),
+    statuses: parseStatusFilters(searchParams.status),
     page: Math.max(1, Number.parseInt(searchParams.page ?? "1", 10) || 1),
     sort: parseSortParam(searchParams.sort),
+  }
+}
+
+function setCsvParam(
+  query: URLSearchParams,
+  key: string,
+  values: string[] | null | undefined,
+) {
+  if (values && values.length > 0) {
+    query.set(key, values.join(","))
   }
 }
 
@@ -99,29 +132,18 @@ export function buildListHref(
 ): string {
   const query = new URLSearchParams()
 
-  if (params.difficulty) {
-    query.set("difficulty", params.difficulty)
-  }
-
-  if (params.companySlug) {
-    query.set("company", params.companySlug)
-  }
-
-  if (params.topicSlug) {
-    query.set("topic", params.topicSlug)
-  }
-
-  if (params.lang) {
-    query.set("lang", params.lang)
-  }
+  setCsvParam(query, "difficulty", params.difficulties ?? undefined)
+  setCsvParam(query, "company", params.companySlugs ?? undefined)
+  setCsvParam(query, "topic", params.topicSlugs ?? undefined)
 
   if (params.prep) {
     query.set("prep", params.prep)
   }
 
-  if (params.status && params.status !== "all") {
-    query.set("status", params.status)
-  }
+  const statuses =
+    params.statuses ??
+    (params.status && params.status !== "all" ? [params.status] : [])
+  setCsvParam(query, "status", statuses)
 
   if (params.sort && params.sort !== "id") {
     query.set("sort", params.sort)
@@ -137,40 +159,61 @@ export function buildListHref(
 
 export function filterSolutions(
   solutions: SolutionMeta[],
-  filters: Pick<
-    ListFilterState,
-    "difficulty" | "companySlug" | "topicSlug"
-  >,
+  filters: {
+    difficulties?: Difficulty[] | null
+    companySlugs?: string[] | null
+    topicSlugs?: string[] | null
+    /** @deprecated Prefer `difficulties`. */
+    difficulty?: Difficulty | null
+    /** @deprecated Prefer `companySlugs`. */
+    companySlug?: string | null
+    /** @deprecated Prefer `topicSlugs`. */
+    topicSlug?: string | null
+  },
 ): SolutionMeta[] {
-  const {
-    difficulty,
-    companySlug: companyFilterSlug,
-    topicSlug: topicFilterSlug,
-  } = filters
+  const difficulties =
+    filters.difficulties ??
+    (filters.difficulty ? [filters.difficulty] : [])
+  const companyFilterSlugs =
+    filters.companySlugs ??
+    (filters.companySlug ? [filters.companySlug] : [])
+  const topicFilterSlugs =
+    filters.topicSlugs ?? (filters.topicSlug ? [filters.topicSlug] : [])
 
-  if (!difficulty && !companyFilterSlug && !topicFilterSlug) {
+  if (
+    difficulties.length === 0 &&
+    companyFilterSlugs.length === 0 &&
+    topicFilterSlugs.length === 0
+  ) {
     return solutions
   }
 
-  return solutions.filter((solution) => {
-    if (difficulty && solution.difficulty !== difficulty) {
-      return false
-    }
+  const companySet = new Set(companyFilterSlugs)
+  const topicSet = new Set(topicFilterSlugs)
+  const difficultySet = new Set(difficulties)
 
+  return solutions.filter((solution) => {
     if (
-      companyFilterSlug &&
-      !solution.companyTags.some(
-        (tag) => companySlug(tag) === companyFilterSlug,
-      )
+      difficultySet.size > 0 &&
+      (!solution.difficulty || !difficultySet.has(solution.difficulty))
     ) {
       return false
     }
 
     if (
-      topicFilterSlug &&
-      solution.topicSlug !== topicFilterSlug &&
-      !solution.topicTags.some(
-        (tag) => topicSlugFromName(tag) === topicFilterSlug,
+      companySet.size > 0 &&
+      !solution.companyTags.some((tag) => companySet.has(companySlug(tag)))
+    ) {
+      return false
+    }
+
+    if (
+      topicSet.size > 0 &&
+      !(
+        (solution.topicSlug && topicSet.has(solution.topicSlug)) ||
+        solution.topicTags.some((tag) =>
+          topicSet.has(topicSlugFromName(tag)),
+        )
       )
     ) {
       return false
@@ -249,4 +292,26 @@ export function getTopicOptions(
   return [...bySlug.entries()]
     .map(([slug, name]) => ({ slug, name }))
     .sort((left, right) => left.name.localeCompare(right.name))
+}
+
+export function formatMultiLabel(
+  values: string[],
+  emptyLabel: string,
+  labels?: Map<string, string> | Record<string, string>,
+): string {
+  if (values.length === 0) {
+    return emptyLabel
+  }
+
+  const resolve = (value: string) => {
+    if (!labels) return value
+    if (labels instanceof Map) return labels.get(value) ?? value
+    return labels[value] ?? value
+  }
+
+  if (values.length === 1) {
+    return resolve(values[0])
+  }
+
+  return `${resolve(values[0])} +${values.length - 1}`
 }
