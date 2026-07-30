@@ -16,12 +16,28 @@ import {
   DIFFICULTY_VALUES,
   type ListFilterState,
 } from "@/lib/content/filter-solutions"
+import {
+  SOLUTION_LANGUAGE_LABELS,
+  SOLUTION_LANGUAGE_ORDER,
+  type SolutionLanguage,
+} from "@/lib/content/solution-languages"
 import type { Difficulty } from "@/lib/content/types"
 import { cn } from "@/lib/utils"
 
 const DIFFICULTY_OPTIONS: Array<{ label: string; value: Difficulty | null }> = [
   { label: "All difficulties", value: null },
   ...DIFFICULTY_VALUES.map((value) => ({ label: value, value })),
+]
+
+const LANG_OPTIONS: Array<{
+  label: string
+  value: SolutionLanguage | null
+}> = [
+  { label: "Any language", value: null },
+  ...SOLUTION_LANGUAGE_ORDER.map((value) => ({
+    label: SOLUTION_LANGUAGE_LABELS[value],
+    value,
+  })),
 ]
 
 function FilterDropdown({
@@ -60,7 +76,7 @@ function FilterDropdown({
       >
         {options.map((option) => (
           <DropdownMenuItem
-            key={option.href}
+            key={option.href + option.label}
             render={<Link href={option.href} />}
             className={cn(option.isActive && "bg-accent")}
           >
@@ -80,17 +96,24 @@ export function SolutionFilters({
   topics,
   currentTopicSlug,
   showStatus = true,
+  showLanguage = true,
 }: {
   basePath: string
-  filters: Pick<ListFilterState, "difficulty" | "companySlug" | "prep" | "status">
+  filters: Pick<
+    ListFilterState,
+    "difficulty" | "companySlug" | "topicSlug" | "prep" | "status" | "lang"
+  >
   companies?: Array<{ slug: string; name: string }>
   topics?: Array<{ slug: string; name: string }>
   currentTopicSlug?: string
   showStatus?: boolean
+  showLanguage?: boolean
 }) {
   const hasActiveFilters = Boolean(
     filters.difficulty ||
       filters.companySlug ||
+      filters.topicSlug ||
+      filters.lang ||
       filters.prep ||
       (filters.status && filters.status !== "all"),
   )
@@ -98,25 +121,50 @@ export function SolutionFilters({
     companies?.find((company) => company.slug === filters.companySlug)?.name ??
     "All companies"
   const selectedTopic =
-    topics?.find((topic) => topic.slug === currentTopicSlug)?.name ?? "Category"
+    topics?.find(
+      (topic) => topic.slug === (currentTopicSlug ?? filters.topicSlug),
+    )?.name ?? "All topics"
 
   const shared = {
     difficulty: filters.difficulty,
     companySlug: filters.companySlug,
+    topicSlug: filters.topicSlug,
     prep: filters.prep,
     status: filters.status,
+    lang: filters.lang,
   }
 
   const topicOptions = topics
-    ? topics.map((topic) => ({
-        label: topic.name,
-        href: buildListHref(`/topics/${topic.slug}`, {
-          difficulty: filters.difficulty,
-          companySlug: filters.companySlug,
-          status: filters.status,
-        }),
-        isActive: topic.slug === currentTopicSlug,
-      }))
+    ? [
+        ...(currentTopicSlug
+          ? []
+          : [
+              {
+                label: "All topics",
+                href: buildListHref(basePath, {
+                  ...shared,
+                  topicSlug: null,
+                }),
+                isActive: !filters.topicSlug,
+              },
+            ]),
+        ...topics.map((topic) => ({
+          label: topic.name,
+          href: currentTopicSlug
+            ? buildListHref(`/topics/${topic.slug}`, {
+                difficulty: filters.difficulty,
+                companySlug: filters.companySlug,
+                status: filters.status,
+                lang: filters.lang,
+              })
+            : buildListHref(basePath, {
+                ...shared,
+                topicSlug: topic.slug,
+              }),
+          isActive:
+            topic.slug === (currentTopicSlug ?? filters.topicSlug),
+        })),
+      ]
     : []
 
   const difficultyOptions = DIFFICULTY_OPTIONS.map((option) => ({
@@ -149,11 +197,20 @@ export function SolutionFilters({
       ]
     : []
 
+  const languageOptions = LANG_OPTIONS.map((option) => ({
+    label: option.label,
+    href: buildListHref(basePath, {
+      ...shared,
+      lang: option.value,
+    }),
+    isActive: filters.lang === option.value,
+  }))
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       {topics && topics.length > 0 ? (
         <FilterDropdown
-          label="Category"
+          label={currentTopicSlug ? "Category" : "Topic"}
           value={selectedTopic}
           options={topicOptions}
           className="min-w-48"
@@ -176,6 +233,16 @@ export function SolutionFilters({
         />
       ) : null}
 
+      {showLanguage ? (
+        <FilterDropdown
+          label="Lang"
+          value={
+            filters.lang ? SOLUTION_LANGUAGE_LABELS[filters.lang] : "Any"
+          }
+          options={languageOptions}
+        />
+      ) : null}
+
       {showStatus ? (
         <StatusFilterDropdown
           basePath={basePath}
@@ -183,7 +250,9 @@ export function SolutionFilters({
           hrefParams={{
             difficulty: filters.difficulty,
             companySlug: filters.companySlug,
+            topicSlug: filters.topicSlug,
             prep: filters.prep,
+            lang: filters.lang,
           }}
         />
       ) : null}

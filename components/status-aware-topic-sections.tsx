@@ -2,6 +2,7 @@
 
 import { useMemo } from "react"
 
+import { ListKeyboardNav } from "@/components/list-keyboard-nav"
 import { SolutionView } from "@/components/solution-view-list"
 import { useSolutionProgress } from "@/components/solution-progress-provider"
 import {
@@ -51,39 +52,45 @@ export function StatusAwareTopicSections({
   }
 
   if (topic.subtopics.length === 0) {
-    return <SolutionView solutions={filtered} />
+    return (
+      <ListKeyboardNav>
+        <SolutionView solutions={filtered} />
+      </ListKeyboardNav>
+    )
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      {topic.subtopics.map((subtopic) => {
-        const subtopicSolutions = filtered.filter(
-          (solution) => solution.subtopicSlug === subtopic.slug,
-        )
+    <ListKeyboardNav>
+      <div className="flex flex-col gap-8">
+        {topic.subtopics.map((subtopic) => {
+          const subtopicSolutions = filtered.filter(
+            (solution) => solution.subtopicSlug === subtopic.slug,
+          )
 
-        if (subtopicSolutions.length === 0) {
-          return null
-        }
+          if (subtopicSolutions.length === 0) {
+            return null
+          }
 
-        return (
-          <section
-            key={subtopic.slug}
-            className="solution-list-section flex flex-col gap-4"
-          >
-            <h2 className="text-lg font-medium">{subtopic.name}</h2>
-            <SolutionView solutions={subtopicSolutions} />
+          return (
+            <section
+              key={subtopic.slug}
+              className="solution-list-section flex flex-col gap-4"
+            >
+              <h2 className="text-lg font-medium">{subtopic.name}</h2>
+              <SolutionView solutions={subtopicSolutions} />
+            </section>
+          )
+        })}
+
+        {filtered.some((solution) => !solution.subtopic) ? (
+          <section className="solution-list-section flex flex-col gap-4">
+            <h2 className="text-lg font-medium">General</h2>
+            <SolutionView
+              solutions={filtered.filter((solution) => !solution.subtopic)}
+            />
           </section>
-        )
-      })}
-
-      {filtered.some((solution) => !solution.subtopic) ? (
-        <section className="solution-list-section flex flex-col gap-4">
-          <h2 className="text-lg font-medium">General</h2>
-          <SolutionView
-            solutions={filtered.filter((solution) => !solution.subtopic)}
-          />
-        </section>
-      ) : null}
-    </div>
+        ) : null}
+      </div>
+    </ListKeyboardNav>
   )
 }

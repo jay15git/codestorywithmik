@@ -1,6 +1,11 @@
+import {
+  fuzzyTitleScore,
+  parseSearchQuery,
+} from "@/lib/content/search-query"
 import { slugify } from "./slug"
 import type {
   CompanySearchItem,
+  Difficulty,
   ProblemSearchItem,
   SearchIndex,
   SolutionMeta,
@@ -46,12 +51,16 @@ export function buildSearchIndex(
     topic: solution.topic,
     subtopic: solution.subtopic,
     difficulty: solution.difficulty,
+    leetcodeId: solution.leetcodeId,
+    companyTags: solution.companyTags,
     haystack: buildHaystack([
       solution.title,
       solution.topic,
       solution.subtopic,
       solution.difficulty,
       solution.slug,
+      solution.leetcodeId != null ? String(solution.leetcodeId) : null,
+      solution.leetcodeId != null ? `#${solution.leetcodeId}` : null,
       ...solution.topicTags,
       ...solution.companyTags,
     ]),
@@ -76,7 +85,7 @@ export function buildSearchIndex(
 }
 
 export function tokenizeQuery(query: string): string[] {
-  return query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  return parseSearchQuery(query).tokens
 }
 
 export function matchesHaystack(haystack: string, tokens: string[]): boolean {
@@ -95,15 +104,28 @@ const DEFAULT_LIMITS = {
   problems: 12,
 } as const
 
+export type SearchIndexOptions = Partial<typeof DEFAULT_LIMITS> & {
+  /** UI chip override for difficulty (wins over query token). */
+  difficulty?: Difficulty | null
+}
+
 export function searchIndex(
   index: SearchIndex,
   query: string,
-  limits: Partial<typeof DEFAULT_LIMITS> = {},
+  limits: SearchIndexOptions = {},
 ): SearchResults {
   const caps = { ...DEFAULT_LIMITS, ...limits }
-  const tokens = tokenizeQuery(query)
+  const parsed = parseSearchQuery(query)
+  const difficulty = limits.difficulty ?? parsed.difficulty
+  const { tokens, leetcodeId, company } = parsed
 
-  if (tokens.length === 0) {
+  const hasQuery =
+    tokens.length > 0 ||
+    leetcodeId != null ||
+    difficulty != null ||
+    Boolean(company)
+
+  if (!hasQuery) {
     return {
       companies: [],
       topics: [],
@@ -111,28 +133,111 @@ export function searchIndex(
     }
   }
 
+  const companyNeedle = company?.toLowerCase() ?? null
+
   const companies = index.companies
-    .filter((item) => matchesHaystack(item.haystack, tokens))
+    .filter((item) => {
+      if (companyNeedle) {
+        return (
+          item.slug.includes(companyNeedle) ||
+          item.haystack.includes(companyNeedle)
+        )
+      }
+      if (tokens.length === 0) {
+        return false
+      }
+      return matchesHaystack(item.haystack, tokens)
+    })
     .slice(0, caps.companies)
 
   const topics = index.topics
-    .filter((item) => matchesHaystack(item.haystack, tokens))
+    .filter((item) => {
+      if (tokens.length === 0) {
+        return false
+      }
+      return matchesHaystack(item.haystack, tokens)
+    })
     .slice(0, caps.topics)
 
-  const firstToken = tokens[0]
-  const problems = index.problems
-    .filter((item) => matchesHaystack(item.haystack, tokens))
-    .sort((left, right) => {
-      const leftPrefix = left.title.toLowerCase().startsWith(firstToken) ? 0 : 1
-      const rightPrefix = right.title.toLowerCase().startsWith(firstToken) ? 0 : 1
-
-      if (leftPrefix !== rightPrefix) {
-        return leftPrefix - rightPrefix
+  const scored = index.problems
+    .map((item) => {
+      if (leetcodeId != null && !problemMatchesLeetcodeId(item, leetcodeId)) {
+        return null
       }
 
-      return left.title.localeCompare(right.title)
+      if (difficulty && item.difficulty !== difficulty) {
+        return null
+      }
+
+      if (companyNeedle && !problemMatchesCompany(item, companyNeedle)) {
+        return null
+      }
+
+      if (tokens.length === 0) {
+        return { item, score: leetcodeId != null ? 1000 : 1 }
+      }
+
+      if (matchesHaystack(item.haystack, tokens)) {
+        const title = item.title.toLowerCase()
+        const prefix = title.startsWith(tokens[0]) ? 100 : 0
+        return { item, score: 200 + prefix }
+      }
+
+      const fuzzy = fuzzyTitleScore(item.title, tokens)
+      if (fuzzy < 0) {
+        return null
+      }
+
+      return { item, score: fuzzy }
+    })
+    .filter((entry): entry is { item: ProblemSearchItem; score: number } =>
+      Boolean(entry),
+    )
+    .sort((left, right) => {
+      if (right.score !== left.score) {
+        return right.score - left.score
+      }
+      return left.item.title.localeCompare(right.item.title)
     })
     .slice(0, caps.problems)
+    .map((entry) => entry.item)
 
-  return { companies, topics, problems }
+  return { companies, topics, problems: scored }
+}
+
+function problemMatchesLeetcodeId(
+  item: ProblemSearchItem,
+  leetcodeId: number,
+): boolean {
+  if (typeof item.leetcodeId === "number") {
+    return item.leetcodeId === leetcodeId
+  }
+
+  // Stale index fallback: haystack may include "#121" or bare id token.
+  const id = String(leetcodeId)
+  const haystack = ` ${item.haystack} `
+  return (
+    haystack.includes(` #${id} `) ||
+    haystack.includes(` ${id} `) ||
+    item.slug.startsWith(`${id}-`) ||
+    item.title.startsWith(`${id}.`) ||
+    item.title.startsWith(`${id} `)
+  )
+}
+
+function problemMatchesCompany(
+  item: ProblemSearchItem,
+  companyNeedle: string,
+): boolean {
+  const tags = item.companyTags
+  if (Array.isArray(tags) && tags.length > 0) {
+    return tags.some(
+      (tag) =>
+        slugify(tag).includes(companyNeedle) ||
+        tag.toLowerCase().includes(companyNeedle),
+    )
+  }
+
+  // Stale index fallback: company names live in haystack.
+  return item.haystack.includes(companyNeedle)
 }

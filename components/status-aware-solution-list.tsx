@@ -2,6 +2,7 @@
 
 import { useMemo } from "react"
 
+import { ListKeyboardNav } from "@/components/list-keyboard-nav"
 import { SolutionsPagination } from "@/components/solutions-pagination"
 import { SolutionView } from "@/components/solution-view-list"
 import { useSolutionProgress } from "@/components/solution-progress-provider"
@@ -70,7 +71,9 @@ export function StatusAwareSolutionList({
 
   return (
     <div className="flex flex-col gap-6">
-      <SolutionView solutions={pageSolutions} />
+      <ListKeyboardNav>
+        <SolutionView solutions={pageSolutions} />
+      </ListKeyboardNav>
       <SolutionsPagination
         basePath={basePath}
         page={safePage}

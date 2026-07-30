@@ -1,11 +1,15 @@
+"use client"
+
 import Link from "next/link"
 
 import { CompanyTagLink } from "@/components/company-tag-link"
 import { CompactTagOverflow } from "@/components/compact-tag-overflow"
 import { DifficultyBadge } from "@/components/difficulty-badge"
 import { SolutionExternalLinks } from "@/components/solution-external-links"
+import { useSolutionListNav } from "@/components/solution-list-nav-provider"
 import { SolutionStatusMarkers } from "@/components/solution-status-controls"
 import { TitleUnderline } from "@/components/title-underline"
+import { buildSolutionHref } from "@/lib/content/solution-nav"
 import { sortCompanyTags } from "@/lib/content/sort-company-tags"
 import { companySlug, topicSlugFromName } from "@/lib/content/slug"
 import type { SolutionMeta } from "@/lib/content/types"
@@ -37,12 +41,15 @@ function buildCompanyItems(companyTags: string[]) {
 }
 
 export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
+  const navParams = useSolutionListNav()
   const companyTags = sortCompanyTags([...new Set(solution.companyTags)])
   const topicItems = buildTopicItems(solution.topicTags)
   const companyItems = buildCompanyItems(solution.companyTags)
   const hasExternalLinks =
     solution.youtubeUrl || solution.leetcodeUrl || solution.gfgUrl
-  const solutionHref = `/solutions/${solution.slug}`
+  const solutionHref = navParams
+    ? buildSolutionHref(solution.slug, navParams)
+    : `/solutions/${solution.slug}`
 
   if (variant === "list") {
     return (
@@ -51,6 +58,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           href={solutionHref}
           className="absolute inset-0 z-0"
           aria-label={solution.title}
+          data-solution-row
         />
 
         <div className="relative z-10 flex min-h-6 items-center pointer-events-none">
@@ -98,6 +106,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
         href={solutionHref}
         className="absolute inset-0 z-0 rounded-lg"
         aria-label={solution.title}
+        data-solution-row
       />
 
       <div className="pointer-events-none relative z-10 flex min-w-0 flex-1 flex-col">

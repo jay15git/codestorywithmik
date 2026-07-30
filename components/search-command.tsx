@@ -13,8 +13,9 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
+import { DIFFICULTY_VALUES } from "@/lib/content/filter-solutions"
 import { searchIndex } from "@/lib/content/search-index"
-import type { SearchIndex } from "@/lib/content/types"
+import type { Difficulty, SearchIndex } from "@/lib/content/types"
 import { cn } from "@/lib/utils"
 
 let cachedIndex: SearchIndex | null = null
@@ -26,7 +27,8 @@ async function loadSearchIndex(): Promise<SearchIndex> {
   }
 
   if (!fetchPromise) {
-    fetchPromise = fetch("/search-index.json")
+    // Cache-bust when search-index.json is regenerated after deploy/sync.
+    fetchPromise = fetch(`/search-index.json?v=${Date.now()}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to load search index")
@@ -36,6 +38,10 @@ async function loadSearchIndex(): Promise<SearchIndex> {
       .then((index) => {
         cachedIndex = index
         return index
+      })
+      .catch((error) => {
+        fetchPromise = null
+        throw error
       })
   }
 
@@ -110,6 +116,7 @@ export function SearchCommand() {
   const router = useRouter()
   const [open, setOpen] = React.useState(false)
   const [query, setQuery] = React.useState("")
+  const [difficulty, setDifficulty] = React.useState<Difficulty | null>(null)
   const [index, setIndex] = React.useState<SearchIndex | null>(cachedIndex)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -137,8 +144,8 @@ export function SearchCommand() {
       return { companies: [], topics: [], problems: [] }
     }
 
-    return searchIndex(index, query)
-  }, [index, query])
+    return searchIndex(index, query, { difficulty })
+  }, [index, query, difficulty])
 
   const hasResults =
     results.companies.length > 0 ||
@@ -160,6 +167,7 @@ export function SearchCommand() {
   function navigate(href: string) {
     setOpen(false)
     setQuery("")
+    setDifficulty(null)
     router.push(href)
   }
 
@@ -173,17 +181,41 @@ export function SearchCommand() {
           setOpen(nextOpen)
           if (!nextOpen) {
             setQuery("")
+            setDifficulty(null)
           }
         }}
         shouldFilter={false}
         title="Search solutions"
-        description="Find problems, companies, and topics"
+        description="Find problems, companies, and topics. Try #121, easy, @google"
       >
         <CommandInput
           value={query}
           onValueChange={setQuery}
-          placeholder="Search problems, companies, topics…"
+          placeholder="Search… #121, easy, @google, twosm"
         />
+        <div className="flex flex-wrap gap-1.5 border-b px-3 py-2">
+          {DIFFICULTY_VALUES.map((value) => {
+            const active = difficulty === value
+            return (
+              <button
+                key={value}
+                type="button"
+                className={cn(
+                  "rounded-md border px-2 py-0.5 text-xs transition-colors",
+                  active
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border text-muted-foreground hover:text-foreground",
+                )}
+                aria-pressed={active}
+                onClick={() =>
+                  setDifficulty((current) => (current === value ? null : value))
+                }
+              >
+                {value}
+              </button>
+            )
+          })}
+        </div>
         <CommandList>
           {loading ? (
             <div className="py-6 text-center text-sm text-muted-foreground">
@@ -245,7 +277,12 @@ export function SearchCommand() {
                     >
                       <div className="flex w-full items-start justify-between gap-3">
                         <div className="flex min-w-0 flex-col gap-0.5">
-                          <span className="font-medium">{problem.title}</span>
+                          <span className="font-medium">
+                            {problem.leetcodeId != null
+                              ? `#${problem.leetcodeId} `
+                              : ""}
+                            {problem.title}
+                          </span>
                           <span className="text-xs text-muted-foreground">
                             {problem.topic}
                             {problem.subtopic ? ` · ${problem.subtopic}` : ""}

@@ -106,12 +106,20 @@ describe("search-index", () => {
     assert.equal(results.problems[0]?.title, "BFS Traversal")
   })
 
-  it("searchIndex returns recent problems when query empty", () => {
+  it("searchIndex finds by leetcode id", () => {
     const index = buildSearchIndex(sampleSolutions, sampleTopics)
-    const results = searchIndex(index, "")
+    const results = searchIndex(index, "#1")
+    assert.equal(results.problems.length, 1)
+    assert.equal(results.problems[0]?.slug, "two-sum")
+  })
 
-    assert.equal(results.companies.length, 0)
-    assert.equal(results.topics.length, 0)
-    assert.equal(results.problems.length, 2)
+  it("searchIndex filters by difficulty chip and fuzzy title", () => {
+    const index = buildSearchIndex(sampleSolutions, sampleTopics)
+    const easy = searchIndex(index, "two", { difficulty: "Easy" })
+    assert.equal(easy.problems.length, 1)
+    assert.equal(easy.problems[0]?.slug, "two-sum")
+
+    const fuzzy = searchIndex(index, "bfstrv")
+    assert.ok(fuzzy.problems.some((problem) => problem.slug === "bfs-traversal"))
   })
 })

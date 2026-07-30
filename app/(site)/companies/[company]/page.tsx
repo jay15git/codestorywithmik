@@ -5,6 +5,7 @@ import { PrepPackFilter } from "@/components/prep-pack-filter"
 import { RandomProblemButton } from "@/components/random-problem-button"
 import { FilteredCount } from "@/components/filtered-count"
 import { SolutionFilters } from "@/components/solution-filters"
+import { SolutionListNavProvider } from "@/components/solution-list-nav-provider"
 import { StatusAwareSolutionList } from "@/components/status-aware-solution-list"
 import {
   SolutionViewProvider,
@@ -12,6 +13,7 @@ import {
 } from "@/components/solution-view"
 import {
   filterSolutions,
+  getTopicOptions,
   parseListSearchParams,
 } from "@/lib/content/filter-solutions"
 import {
@@ -24,6 +26,7 @@ import {
   getCompanyName,
   getSolutionsByCompany,
 } from "@/lib/content/get-content"
+import { listFiltersToNavParams } from "@/lib/content/solution-nav"
 import { slugify } from "@/lib/content/slug"
 
 interface CompanyPageProps {
@@ -31,6 +34,8 @@ interface CompanyPageProps {
   searchParams: Promise<{
     page?: string
     difficulty?: string
+    topic?: string
+    lang?: string
     prep?: string
     status?: string
   }>
@@ -77,58 +82,77 @@ export default async function CompanyPage({
   }
 
   const allSolutions = getSolutionsByCompany(companySlug)
-  const difficultyFiltered = filterSolutions(allSolutions, filters)
-  const solutions = applyPrepPack(difficultyFiltered, company, filters.prep)
+  const topicOptions = getTopicOptions(allSolutions)
+  const filtered = filterSolutions(allSolutions, filters)
+  const solutions = applyPrepPack(filtered, company, filters.prep)
   const basePath = `/companies/${companySlug}`
+  const navParams = listFiltersToNavParams("company", {
+    companySlug,
+    topicSlug: filters.topicSlug,
+    difficulty: filters.difficulty,
+    prep: filters.prep,
+    status: filters.status,
+    lang: filters.lang,
+  })
 
   return (
     <SolutionViewProvider>
-      <div className="flex flex-col gap-8">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              {company}
-            </h1>
-            <FilteredCount
-              solutions={solutions}
-              status={filters.status}
-              ofTotal={allSolutions.length}
-              trailing={
-                filters.prep
-                  ? `· ${prepPackLabel(filters.prep)} by frequency`
-                  : "tagged with this company"
-              }
+      <SolutionListNavProvider value={navParams}>
+        <div className="flex flex-col gap-8">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl font-semibold tracking-tight">
+                {company}
+              </h1>
+              <FilteredCount
+                solutions={solutions}
+                status={filters.status}
+                ofTotal={allSolutions.length}
+                trailing={
+                  filters.prep
+                    ? `· ${prepPackLabel(filters.prep)} by frequency`
+                    : "tagged with this company"
+                }
+              />
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <RandomProblemButton solutions={solutions} />
+              <SolutionViewToggle />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <PrepPackFilter
+              basePath={basePath}
+              prep={filters.prep}
+              hrefParams={{
+                difficulty: filters.difficulty,
+                topicSlug: filters.topicSlug,
+                status: filters.status,
+                lang: filters.lang,
+              }}
+            />
+            <SolutionFilters
+              basePath={basePath}
+              filters={filters}
+              topics={topicOptions}
             />
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <RandomProblemButton solutions={solutions} />
-            <SolutionViewToggle />
-          </div>
-        </div>
 
-        <div className="flex flex-col gap-3">
-          <PrepPackFilter
+          <StatusAwareSolutionList
+            solutions={solutions}
+            status={filters.status}
             basePath={basePath}
-            prep={filters.prep}
-            hrefParams={{
+            page={filters.page}
+            query={{
               difficulty: filters.difficulty,
-              status: filters.status,
+              topicSlug: filters.topicSlug,
+              prep: filters.prep,
+              lang: filters.lang,
             }}
           />
-          <SolutionFilters basePath={basePath} filters={filters} />
         </div>
-
-        <StatusAwareSolutionList
-          solutions={solutions}
-          status={filters.status}
-          basePath={basePath}
-          page={filters.page}
-          query={{
-            difficulty: filters.difficulty,
-            prep: filters.prep,
-          }}
-        />
-      </div>
+      </SolutionListNavProvider>
     </SolutionViewProvider>
   )
 }

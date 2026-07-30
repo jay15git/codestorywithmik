@@ -8,9 +8,19 @@ A searchable website for browsing LeetCode data structures and algorithms soluti
 - 3,500+ solution pages with C++, Java, Python, SQL, and TypeScript tabs when available
 - Company tag filters (enriched from LeetCode company-wise CSV data)
 - Local progress: solved / starred / revisit (stored in the browser)
+- Personal markdown notes per problem (browser-only)
 - Random unsolved problem from home, topic, or company lists
 - Company prep packs (Top 25 / 50 / 75 by interview frequency)
-- Cmd+K search
+- Companies index sortable by interview frequency
+- Pattern study pages (Easy → Hard within a pattern)
+- Daily problem + weekly set (deterministic, no account)
+- Blind mode + practice timer on solution pages
+- Related problems on each solution page
+- Prev / next navigation within topic or company lists (arrow keys)
+- Keyboard study shortcuts (`j`/`k` lists, `s`/`d`/`b` on solutions)
+- Cmd+K search (`#121`, difficulty chips, `@company`, fuzzy titles)
+- Multi-filter URLs (topic, company, difficulty, language, status)
+- Remembered code language + shareable `?lang=` links
 - Syntax-highlighted code
 - Auto-sync from your fork on a schedule
 

@@ -4,8 +4,10 @@ import { DicesIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
+import { useSolutionListNav } from "@/components/solution-list-nav-provider"
 import { useSolutionProgress } from "@/components/solution-progress-provider"
 import { Button } from "@/components/ui/button"
+import { buildSolutionHref } from "@/lib/content/solution-nav"
 import type { SolutionMeta } from "@/lib/content/types"
 import { matchesStatusFilter } from "@/lib/progress/store"
 import { cn } from "@/lib/utils"
@@ -28,6 +30,7 @@ export function RandomProblemButton({
   size?: "sm" | "default" | "lg"
 }) {
   const router = useRouter()
+  const navParams = useSolutionListNav()
   const { map } = useSolutionProgress()
   const [empty, setEmpty] = useState(false)
 
@@ -46,7 +49,9 @@ export function RandomProblemButton({
 
     setEmpty(false)
     const pick = pool[Math.floor(Math.random() * pool.length)]
-    router.push(`/solutions/${pick}`)
+    router.push(
+      navParams ? buildSolutionHref(pick, navParams) : `/solutions/${pick}`,
+    )
   }
 
   const disabled =

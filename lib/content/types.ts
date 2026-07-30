@@ -67,6 +67,8 @@ export interface ProblemSearchItem {
   topic: string
   subtopic: string | null
   difficulty: Difficulty | null
+  leetcodeId: number | null
+  companyTags: string[]
   haystack: string
 }
 

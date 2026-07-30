@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useSyncExternalStore } from "react"
 
 import {
   CodeBlock,
@@ -8,19 +8,28 @@ import {
   CodeBlockHeader,
 } from "@/components/code-block/code-block"
 import { CopyButton } from "@/components/copy-button"
+import { ShareSolutionLinkButton } from "@/components/share-solution-link-button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   getAvailableLanguages,
   SOLUTION_LANGUAGE_LABELS,
   type SolutionLanguage,
 } from "@/lib/content/solution-languages"
+import {
+  getServerLanguagePreference,
+  pickPreferredLanguage,
+  readLanguagePreference,
+  subscribeToLanguagePreference,
+  writeLanguagePreference,
+} from "@/lib/preferences/language"
+import { sanitizeShikiHtml } from "@/lib/sanitize-shiki-html"
 import { cn } from "@/lib/utils"
 
-import { sanitizeShikiHtml } from "@/lib/sanitize-shiki-html"
-
 interface SolutionCodePanelProps {
+  slug: string
   code: Record<SolutionLanguage, string | null>
   highlighted: Partial<Record<SolutionLanguage, string | null>>
+  initialLang?: SolutionLanguage | null
 }
 
 function HighlightedCode({ html }: { html: string }) {
@@ -32,7 +41,26 @@ function HighlightedCode({ html }: { html: string }) {
   )
 }
 
-export function SolutionCodePanel({ code, highlighted }: SolutionCodePanelProps) {
+function syncLangQuery(language: SolutionLanguage) {
+  if (typeof window === "undefined") {
+    return
+  }
+
+  const url = new URL(window.location.href)
+  if (url.searchParams.get("lang") === language) {
+    return
+  }
+
+  url.searchParams.set("lang", language)
+  window.history.replaceState(window.history.state, "", url.toString())
+}
+
+export function SolutionCodePanel({
+  slug,
+  code,
+  highlighted,
+  initialLang = null,
+}: SolutionCodePanelProps) {
   const languages = useMemo(
     () =>
       getAvailableLanguages(code).filter(
@@ -41,12 +69,36 @@ export function SolutionCodePanel({ code, highlighted }: SolutionCodePanelProps)
     [code, highlighted],
   )
 
-  const [activeTab, setActiveTab] = useState<SolutionLanguage>(
-    languages[0] ?? "cpp",
+  const preferred = useSyncExternalStore(
+    subscribeToLanguagePreference,
+    readLanguagePreference,
+    getServerLanguagePreference,
   )
+
+  const activeTab = pickPreferredLanguage(languages, preferred, initialLang)
+
+  useEffect(() => {
+    if (initialLang && languages.includes(initialLang)) {
+      writeLanguagePreference(initialLang)
+    }
+  }, [initialLang, languages])
+
+  useEffect(() => {
+    if (languages.length === 0 || !languages.includes(activeTab)) {
+      return
+    }
+
+    syncLangQuery(activeTab)
+  }, [activeTab, languages])
 
   if (languages.length === 0) {
     return null
+  }
+
+  function handleTabChange(value: string) {
+    const language = value as SolutionLanguage
+    writeLanguagePreference(language)
+    syncLangQuery(language)
   }
 
   if (languages.length === 1) {
@@ -57,7 +109,10 @@ export function SolutionCodePanel({ code, highlighted }: SolutionCodePanelProps)
           <span className="text-xs font-medium text-muted-foreground">
             {SOLUTION_LANGUAGE_LABELS[language]}
           </span>
-          <CopyButton value={code[language]!} />
+          <div className="flex items-center gap-0.5">
+            <ShareSolutionLinkButton slug={slug} language={language} />
+            <CopyButton value={code[language]!} />
+          </div>
         </CodeBlockHeader>
         <CodeBlockContent>
           <HighlightedCode html={highlighted[language]!} />
@@ -72,7 +127,7 @@ export function SolutionCodePanel({ code, highlighted }: SolutionCodePanelProps)
     <CodeBlock>
       <Tabs
         value={activeTab}
-        onValueChange={(value) => setActiveTab(value as SolutionLanguage)}
+        onValueChange={handleTabChange}
         className="gap-0"
       >
         <CodeBlockHeader>
@@ -93,7 +148,10 @@ export function SolutionCodePanel({ code, highlighted }: SolutionCodePanelProps)
               </TabsTrigger>
             ))}
           </TabsList>
-          <CopyButton value={copyValue!} />
+          <div className="flex items-center gap-0.5">
+            <ShareSolutionLinkButton slug={slug} language={activeTab} />
+            <CopyButton value={copyValue!} />
+          </div>
         </CodeBlockHeader>
 
         <CodeBlockContent>
