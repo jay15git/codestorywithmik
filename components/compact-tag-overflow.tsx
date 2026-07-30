@@ -26,8 +26,8 @@ interface CompactTagOverflowProps {
   className?: string
 }
 
-/** Matches Tailwind `gap-1.5` (6px) — tight space between tags */
-const ITEM_GAP_PX = 6
+/** Matches Tailwind `gap-2` (8px) — tag cluster gutters */
+const ITEM_GAP_PX = 8
 
 function computeVisibleCount(
   itemWidths: readonly number[],
@@ -129,7 +129,7 @@ export function CompactTagOverflow({
       <div
         ref={measureRef}
         aria-hidden
-        className="pointer-events-none invisible absolute flex items-center gap-1.5 whitespace-nowrap"
+        className="pointer-events-none invisible absolute flex items-center gap-2 whitespace-nowrap"
       >
         {items.map((item) => (
           <span key={item.href} className="text-xs font-medium">
@@ -151,7 +151,7 @@ export function CompactTagOverflow({
 
       <div
         ref={containerRef}
-        className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap"
+        className="flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap"
       >
         {visibleItems.map((item) => (
           <Link

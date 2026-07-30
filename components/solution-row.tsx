@@ -21,9 +21,12 @@ interface SolutionRowProps {
 }
 
 const MAX_GRID_COMPANIES = 3
-/** Title flexes; topic/company columns capped so tags don't float in empty 1fr space. */
+/**
+ * Fixed rem tracks for topic/company so columns align across rows.
+ * Tags appear at md+ — sm content width can't fit six columns cleanly.
+ */
 const LIST_ROW_GRID =
-  "grid w-full items-center gap-x-2 grid-cols-[3.25rem_minmax(0,1fr)_2rem_2.75rem] sm:grid-cols-[3.25rem_minmax(0,1fr)_minmax(0,8.5rem)_minmax(0,10rem)_2rem_2.75rem] sm:gap-x-2.5 md:grid-cols-[3.25rem_minmax(0,1fr)_minmax(0,10.5rem)_minmax(0,12.5rem)_2rem_2.75rem] lg:grid-cols-[3.25rem_minmax(0,1fr)_minmax(0,12rem)_minmax(0,14rem)_2rem_2.75rem]"
+  "grid w-full min-h-11 items-center gap-x-3 grid-cols-[4.75rem_minmax(0,1fr)_2.5rem_3rem] md:grid-cols-[4.75rem_minmax(0,1fr)_9rem_11rem_2.5rem_3rem] md:gap-x-4 lg:grid-cols-[4.75rem_minmax(0,1fr)_10rem_12rem_2.5rem_3rem] xl:grid-cols-[4.75rem_minmax(0,1fr)_11rem_13rem_2.5rem_3rem]"
 
 function buildTopicItems(topicTags: string[]) {
   return [...new Set(topicTags)]
@@ -54,7 +57,12 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
 
   if (variant === "list") {
     return (
-      <div className={cn("group/row relative px-3 py-2.5", LIST_ROW_GRID)}>
+      <div
+        className={cn(
+          "group/row relative px-(--spacing-solution-row-x) py-(--spacing-solution-row-y) transition-colors hover:bg-muted/40",
+          LIST_ROW_GRID,
+        )}
+      >
         <Link
           href={solutionHref}
           className="absolute inset-0 z-0"
@@ -62,29 +70,29 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           data-solution-row
         />
 
-        <div className="relative z-10 flex min-h-6 items-center pointer-events-none">
-          <DifficultyBadge difficulty={solution.difficulty} />
+        <div className="relative z-10 flex min-h-7 items-center pointer-events-none">
+          <DifficultyBadge difficulty={solution.difficulty} size="xs" />
         </div>
 
-        <div className="relative z-10 flex min-h-6 min-w-0 items-center pointer-events-none">
+        <div className="relative z-10 flex min-h-7 min-w-0 items-center pointer-events-none">
           <TitleUnderline className="block max-w-full truncate text-sm font-medium leading-snug">
             {solution.title}
           </TitleUnderline>
         </div>
 
-        <div className="relative z-10 hidden min-w-0 items-center pointer-events-auto sm:flex">
+        <div className="relative z-10 hidden min-h-7 min-w-0 items-center pointer-events-auto md:flex">
           <CompactTagOverflow items={topicItems} />
         </div>
 
-        <div className="relative z-10 hidden min-w-0 items-center pointer-events-auto sm:flex">
+        <div className="relative z-10 hidden min-h-7 min-w-0 items-center pointer-events-auto md:flex">
           <CompactTagOverflow items={companyItems} />
         </div>
 
-        <div className="relative z-10 flex min-h-6 items-center justify-center pointer-events-none">
+        <div className="relative z-10 flex min-h-7 items-center justify-center pointer-events-none">
           <SolutionStatusMarkers slug={solution.slug} />
         </div>
 
-        <div className="relative z-10 flex min-h-6 items-center justify-end pointer-events-auto">
+        <div className="relative z-10 flex min-h-7 items-center justify-end pointer-events-auto">
           {hasExternalLinks ? (
             <SolutionExternalLinks
               iconLayout="slots"

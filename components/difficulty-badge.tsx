@@ -11,9 +11,11 @@ const DIFFICULTY_TEXT_STYLES: Record<Difficulty, string> = {
 export function DifficultyBadge({
   difficulty,
   className,
+  size = "sm",
 }: {
   difficulty: Difficulty | null | undefined
   className?: string
+  size?: "xs" | "sm"
 }) {
   if (!difficulty) {
     return null
@@ -22,7 +24,7 @@ export function DifficultyBadge({
   return (
     <span
       className={cn(
-        buttonVariants({ variant: "outline", size: "sm" }),
+        buttonVariants({ variant: "outline", size }),
         DIFFICULTY_TEXT_STYLES[difficulty],
         className,
       )}
