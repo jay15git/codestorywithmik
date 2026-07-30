@@ -39,7 +39,7 @@ export const STUDY_PLAN_DEFINITIONS: StudyPlanDefinition[] = [
       { name: "Tries", leetcodeIds: [208, 211, 212] },
       { name: "Heap / Priority Queue", leetcodeIds: [295] },
       { name: "Backtracking", leetcodeIds: [39, 79] },
-      { name: "Graphs", leetcodeIds: [200, 133, 417, 207, 323, 261] },
+      { name: "Graphs", leetcodeIds: [200, 133, 417, 207, 323, 261, 269] },
       {
         name: "1-D DP",
         leetcodeIds: [70, 198, 213, 5, 647, 91, 322, 152, 139, 300],

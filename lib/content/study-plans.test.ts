@@ -42,7 +42,7 @@ describe("study plans", () => {
   it("counts curated ids", () => {
     const blind = getStudyPlan("blind-75")!
     const neet = getStudyPlan("neetcode-150")!
-    assert.equal(studyPlanIdCount(blind), 74)
+    assert.equal(studyPlanIdCount(blind), 75)
     assert.equal(studyPlanIdCount(neet), 150)
   })
 
