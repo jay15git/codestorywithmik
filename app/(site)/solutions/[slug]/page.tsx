@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 import { ButtonLink } from "@/components/button-link"
 import { PageHeader } from "@/components/page-header"
@@ -10,8 +11,10 @@ import { DeviconLeetcode } from "@/components/icons/devicon/leetcode"
 import { LogosYoutubeIcon } from "@/components/icons/logos/youtube-icon"
 import { SimpleIconsGeeksforgeeks } from "@/components/icons/simple-icons/geeksforgeeks"
 import { RelatedSolutions } from "@/components/related-solutions"
-import { BlindCodeSection } from "@/components/blind-code-section"
-import { SolutionCodePanel } from "@/components/solution-code-panel"
+import {
+  SolutionCodeSection,
+  SolutionCodeSectionFallback,
+} from "@/components/solution-code-section"
 import { SolutionNeighborsNav } from "@/components/solution-neighbors-nav"
 import { SolutionNotes } from "@/components/solution-notes"
 import { SolutionStatusControls } from "@/components/solution-status-controls"
@@ -20,7 +23,6 @@ import { buttonVariants } from "@/components/ui/button-variants"
 import { sortCompanyTags } from "@/lib/content/sort-company-tags"
 import { getRelatedSolutions } from "@/lib/content/related-solutions"
 import { getSolutionMeta, getSolutions } from "@/lib/content/get-content"
-import { getPreparedSolution } from "@/lib/content/get-prepared-solution"
 import { practiceLinkLabel } from "@/lib/content/practice-link-label"
 import {
   navStateToHrefParams,
@@ -73,52 +75,36 @@ export default async function SolutionPage({
   }
 
   const query = await searchParams
-  const solution = await getPreparedSolution(slug)
-
-  if (!solution) {
-    notFound()
-  }
-
   const nav = parseSolutionNavParams(query)
   const navParams = nav ? navStateToHrefParams(nav) : null
-  const neighborSolutions = getSolutionsForNav(nav, solution.topicSlug).map(
+  const neighborSolutions = getSolutionsForNav(nav, meta.topicSlug).map(
     (item) => ({ slug: item.slug, title: item.title }),
   )
-  const related = getRelatedSolutions(solution, getSolutions())
+  const related = getRelatedSolutions(meta, getSolutions())
   const initialLang = parseLanguageParam(query.lang)
 
   return (
     <div className="min-w-0 max-w-full space-y-8">
-      <PageHeader title={solution.title} className="gap-3">
+      <PageHeader title={meta.title} className="gap-3">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <SolutionStatusControls slug={solution.slug} />
-            <SrsReviewControls slug={solution.slug} />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {solution.difficulty && (
-              <DifficultyBadge
-                difficulty={solution.difficulty}
-                className="text-sm"
-              />
-            )}
-            {solution.leetcodeUrl && (
+            <SolutionStatusControls slug={meta.slug} />
+            {meta.leetcodeUrl && (
               <ButtonLink
                 variant="outline"
                 size="sm"
-                href={solution.leetcodeUrl}
+                href={meta.leetcodeUrl}
                 external
               >
                 <DeviconLeetcode className="size-4" aria-hidden="true" />
-                LeetCode
+                Practice
               </ButtonLink>
             )}
-            {!solution.leetcodeUrl && solution.gfgUrl && (
+            {!meta.leetcodeUrl && meta.gfgUrl && (
               <ButtonLink
                 variant="outline"
                 size="sm"
-                href={solution.gfgUrl}
+                href={meta.gfgUrl}
                 external
               >
                 <SimpleIconsGeeksforgeeks
@@ -126,43 +112,53 @@ export default async function SolutionPage({
                   style={{ color: "#2f8d46" }}
                   aria-hidden="true"
                 />
-                {practiceLinkLabel(solution.gfgUrl)}
+                {practiceLinkLabel(meta.gfgUrl)}
               </ButtonLink>
             )}
-            {solution.youtubeUrl && (
+            {meta.difficulty && (
+              <DifficultyBadge
+                difficulty={meta.difficulty}
+                className="text-sm"
+              />
+            )}
+            <SrsReviewControls slug={meta.slug} />
+          </div>
+
+          {meta.youtubeUrl && (
+            <div className="flex flex-wrap items-center gap-2">
               <ButtonLink
                 variant="outline"
                 size="sm"
-                href={solution.youtubeUrl}
+                href={meta.youtubeUrl}
                 external
               >
                 <LogosYoutubeIcon className="size-4" aria-hidden="true" />
                 Watch solution
               </ButtonLink>
-            )}
-          </div>
+            </div>
+          )}
 
-          {(solution.timeComplexity || solution.spaceComplexity) && (
+          {(meta.timeComplexity || meta.spaceComplexity) && (
             <div className="flex flex-wrap items-center gap-2">
-              {solution.timeComplexity && (
+              {meta.timeComplexity && (
                 <span
                   className={buttonVariants({ variant: "outline", size: "sm" })}
                 >
-                  Time: {solution.timeComplexity}
+                  Time: {meta.timeComplexity}
                 </span>
               )}
-              {solution.spaceComplexity && (
+              {meta.spaceComplexity && (
                 <span
                   className={buttonVariants({ variant: "outline", size: "sm" })}
                 >
-                  Space: {solution.spaceComplexity}
+                  Space: {meta.spaceComplexity}
                 </span>
               )}
             </div>
           )}
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            {solution.topicTags.map((tag) => (
+            {meta.topicTags.map((tag) => (
               <Link
                 key={tag}
                 href={`/topics/${topicSlugFromName(tag)}`}
@@ -173,34 +169,22 @@ export default async function SolutionPage({
             ))}
           </div>
 
-          <CompanyTagList companies={sortCompanyTags(solution.companyTags)} />
+          <CompanyTagList companies={sortCompanyTags(meta.companyTags)} />
         </div>
       </PageHeader>
 
       <SolutionNeighborsNav
         solutions={neighborSolutions}
-        currentSlug={solution.slug}
+        currentSlug={meta.slug}
         status={nav?.status ?? "all"}
         navParams={navParams}
       />
 
-      <BlindCodeSection slug={solution.slug}>
-        <SolutionCodePanel
-          slug={solution.slug}
-          title={solution.title}
-          code={solution.code}
-          highlighted={solution.highlighted}
-          initialLang={initialLang}
-          topic={solution.topic}
-          difficulty={solution.difficulty}
-          timeComplexity={solution.timeComplexity}
-          spaceComplexity={solution.spaceComplexity}
-          leetcodeUrl={solution.leetcodeUrl}
-          gfgUrl={solution.gfgUrl}
-        />
-      </BlindCodeSection>
+      <Suspense fallback={<SolutionCodeSectionFallback />}>
+        <SolutionCodeSection slug={meta.slug} initialLang={initialLang} />
+      </Suspense>
 
-      <SolutionNotes slug={solution.slug} />
+      <SolutionNotes slug={meta.slug} />
 
       <RelatedSolutions solutions={related} />
     </div>

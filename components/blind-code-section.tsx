@@ -90,8 +90,8 @@ export function BlindCodeSection({
                 transition={transition}
               >
                 <div className="flex max-w-md flex-col items-center gap-5 px-6 py-5">
-                  <p className="text-base text-muted-foreground sm:text-lg">
-                    Code hidden. Solve on LeetCode first, then reveal.
+                  <p className="text-base font-semibold text-foreground sm:text-lg">
+                    Solve first, then reveal.
                   </p>
                   <Button type="button" onClick={() => setBlind(false)}>
                     Reveal code
