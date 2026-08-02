@@ -1,6 +1,6 @@
 import type { LegacyProgressEntry } from "@/lib/storage/types"
 import type { SolutionProgressMap } from "@/lib/progress/types"
-import { DEFAULT_TAGS, REVISIT_TAG_ID, STARRED_TAG_ID } from "@/lib/tags/constants"
+import { DEFAULT_TAGS, STARRED_TAG_ID } from "@/lib/tags/constants"
 import type { TagAssignmentsMap, TagState, UserTag } from "@/lib/tags/types"
 
 function uniqueIds(ids: string[]): string[] {
@@ -56,10 +56,6 @@ export function migrateProgressFlagsToTags(
     if (entry.starred) {
       tagIds.push(STARRED_TAG_ID)
     }
-    if (entry.revisit) {
-      tagIds.push(REVISIT_TAG_ID)
-    }
-
     const merged = uniqueIds(tagIds)
     if (merged.length > 0) {
       nextAssignments[slug] = merged
@@ -93,7 +89,7 @@ export function coerceTagState(value: unknown): TagState {
       const tag = item as Record<string, unknown>
       const id = typeof tag.id === "string" ? tag.id.trim() : ""
       const name = typeof tag.name === "string" ? tag.name.trim() : ""
-      if (!id || !name) {
+      if (!id || id === "revisit" || !name) {
         continue
       }
       const kind =
@@ -119,7 +115,9 @@ export function coerceTagState(value: unknown): TagState {
       const normalized = uniqueIds(
         ids.filter(
           (id): id is string =>
-            typeof id === "string" && id.trim().length > 0,
+            typeof id === "string" &&
+            id.trim().length > 0 &&
+            id.trim() !== "revisit",
         ),
       )
       if (normalized.length > 0) {

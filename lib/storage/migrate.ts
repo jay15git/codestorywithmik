@@ -3,7 +3,6 @@ import {
   type SolutionLanguage,
 } from "@/lib/content/solution-languages"
 import type { SolutionNotesMap } from "@/lib/notes/types"
-import { coerceSrsMap } from "@/lib/srs/migrate-legacy"
 import {
   createDefaultTagState,
   migrateProgressFlagsToTags,
@@ -14,7 +13,6 @@ import type { LegacyProgressEntry, StudyBag, StudyBagV1, ViewMode } from "./type
 export const LEGACY_STORAGE_KEYS = {
   progress: "solution-progress-v1",
   notes: "solution-notes-v1",
-  srs: "solution-srs-v1",
   language: "solution-language-v1",
   viewMode: "solution-view-mode",
 } as const
@@ -24,7 +22,6 @@ export function createEmptyStudyBag(): StudyBag {
     version: 2,
     progress: {},
     notes: {},
-    srs: {},
     language: null,
     viewMode: "grid",
     tags: createDefaultTagState(),
@@ -72,7 +69,6 @@ export function migrateStudyBagV1ToV2(bag: StudyBagV1): StudyBag {
     version: 2,
     progress: migrated.progress,
     notes: bag.notes,
-    srs: bag.srs,
     language: bag.language,
     viewMode: bag.viewMode,
     tags: {
@@ -90,7 +86,6 @@ export function buildStudyBagFromLegacyStorage(
     version: 1,
     progress: {},
     notes: {},
-    srs: {},
     language: null,
     viewMode: "grid",
   }
@@ -109,13 +104,6 @@ export function buildStudyBagFromLegacyStorage(
   if (notes) {
     v1Bag.notes = notes
     keysToRemove.push(LEGACY_STORAGE_KEYS.notes)
-  }
-
-  const srsRaw = getItem(LEGACY_STORAGE_KEYS.srs)
-  const srs = parseJsonRecord<Record<string, unknown>>(srsRaw)
-  if (srs) {
-    v1Bag.srs = coerceSrsMap(srs)
-    keysToRemove.push(LEGACY_STORAGE_KEYS.srs)
   }
 
   const languageRaw = getItem(LEGACY_STORAGE_KEYS.language)

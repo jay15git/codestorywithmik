@@ -1,7 +1,6 @@
 import type { SolutionLanguage } from "@/lib/content/solution-languages"
 import type { SolutionNotesMap } from "@/lib/notes/types"
 import type { SolutionProgressMap } from "@/lib/progress/types"
-import type { SrsMap } from "@/lib/srs/types"
 import type { TagState } from "@/lib/tags/types"
 
 export type ViewMode = "list" | "grid"
@@ -11,7 +10,6 @@ export interface StudyBag {
   exportedAt?: string
   progress: SolutionProgressMap
   notes: SolutionNotesMap
-  srs: SrsMap
   language: SolutionLanguage | null
   viewMode: ViewMode
   tags: TagState
@@ -20,7 +18,7 @@ export interface StudyBag {
 export type StudyBagPatch = Partial<
   Pick<
     StudyBag,
-    "progress" | "notes" | "srs" | "language" | "viewMode" | "tags"
+    "progress" | "notes" | "language" | "viewMode" | "tags"
   >
 >
 
@@ -32,7 +30,6 @@ export interface StudyBackup extends StudyBag {
 export interface LegacyProgressEntry {
   solved?: boolean
   starred?: boolean
-  revisit?: boolean
 }
 
 /** @internal legacy import shape */
@@ -41,7 +38,6 @@ export interface StudyBagV1 {
   exportedAt?: string
   progress: Record<string, LegacyProgressEntry>
   notes: SolutionNotesMap
-  srs: SrsMap
   language: SolutionLanguage | null
   viewMode: ViewMode
 }

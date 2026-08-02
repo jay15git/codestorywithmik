@@ -2,7 +2,7 @@ import { companySlug, topicSlugFromName } from "@/lib/content/slug"
 import type { PrepPack } from "@/lib/content/prep-packs"
 import { parsePrepPack } from "@/lib/content/prep-packs"
 import type { Difficulty, SolutionMeta } from "@/lib/content/types"
-import { parseStatusFilters, parseLegacyTagIdsFromStatus, type StatusFilterValue } from "@/lib/progress/filters"
+import { parseStatusFilters, type StatusFilterValue } from "@/lib/progress/filters"
 import type { StatusFilter } from "@/lib/progress/types"
 import { parseTagFilters } from "@/lib/tags/filters"
 
@@ -117,13 +117,9 @@ export function parseProgressListParams(searchParams: {
   statuses: StatusFilterValue[]
   tagIds: string[]
 } {
-  const legacyTagIds = parseLegacyTagIdsFromStatus(searchParams.status)
   return {
     statuses: parseStatusFilters(searchParams.status),
-    tagIds: uniqueStrings([
-      ...parseTagFilters(searchParams.tag),
-      ...legacyTagIds,
-    ]),
+    tagIds: uniqueStrings(parseTagFilters(searchParams.tag)),
   }
 }
 

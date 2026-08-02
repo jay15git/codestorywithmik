@@ -38,8 +38,6 @@ export default function HomePage() {
     available: getSolutionsForStudyPlan(plan, solutions).length,
     curated: studyPlanIdCount(plan),
   }))
-  const featuredTopics = topics.slice(0, 12)
-  const remainingTopics = topics.slice(featuredTopics.length)
 
   return (
     <div className="flex flex-col gap-10">
@@ -60,31 +58,7 @@ export default function HomePage() {
             />
           </>
         }
-      >
-        <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Solutions from{" "}
-          <a
-            href="https://github.com/walkccc/LeetCode"
-            target="_blank"
-            rel="noreferrer"
-            className="underline underline-offset-2 hover:text-foreground"
-          >
-            walkccc/LeetCode
-          </a>{" "}
-          (MIT), by topic and company. Code plus links to practice on LeetCode.
-        </p>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          Made by{" "}
-          <a
-            href="https://www.itsjay.in"
-            target="_blank"
-            rel="noreferrer"
-            className="underline underline-offset-2 hover:text-foreground"
-          >
-            Jayant
-          </a>
-        </p>
-      </PageHeader>
+      />
 
       <section
         aria-label="Library overview"
@@ -124,9 +98,6 @@ export default function HomePage() {
           <h2 id="study-plans-heading" className="text-xl font-semibold">
             Study plans
           </h2>
-          <p className="text-sm text-muted-foreground">
-            Blind 75, NeetCode 150, and NeetCode 250.
-          </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {plans.map(({ plan, available, curated }) => (
@@ -157,14 +128,11 @@ export default function HomePage() {
             <h2 id="topics-heading" className="text-xl font-semibold">
               Browse by topic
             </h2>
-            <p className="text-sm text-muted-foreground">
-              Problems can appear under more than one topic.
-            </p>
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredTopics.map((topic) => (
+          {topics.map((topic) => (
             <Card
               key={topic.slug}
               className="group/row relative cursor-pointer bg-card"
@@ -179,41 +147,12 @@ export default function HomePage() {
                   <TitleUnderline>{topic.name}</TitleUnderline>
                 </CardTitle>
                 <CardDescription>
-                  {topic.solutionCount} listings
+                  {topic.solutionCount} solutions
                 </CardDescription>
               </CardHeader>
             </Card>
           ))}
         </div>
-        {remainingTopics.length > 0 ? (
-          <details className="group/topics">
-            <summary className="t-tactile flex min-h-10 w-fit cursor-pointer list-none items-center rounded-lg px-3 text-sm font-medium text-muted-foreground transition-[background-color,color,transform] hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
-              <span className="group-open/topics:hidden">
-                Show all {topics.length} topics
-              </span>
-              <span className="hidden group-open/topics:inline">
-                Show fewer topics
-              </span>
-            </summary>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {remainingTopics.map((topic) => (
-                <Card key={topic.slug} className="group/row relative bg-card">
-                  <Link
-                    href={`/topics/${topic.slug}`}
-                    className="absolute inset-0 z-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                    aria-label={topic.name}
-                  />
-                  <CardHeader className="pointer-events-none relative z-10">
-                    <CardTitle className="text-base">
-                      <TitleUnderline>{topic.name}</TitleUnderline>
-                    </CardTitle>
-                    <CardDescription>{topic.solutionCount} listings</CardDescription>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          </details>
-        ) : null}
       </section>
     </div>
   )

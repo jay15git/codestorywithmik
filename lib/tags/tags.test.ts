@@ -12,21 +12,19 @@ import {
   getSlugsForTagId,
   getSlugsWithAnyTag,
 } from "@/lib/tags/lists"
-import { REVISIT_TAG_ID, STARRED_TAG_ID } from "@/lib/tags/constants"
+import { STARRED_TAG_ID } from "@/lib/tags/constants"
 import { matchesAnyTagFilter } from "@/lib/tags/filters"
-import { buildReviewQueue } from "@/lib/srs/store"
 import { createEmptyStudyBag } from "@/lib/storage/migrate"
 
 describe("tag migrate", () => {
-  it("migrates starred and revisit progress flags to tag assignments", () => {
+  it("migrates starred progress flags to tag assignments", () => {
     const bag = migrateStudyBagV1ToV2({
       version: 1,
       progress: {
-        "two-sum": { solved: true, starred: true, revisit: true },
+        "two-sum": { solved: true, starred: true },
         "three-sum": { starred: true },
       } satisfies Record<string, LegacyProgressEntry>,
       notes: {},
-      srs: {},
       language: null,
       viewMode: "grid",
     })
@@ -37,20 +35,17 @@ describe("tag migrate", () => {
       (bag.progress["two-sum"] as LegacyProgressEntry | undefined)?.starred,
       undefined,
     )
-    assert.deepEqual(bag.tags.assignments["two-sum"], [
-      STARRED_TAG_ID,
-      REVISIT_TAG_ID,
-    ])
+    assert.deepEqual(bag.tags.assignments["two-sum"], [STARRED_TAG_ID])
     assert.deepEqual(bag.tags.assignments["three-sum"], [STARRED_TAG_ID])
-    assert.equal(bag.tags.definitions.length >= 2, true)
+    assert.equal(bag.tags.definitions.length >= 1, true)
   })
 
   it("seeds default tags in empty state", () => {
     const state = createDefaultTagState()
-    assert.equal(state.definitions.length, 2)
+    assert.equal(state.definitions.length, 1)
     assert.deepEqual(
       state.definitions.map((tag) => tag.id),
-      [STARRED_TAG_ID, REVISIT_TAG_ID],
+      [STARRED_TAG_ID],
     )
   })
 })
@@ -59,11 +54,11 @@ describe("tag filters", () => {
   it("matches any selected tag id", () => {
     const assignments = {
       a: [STARRED_TAG_ID],
-      b: [REVISIT_TAG_ID],
+      b: [],
     }
 
     assert.equal(
-      matchesAnyTagFilter(assignments, "a", [STARRED_TAG_ID, REVISIT_TAG_ID]),
+      matchesAnyTagFilter(assignments, "a", [STARRED_TAG_ID]),
       true,
     )
     assert.equal(matchesAnyTagFilter(assignments, "b", [STARRED_TAG_ID]), false)
@@ -87,32 +82,18 @@ describe("tag filters", () => {
   })
 })
 
-describe("review queue revisit source", () => {
-  it("includes slugs with revisit tag", () => {
-    const queue = buildReviewQueue(
-      {},
-      { "two-sum": [REVISIT_TAG_ID] },
-      "2026-07-31",
-    )
-
-    assert.equal(queue.length, 1)
-    assert.equal(queue[0]?.slug, "two-sum")
-    assert.equal(queue[0]?.source, "revisit")
-  })
-})
-
 describe("empty study bag v2", () => {
   it("creates version 2 with default tags", () => {
     const bag = createEmptyStudyBag()
     assert.equal(bag.version, 2)
-    assert.equal(bag.tags.definitions.length, 2)
+    assert.equal(bag.tags.definitions.length, 1)
   })
 })
 
 describe("tag lists", () => {
   const assignments = {
     a: [STARRED_TAG_ID],
-    b: [REVISIT_TAG_ID, STARRED_TAG_ID],
+    b: [STARRED_TAG_ID],
   }
 
   it("collects all saved slugs", () => {
@@ -122,6 +103,5 @@ describe("tag lists", () => {
 
   it("filters slugs per tag id", () => {
     assert.deepEqual(getSlugsForTagId(assignments, STARRED_TAG_ID), ["a", "b"])
-    assert.deepEqual(getSlugsForTagId(assignments, REVISIT_TAG_ID), ["b"])
   })
 })

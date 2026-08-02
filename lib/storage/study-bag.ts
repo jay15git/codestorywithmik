@@ -6,8 +6,6 @@ import {
 } from "@/lib/content/solution-languages"
 import type { SolutionNotesMap } from "@/lib/notes/types"
 import type { SolutionProgressMap } from "@/lib/progress/types"
-import { coerceSrsMap as coerceSrsMapFromLib } from "@/lib/srs/migrate-legacy"
-import type { SrsMap } from "@/lib/srs/types"
 import { coerceTagState } from "@/lib/tags/migrate"
 
 import { idbGet, idbSet, STUDY_BAG_KEY } from "./idb"
@@ -65,7 +63,6 @@ function coerceLegacyProgressMap(
     const legacy: LegacyProgressEntry = {}
     if (entry.solved) legacy.solved = true
     if (entry.starred) legacy.starred = true
-    if (entry.revisit) legacy.revisit = true
     if (Object.keys(legacy).length > 0) {
       result[slug] = legacy
     }
@@ -92,10 +89,6 @@ function coerceProgressMap(value: unknown): SolutionProgressMap {
 
 function coerceNotesMap(value: unknown): SolutionNotesMap {
   return isRecord(value) ? (value as SolutionNotesMap) : {}
-}
-
-function coerceSrsMap(value: unknown): SrsMap {
-  return coerceSrsMapFromLib(value)
 }
 
 function coerceLanguage(value: unknown): SolutionLanguage | null {
@@ -128,7 +121,6 @@ function normalizeStudyBag(json: unknown): StudyBag {
       version: 2,
       progress: coerceProgressMap(json.progress),
       notes: coerceNotesMap(json.notes),
-      srs: coerceSrsMap(json.srs),
       language: coerceLanguage(json.language),
       viewMode: coerceViewMode(json.viewMode),
       tags: coerceTagState(json.tags),
@@ -139,7 +131,6 @@ function normalizeStudyBag(json: unknown): StudyBag {
     version: 1,
     progress: coerceLegacyProgressMap(json.progress),
     notes: coerceNotesMap(json.notes),
-    srs: coerceSrsMap(json.srs),
     language: coerceLanguage(json.language),
     viewMode: coerceViewMode(json.viewMode),
   }

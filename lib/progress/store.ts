@@ -10,8 +10,6 @@ import {
   patchStudyBag,
   subscribeStudyBag,
 } from "@/lib/storage/study-bag"
-import { REVISIT_TAG_ID } from "@/lib/tags/constants"
-import { clearTag } from "@/lib/tags/store"
 
 export {
   getProgressEntry,
@@ -19,7 +17,6 @@ export {
   matchesStatusFilter,
   parseStatusFilter,
   parseStatusFilters,
-  parseLegacyTagIdsFromStatus,
 } from "@/lib/progress/filters"
 
 export const PROGRESS_STORAGE_KEY = "solution-progress-v1"
@@ -69,9 +66,6 @@ export function toggleProgressFlag(
 
   if (next) {
     entry[flag] = true
-    if (flag === "solved") {
-      clearTag(slug, REVISIT_TAG_ID)
-    }
   } else {
     delete entry[flag]
   }
@@ -96,9 +90,6 @@ export function setProgressFlag(
 
   if (value) {
     entry[flag] = true
-    if (flag === "solved") {
-      clearTag(slug, REVISIT_TAG_ID)
-    }
   } else {
     delete entry[flag]
   }

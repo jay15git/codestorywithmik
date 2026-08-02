@@ -29,18 +29,6 @@ describe("study bag migrate", () => {
           "two-sum": { markdown: "note", updatedAt: "2026-01-01T00:00:00.000Z" },
         }),
       ],
-      [
-        LEGACY_STORAGE_KEYS.srs,
-        JSON.stringify({
-          "two-sum": {
-            dueAt: "2026-07-30",
-            intervalDays: 1,
-            ease: 2.5,
-            repetitions: 0,
-            updatedAt: "2026-07-30T00:00:00.000Z",
-          },
-        }),
-      ],
       [LEGACY_STORAGE_KEYS.language, "python"],
       [LEGACY_STORAGE_KEYS.viewMode, "list"],
     ])
@@ -52,11 +40,9 @@ describe("study bag migrate", () => {
     assert.equal(bag.version, 2)
     assert.equal(bag.progress["two-sum"]?.solved, true)
     assert.equal(bag.notes["two-sum"]?.markdown, "note")
-    assert.equal(bag.srs["two-sum"]?.dueAt, "2026-07-30")
-    assert.equal(bag.srs["two-sum"]?.reps, 0)
     assert.equal(bag.language, "python")
     assert.equal(bag.viewMode, "list")
-    assert.equal(keysToRemove.length, 5)
+    assert.equal(keysToRemove.length, 4)
     assert.equal(hasLegacyStudyData((key) => storage.get(key) ?? null), true)
   })
 
@@ -73,7 +59,6 @@ describe("study bag", () => {
       version: 2,
       progress: { a: { solved: true } },
       notes: {},
-      srs: {},
       language: "java",
       viewMode: "list",
       tags: {
@@ -95,7 +80,6 @@ describe("study bag", () => {
       version: 1,
       progress: { bar: { starred: true } },
       notes: {},
-      srs: {},
       language: null,
       viewMode: "grid",
     })
@@ -125,7 +109,6 @@ describe("study bag", () => {
       version: 2,
       progress: {},
       notes: {},
-      srs: {},
       language: null,
       viewMode: "grid",
       tags: {

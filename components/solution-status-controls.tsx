@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckIcon, RotateCcwIcon, StarIcon } from "lucide-react"
+import { CheckIcon, StarIcon } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 
 import { SolutionSaveTagsDialog } from "@/components/solution-save-tags-dialog"
@@ -14,7 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
-import { REVISIT_TAG_ID, STARRED_TAG_ID } from "@/lib/tags/constants"
+import { STARRED_TAG_ID } from "@/lib/tags/constants"
 import { cn } from "@/lib/utils"
 
 const stateSwap = { duration: 0.15, ease: "easeOut" as const }
@@ -117,9 +117,6 @@ export function SolutionStatusMarkers({
               className="size-3.5 text-amber-600 dark:text-amber-400"
             />
           )
-        }
-        if (tag.id === REVISIT_TAG_ID) {
-          return <RotateCcwIcon key={tag.id} className="size-3.5" />
         }
         return (
           <Badge

@@ -1,16 +1,12 @@
 "use client"
 
-import {
-  REVISIT_TAG_ID,
-  STARRED_TAG_ID,
-} from "@/lib/tags/constants"
+import { STARRED_TAG_ID } from "@/lib/tags/constants"
 import type {
   TagAssignmentsMap,
   TagCounts,
   TagState,
   UserTag,
 } from "@/lib/tags/types"
-import type { SolutionProgressMap } from "@/lib/progress/types"
 import {
   getStudyBag,
   patchStudyBag,
@@ -77,29 +73,8 @@ export function getTagsForSlug(slug: string, state = readTagState()): string[] {
   return state.assignments[slug] ?? []
 }
 
-function clearSolvedForSlug(
-  progress: SolutionProgressMap,
-  slug: string,
-): SolutionProgressMap {
-  const entry = progress[slug]
-  if (!entry?.solved) {
-    return progress
-  }
-
-  const next = { ...progress }
-  const cleaned = { ...entry }
-  delete cleaned.solved
-  if (Object.keys(cleaned).length === 0) {
-    delete next[slug]
-  } else {
-    next[slug] = cleaned
-  }
-  return next
-}
-
 export function setTagsForSlug(slug: string, tagIds: string[]): TagState {
-  const bag = getStudyBag()
-  const state = bag.tags
+  const state = getStudyBag().tags
   const assignments: TagAssignmentsMap = { ...state.assignments }
   const normalized = uniqueIds(tagIds)
 
@@ -110,15 +85,7 @@ export function setTagsForSlug(slug: string, tagIds: string[]): TagState {
   }
 
   const nextTags = { ...state, assignments }
-  const patch: { tags: TagState; progress?: SolutionProgressMap } = {
-    tags: nextTags,
-  }
-
-  if (normalized.includes(REVISIT_TAG_ID)) {
-    patch.progress = clearSolvedForSlug(bag.progress, slug)
-  }
-
-  patchStudyBag(patch)
+  patchStudyBag({ tags: nextTags })
   return nextTags
 }
 
@@ -217,18 +184,16 @@ export function deleteTag(tagId: string): TagState {
 
 export function countTagAssignments(state = readTagState()): TagCounts {
   let starred = 0
-  let revisit = 0
   let custom = 0
 
   for (const ids of Object.values(state.assignments)) {
     if (ids.includes(STARRED_TAG_ID)) starred += 1
-    if (ids.includes(REVISIT_TAG_ID)) revisit += 1
     for (const id of ids) {
-      if (id !== STARRED_TAG_ID && id !== REVISIT_TAG_ID) {
+      if (id !== STARRED_TAG_ID) {
         custom += 1
       }
     }
   }
 
-  return { starred, revisit, custom }
+  return { starred, custom }
 }

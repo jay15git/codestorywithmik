@@ -25,11 +25,6 @@ import {
 import type { TagCounts, UserTag } from "@/lib/tags/types"
 import { hasTag } from "@/lib/tags/filters"
 
-async function scheduleRevisit(slug: string) {
-  const { markDueToday } = await import("@/lib/srs/store")
-  markDueToday(slug)
-}
-
 interface SolutionTagsContextValue {
   tags: UserTag[]
   assignments: Record<string, string[]>
@@ -68,29 +63,18 @@ export function SolutionTagsProvider({ children }: { children: ReactNode }) {
   )
 
   const toggleTagForSlug = useCallback((slug: string, tagId: string) => {
-    const before = hasTag(readTagState().assignments, slug, tagId)
     toggleTag(slug, tagId)
-    const after = !before
-    if (tagId === "revisit" && after) {
-      void scheduleRevisit(slug)
-    }
   }, [])
 
   const setTagForSlug = useCallback(
     (slug: string, tagId: string, value: boolean) => {
       setTag(slug, tagId, value)
-      if (tagId === "revisit" && value) {
-        void scheduleRevisit(slug)
-      }
     },
     [],
   )
 
   const setTags = useCallback((slug: string, tagIds: string[]) => {
     setTagsForSlug(slug, tagIds)
-    if (tagIds.includes("revisit")) {
-      void scheduleRevisit(slug)
-    }
   }, [])
 
   const createUserTag = useCallback((name: string) => createTag(name), [])

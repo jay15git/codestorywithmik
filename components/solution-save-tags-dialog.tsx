@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { BookmarkIcon, PlusIcon, RotateCcwIcon, StarIcon } from "lucide-react"
+import { BookmarkIcon, PlusIcon, StarIcon } from "lucide-react"
 
 import { useSolutionTags } from "@/components/solution-tags-provider"
 import { Button } from "@/components/ui/button"
@@ -15,16 +15,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { REVISIT_TAG_ID, STARRED_TAG_ID } from "@/lib/tags/constants"
+import { STARRED_TAG_ID } from "@/lib/tags/constants"
 import type { UserTag } from "@/lib/tags/types"
 import { cn } from "@/lib/utils"
 
 function tagIcon(tag: UserTag) {
   if (tag.id === STARRED_TAG_ID) {
     return StarIcon
-  }
-  if (tag.id === REVISIT_TAG_ID) {
-    return RotateCcwIcon
   }
   return null
 }
@@ -102,8 +99,7 @@ export function SolutionSaveTagsDialog({
         <DialogHeader>
           <DialogTitle>Save problem</DialogTitle>
           <DialogDescription>
-            Tag this problem for your study plan. Starred and Revisit are always
-            available.
+            Tag this problem for your study plan. Starred is always available.
           </DialogDescription>
         </DialogHeader>
 

@@ -18,7 +18,6 @@ import {
 import { SolutionNeighborsNav } from "@/components/solution-neighbors-nav"
 import { SolutionNotes } from "@/components/solution-notes"
 import { SolutionStatusControls } from "@/components/solution-status-controls"
-import { SrsReviewControls } from "@/components/srs-review-controls"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { sortCompanyTags } from "@/lib/content/sort-company-tags"
 import { getRelatedSolutions } from "@/lib/content/related-solutions"
@@ -121,7 +120,6 @@ export default async function SolutionPage({
                 className="text-sm"
               />
             )}
-            <SrsReviewControls slug={meta.slug} />
           </div>
 
           {meta.youtubeUrl && (

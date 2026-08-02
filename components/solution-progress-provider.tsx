@@ -26,11 +26,6 @@ import type {
   SolutionProgressMap,
 } from "@/lib/progress/types"
 
-async function scheduleSolved(slug: string) {
-  const { ensureScheduledOnSolve } = await import("@/lib/srs/store")
-  ensureScheduledOnSolve(slug)
-}
-
 interface SolutionProgressContextValue {
   map: SolutionProgressMap
   counts: ProgressCounts
@@ -67,20 +62,12 @@ export function SolutionProgressProvider({
   )
 
   const toggleFlag = useCallback((slug: string, flag: ProgressFlag) => {
-    const before = isFlagSet(readProgressMap(), slug, flag)
     toggleProgressFlag(slug, flag)
-    const after = !before
-    if (flag === "solved" && after) {
-      void scheduleSolved(slug)
-    }
   }, [])
 
   const setFlag = useCallback(
     (slug: string, flag: ProgressFlag, value: boolean) => {
       setProgressFlag(slug, flag, value)
-      if (flag === "solved" && value) {
-        void scheduleSolved(slug)
-      }
     },
     [],
   )

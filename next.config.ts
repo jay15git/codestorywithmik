@@ -9,7 +9,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
-  serverExternalPackages: ["ts-fsrs"],
   outputFileTracingIncludes: {
     "/solutions/[slug]": ["./generated/solutions/**/*"],
   },

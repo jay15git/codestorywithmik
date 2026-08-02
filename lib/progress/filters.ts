@@ -10,9 +10,6 @@ const STATUS_FILTER_VALUES = [
   "unsolved",
 ] as const satisfies readonly StatusFilterValue[]
 
-/** Legacy status values migrated to tag filters. */
-const LEGACY_TAG_STATUS_VALUES = ["starred", "revisit"] as const
-
 export function parseStatusFilter(value: string | undefined): StatusFilter {
   const [first] = parseStatusFilters(value)
   return first ?? "all"
@@ -33,28 +30,6 @@ export function parseStatusFilters(
       !seen.has(trimmed as StatusFilterValue)
     ) {
       seen.add(trimmed as StatusFilterValue)
-    }
-  }
-  return [...seen]
-}
-
-export function parseLegacyTagIdsFromStatus(
-  value: string | undefined,
-): string[] {
-  if (!value) {
-    return []
-  }
-
-  const seen = new Set<string>()
-  for (const part of value.split(",")) {
-    const trimmed = part.trim()
-    if (
-      LEGACY_TAG_STATUS_VALUES.includes(
-        trimmed as typeof LEGACY_TAG_STATUS_VALUES[number],
-      ) &&
-      !seen.has(trimmed)
-    ) {
-      seen.add(trimmed)
     }
   }
   return [...seen]

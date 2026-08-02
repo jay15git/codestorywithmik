@@ -16,6 +16,5 @@ export type TagAssignmentsMap = TagState["assignments"]
 
 export interface TagCounts {
   starred: number
-  revisit: number
   custom: number
 }
