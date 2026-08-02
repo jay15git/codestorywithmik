@@ -239,7 +239,7 @@ const triggerVariants = cva(
   [
     "t-tactile group inline-flex cursor-pointer items-center justify-between gap-2 outline-none",
     "h-9 min-w-[160px] px-3 text-[13px]",
-    "transition-all duration-80",
+    "transition-[background-color,color,border-color,box-shadow,transform] duration-80",
     "disabled:pointer-events-none disabled:opacity-50",
     "focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)]",
   ],
@@ -363,7 +363,6 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
       setActiveIndex,
       itemRects,
       isMeasured,
-      sessionRef,
       handlers,
       registerItem,
       remeasure,
@@ -406,10 +405,7 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     // acknowledgment) instead of unmounting and snapping.
     // Multiple mode uses per-item checkmarks only (no single selected bg).
     useEffect(() => {
-      if (!open || multiple) {
-        if (multiple) setCheckedIndex(undefined)
-        return
-      }
+      if (!open || multiple) return
       // Double rAF: first waits for React commit, second for layout
       let inner: number
       const outer = requestAnimationFrame(() => {
@@ -440,9 +436,12 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     // there to the row that auto-focus lands on.
     useEffect(() => {
       if (open) return
-      setCheckedIndex(undefined)
-      setActiveIndex(null)
-      setFocusedIndex(null)
+      const frame = requestAnimationFrame(() => {
+        setCheckedIndex(undefined)
+        setActiveIndex(null)
+        setFocusedIndex(null)
+      })
+      return () => cancelAnimationFrame(frame)
     }, [open, setActiveIndex])
 
     // Overlays read rects only once the hook reports the item set fully
@@ -576,7 +575,6 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                   <AnimatePresence>
                     {activeRect && (
                       <motion.div
-                        key={sessionRef.current}
                         className={`absolute ${shape.bg} pointer-events-none bg-hover`}
                         initial={{
                           opacity: 0,
@@ -665,11 +663,6 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
     const contentCtx = useContext(SelectContentContext)
     const internalRef = useRef<HTMLDivElement>(null)
     const shape = useShape()
-    const hasMounted = useRef(false)
-
-    useEffect(() => {
-      hasMounted.current = true
-    }, [])
 
     // Register with proximity hover. Depends on the (stable) registerItem
     // rather than the content context, which is rebuilt on every activeIndex
@@ -685,7 +678,6 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
 
     const isActive = contentCtx?.activeIndex === index
     const isChecked = isValueChecked(selectCtx.value, value)
-    const skipAnimation = !hasMounted.current
 
     return (
       <SelectPrimitive.Item
@@ -745,7 +737,7 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
             never changes the row's intrinsic width — without it the whole
             popup resizes when a selection lands. */}
         <span aria-hidden className="grid size-4 shrink-0 place-items-center">
-          <AnimatePresence>
+          <AnimatePresence initial={false}>
             {isChecked && (
               <motion.svg
                 key="check"
@@ -764,7 +756,7 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
               >
                 <motion.path
                   d="M4 12L9 17L20 6"
-                  initial={{ pathLength: skipAnimation ? 1 : 0 }}
+                  initial={false}
                   animate={{
                     pathLength: 1,
                     transition: { duration: 0.08, ease: "easeOut" },

@@ -16,6 +16,8 @@ export const GENERATED_INDEX_PATH = "generated/content-index.json"
 
 export const GENERATED_SEARCH_INDEX_PATH = "generated/search-index.json"
 
+export const GENERATED_SOLUTION_SLUGS_PATH = "generated/solution-slugs.json"
+
 export const PUBLIC_SEARCH_INDEX_PATH = "public/search-index.json"
 
 export const GENERATED_SOLUTIONS_PATH = "generated/solutions"

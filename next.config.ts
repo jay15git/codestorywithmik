@@ -11,13 +11,7 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["ts-fsrs"],
   outputFileTracingIncludes: {
-    "/problems": ["./generated/**/*"],
-    "/companies": ["./generated/**/*"],
-    "/companies/[company]": ["./generated/**/*"],
-    "/topics/[topic]": ["./generated/**/*"],
-    "/solutions/[slug]": ["./generated/**/*"],
-    "/patterns/[slug]": ["./generated/**/*"],
-    "/plans/[slug]": ["./generated/**/*"],
+    "/solutions/[slug]": ["./generated/solutions/**/*"],
   },
 }
 

@@ -3,7 +3,6 @@ import { describe, it } from "node:test"
 
 import {
   createDefaultTagState,
-  migrateProgressFlagsToTags,
 } from "@/lib/tags/migrate"
 import { migrateStudyBagV1ToV2 } from "@/lib/storage/migrate"
 import type { LegacyProgressEntry } from "@/lib/storage/types"

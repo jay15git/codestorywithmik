@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { DifficultyBadge } from "@/components/difficulty-badge"
+import { PageHeader } from "@/components/page-header"
 import { RandomProblemButton } from "@/components/random-problem-button"
 import { TitleUnderline } from "@/components/title-underline"
 import { buttonVariants } from "@/components/ui/button-variants"
@@ -28,14 +29,10 @@ export default function DailyPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <section className="flex flex-col gap-3">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Daily & weekly
-        </h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Same problem of the day and weekly set for every visitor.
-        </p>
-      </section>
+      <PageHeader
+        title="Daily & weekly"
+        description="The same problem of the day and weekly set for every visitor."
+      />
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-3">

@@ -153,17 +153,20 @@ export function useProximityHover<T extends HTMLElement>(
    */
   const scheduleMeasurement = useCallback(
     (attemptsLeft: number) => {
-      if (remeasureRafIdRef.current !== null) {
-        cancelAnimationFrame(remeasureRafIdRef.current);
-      }
-      remeasureRafIdRef.current = requestAnimationFrame(() => {
-        remeasureRafIdRef.current = null;
-        if (runMeasurement()) {
-          setIsMeasured(true);
-        } else if (attemptsLeft > 1) {
-          scheduleMeasurement(attemptsLeft - 1);
+      const schedule = (remaining: number) => {
+        if (remeasureRafIdRef.current !== null) {
+          cancelAnimationFrame(remeasureRafIdRef.current);
         }
-      });
+        remeasureRafIdRef.current = requestAnimationFrame(() => {
+          remeasureRafIdRef.current = null;
+          if (runMeasurement()) {
+            setIsMeasured(true);
+          } else if (remaining > 1) {
+            schedule(remaining - 1);
+          }
+        });
+      };
+      schedule(attemptsLeft);
     },
     [runMeasurement]
   );

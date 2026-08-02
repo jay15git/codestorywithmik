@@ -8,14 +8,18 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  static: isStatic = false,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props &
+  VariantProps<typeof buttonVariants> & { static?: boolean }) {
   return (
     <ButtonPrimitive
       data-slot="button"
-      data-cuelume-press=""
-      data-cuelume-release=""
-      className={cn(buttonVariants({ variant, size, className }))}
+      data-cuelume-press={isStatic ? undefined : ""}
+      data-cuelume-release={isStatic ? undefined : ""}
+      className={cn(
+        buttonVariants({ variant, size, static: isStatic, className })
+      )}
       {...props}
     />
   )

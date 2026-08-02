@@ -1,6 +1,13 @@
 "use client"
 
-import { useEffect, useState, useSyncExternalStore } from "react"
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react"
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import Link from "@tiptap/extension-link"
@@ -28,12 +35,22 @@ import {
 
 import { Button } from "@/components/ui/button"
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   DropdownContent,
   DropdownMenu,
   DropdownTrigger,
 } from "@/components/ui/dropdown"
 import { CopyButton } from "@/components/copy-button"
 import { MenuItem } from "@/components/ui/menu-item"
+import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import {
   getServerNotesMap,
@@ -42,6 +59,117 @@ import {
   writeNoteMarkdown,
 } from "@/lib/notes/store"
 import { cn } from "@/lib/utils"
+
+interface NotesLinkDialogProps {
+  open: boolean
+  initialUrl: string
+  onApply: (url: string) => void
+  onRemove: () => void
+  onOpenChange: (open: boolean) => void
+}
+
+function validateLinkUrl(value: string): string | null {
+  const trimmed = value.trim()
+  if (!trimmed) return "Enter a URL."
+
+  try {
+    const url = new URL(trimmed)
+    if (!["http:", "https:", "mailto:"].includes(url.protocol)) {
+      return "Use an http, https, or mailto URL."
+    }
+  } catch {
+    return "Enter a complete URL, such as https://example.com."
+  }
+
+  return null
+}
+
+function NotesLinkDialog({
+  open,
+  initialUrl,
+  onApply,
+  onRemove,
+  onOpenChange,
+}: NotesLinkDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <NotesLinkDialogForm
+          key={`${open}-${initialUrl}`}
+          initialUrl={initialUrl}
+          onApply={onApply}
+          onRemove={onRemove}
+        />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function NotesLinkDialogForm({
+  initialUrl,
+  onApply,
+  onRemove,
+}: Pick<NotesLinkDialogProps, "initialUrl" | "onApply" | "onRemove">) {
+  const inputId = useId()
+  const errorId = `${inputId}-error`
+  const [url, setUrl] = useState(initialUrl)
+  const [error, setError] = useState<string | null>(null)
+
+  function applyLink(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const nextError = validateLinkUrl(url)
+    setError(nextError)
+    if (nextError) return
+    onApply(url.trim())
+  }
+
+  return (
+    <form noValidate onSubmit={applyLink} className="contents">
+      <DialogHeader>
+        <DialogTitle>Edit link</DialogTitle>
+        <DialogDescription>
+          Add a destination to the selected text, or remove its current link.
+        </DialogDescription>
+      </DialogHeader>
+      <div className="grid gap-2">
+        <label htmlFor={inputId} className="text-sm font-medium">
+          URL
+        </label>
+        <Input
+          id={inputId}
+          type="url"
+          inputMode="url"
+          autoComplete="url"
+          autoFocus
+          value={url}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          onChange={(event) => {
+            setUrl(event.target.value)
+            if (error) setError(null)
+          }}
+          placeholder="https://example.com"
+        />
+        {error ? (
+          <p id={errorId} role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        ) : null}
+      </div>
+      <DialogFooter className="sm:justify-between">
+        <Button type="button" variant="destructive" onClick={onRemove}>
+          Remove link
+        </Button>
+        <div className="flex flex-col-reverse gap-2 sm:flex-row">
+          <DialogClose render={<Button type="button" variant="outline" />}>
+            Cancel
+          </DialogClose>
+          <Button type="submit">Apply link</Button>
+        </div>
+      </DialogFooter>
+    </form>
+  )
+}
 
 export function SolutionNotes({
   slug,
@@ -67,6 +195,9 @@ function SolutionNotesEditor({
   )
   const stored = notesMap[slug]?.markdown ?? ""
   const [draft, setDraft] = useState<string | null>(null)
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false)
+  const [initialLinkUrl, setInitialLinkUrl] = useState("https://")
+  const linkReturnFocusRef = useRef<HTMLElement | null>(null)
   const value = draft ?? stored
 
   const editor = useEditor({
@@ -126,6 +257,21 @@ function SolutionNotesEditor({
     return () => window.clearTimeout(timer)
   }, [draft, slug, stored])
 
+  const openLinkDialog = useCallback(() => {
+    if (!editor) return
+    linkReturnFocusRef.current = document.activeElement as HTMLElement | null
+    const previousUrl = editor.getAttributes("link").href as string | undefined
+    setInitialLinkUrl(previousUrl ?? "https://")
+    setLinkDialogOpen(true)
+  }, [editor])
+
+  const changeLinkDialogOpen = useCallback((open: boolean) => {
+    setLinkDialogOpen(open)
+    if (!open) {
+      window.requestAnimationFrame(() => linkReturnFocusRef.current?.focus())
+    }
+  }, [])
+
   useEffect(() => {
     if (!editor) return
     const activeEditor = editor
@@ -154,20 +300,7 @@ function SolutionNotesEditor({
         run(() => activeEditor.chain().focus().toggleCode().run())
       } else if (key === "k" && !event.shiftKey) {
         event.preventDefault()
-        const previousUrl = activeEditor.getAttributes("link").href as
-          string | undefined
-        const url = window.prompt("Link URL", previousUrl ?? "https://")
-        if (url === null) return
-        if (!url) {
-          activeEditor.chain().focus().extendMarkRange("link").unsetLink().run()
-        } else {
-          activeEditor
-            .chain()
-            .focus()
-            .extendMarkRange("link")
-            .setLink({ href: url })
-            .run()
-        }
+        openLinkDialog()
       } else if (event.altKey && ["1", "2", "3"].includes(key)) {
         const level = Number(key) as 1 | 2 | 3
         run(() => activeEditor.chain().focus().toggleHeading({ level }).run())
@@ -184,22 +317,20 @@ function SolutionNotesEditor({
 
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
-  }, [editor])
+  }, [editor, openLinkDialog])
 
-  function setLink() {
+  function applyLink(url: string) {
     if (!editor) return
-    const previousUrl = editor.getAttributes("link").href as string | undefined
-    const url = window.prompt("Link URL", previousUrl ?? "https://")
-
-    if (url === null) return
-    if (!url) {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run()
-      return
-    }
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run()
+    changeLinkDialogOpen(false)
   }
 
-  const toolbarButtonClass = "size-7 p-0"
+  function removeLink() {
+    editor?.chain().focus().extendMarkRange("link").unsetLink().run()
+    changeLinkDialogOpen(false)
+  }
+
+  const toolbarButtonClass = "size-8 p-0"
   const can = editor?.can()
   const iconButton = "inline-flex shrink-0"
 
@@ -316,10 +447,10 @@ function SolutionNotesEditor({
               formattingState?.link && "bg-accent"
             )}
             aria-label="Link"
-            title="Link (⌘/Ctrl+K). Empty URL removes the link."
+            title="Edit link (⌘/Ctrl+K)"
             aria-pressed={formattingState?.link}
             disabled={!editor}
-            onClick={setLink}
+            onClick={openLinkDialog}
           >
             <Link2 />
           </Button>
@@ -520,6 +651,13 @@ function SolutionNotesEditor({
         </div>
         <EditorContent editor={editor} />
       </div>
+      <NotesLinkDialog
+        open={linkDialogOpen}
+        initialUrl={initialLinkUrl}
+        onApply={applyLink}
+        onRemove={removeLink}
+        onOpenChange={changeLinkDialogOpen}
+      />
     </section>
   )
 }

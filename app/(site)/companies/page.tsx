@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { TitleUnderline } from "@/components/title-underline"
+import { PageHeader } from "@/components/page-header"
 import { buttonVariants } from "@/components/ui/button-variants"
 import {
   buildCompanyList,
@@ -33,12 +34,11 @@ export default async function CompaniesPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-3">
-        <h1 className="text-3xl font-semibold tracking-tight">Companies</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Tagged from community interview data. Frequency sums ask rates across
-          problems.
-        </p>
+      <PageHeader
+        title="Companies"
+        description="Community interview tags, with frequency based on reported ask rates across problems."
+        meta={`${companies.length} companies`}
+      >
         <div className="flex flex-wrap gap-2">
           <Link
             href="/companies"
@@ -63,7 +63,7 @@ export default async function CompaniesPage({
             Asked most
           </Link>
         </div>
-      </section>
+      </PageHeader>
 
       <ul className="divide-y rounded-lg border bg-card">
         {companies.map((company, index) => (

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { PrepPackFilter } from "@/components/prep-pack-filter"
+import { PageHeader } from "@/components/page-header"
 import { RandomProblemButton } from "@/components/random-problem-button"
 import { FilteredCount } from "@/components/filtered-count"
 import { SolutionFilters } from "@/components/solution-filters"
@@ -21,13 +22,8 @@ import {
   parsePrepPack,
   prepPackLabel,
 } from "@/lib/content/prep-packs"
-import {
-  getCompanies,
-  getCompanyName,
-  getSolutionsByCompany,
-} from "@/lib/content/get-content"
+import { getCompanyName, getSolutionsByCompany } from "@/lib/content/get-content"
 import { listFiltersToNavParams } from "@/lib/content/solution-nav"
-import { slugify } from "@/lib/content/slug"
 
 interface CompanyPageProps {
   params: Promise<{ company: string }>
@@ -38,10 +34,6 @@ interface CompanyPageProps {
     prep?: string
     status?: string
   }>
-}
-
-export async function generateStaticParams() {
-  return getCompanies().map((company) => ({ company: slugify(company) }))
 }
 
 export async function generateMetadata({
@@ -102,11 +94,15 @@ export default async function CompanyPage({
     <SolutionViewProvider>
       <SolutionListNavProvider value={navParams}>
         <div className="flex flex-col gap-8">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-semibold tracking-tight">
-                {company}
-              </h1>
+          <PageHeader
+            title={company}
+            actions={
+              <>
+                <RandomProblemButton solutions={solutions} />
+                <SolutionViewToggle />
+              </>
+            }
+          >
               <FilteredCount
                 solutions={solutions}
                 statuses={filters.statuses}
@@ -118,12 +114,7 @@ export default async function CompanyPage({
                     : "tagged with this company"
                 }
               />
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <RandomProblemButton solutions={solutions} />
-              <SolutionViewToggle />
-            </div>
-          </div>
+          </PageHeader>
 
           <div className="flex flex-col gap-3">
             <PrepPackFilter

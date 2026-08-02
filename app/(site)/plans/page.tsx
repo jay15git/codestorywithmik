@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { TitleUnderline } from "@/components/title-underline"
+import { PageHeader } from "@/components/page-header"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getSolutions } from "@/lib/content/get-content"
 import {
@@ -29,12 +30,10 @@ export default function StudyPlansPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Study plans</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Curated roadmaps by LeetCode id. Progress stays in this browser.
-        </p>
-      </section>
+      <PageHeader
+        title="Study plans"
+        description="Curated roadmaps by LeetCode ID. Progress stays in this browser."
+      />
 
       <div className="grid gap-3 sm:grid-cols-2">
         {plans.map(({ plan, available, curated }) => (

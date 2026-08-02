@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { FilteredCount } from "@/components/filtered-count"
+import { PageHeader } from "@/components/page-header"
 import { RandomProblemButton } from "@/components/random-problem-button"
 import { SolutionFilters } from "@/components/solution-filters"
 import { SolutionListNavProvider } from "@/components/solution-list-nav-provider"
@@ -20,7 +21,6 @@ import {
 import {
   getSolutionsByTopic,
   getTopic,
-  getTopics,
 } from "@/lib/content/get-content"
 import { listFiltersToNavParams } from "@/lib/content/solution-nav"
 
@@ -33,10 +33,6 @@ interface TopicPageProps {
     page?: string
     status?: string
   }>
-}
-
-export async function generateStaticParams() {
-  return getTopics().map((topic) => ({ topic: topic.slug }))
 }
 
 export async function generateMetadata({
@@ -91,23 +87,22 @@ export default async function TopicPage({
     <SolutionViewProvider>
       <SolutionListNavProvider value={navParams}>
         <div className="flex flex-col gap-8">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-semibold tracking-tight">
-                {topic.name}
-              </h1>
+          <PageHeader
+            title={topic.name}
+            actions={
+              <>
+                <RandomProblemButton solutions={solutions} />
+                <SolutionViewToggle />
+              </>
+            }
+          >
               <FilteredCount
                 solutions={solutions}
                 statuses={filters.statuses}
                 tagIds={filters.tagIds}
                 ofTotal={allSolutions.length}
               />
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <RandomProblemButton solutions={solutions} />
-              <SolutionViewToggle />
-            </div>
-          </div>
+          </PageHeader>
 
           <SolutionFilters
             basePath={basePath}

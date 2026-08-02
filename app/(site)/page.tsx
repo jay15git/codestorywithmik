@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { RandomProblemButton } from "@/components/random-problem-button"
+import { PageHeader } from "@/components/page-header"
 import { TitleUnderline } from "@/components/title-underline"
 import {
   Card,
@@ -37,15 +38,15 @@ export default function HomePage() {
     available: getSolutionsForStudyPlan(plan, solutions).length,
     curated: studyPlanIdCount(plan),
   }))
+  const featuredTopics = topics.slice(0, 12)
+  const remainingTopics = topics.slice(featuredTopics.length)
 
   return (
     <div className="flex flex-col gap-10">
-      <section className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <h1 className="max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl">
-            LeetCode interview solutions
-          </h1>
-          <div className="flex flex-wrap items-center gap-3">
+      <PageHeader
+        title="LeetCode interview solutions"
+        actions={
+          <>
             <Link
               href="/problems"
               className="inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
@@ -57,8 +58,9 @@ export default function HomePage() {
               label="Random unsolved"
               size="default"
             />
-          </div>
-        </div>
+          </>
+        }
+      >
         <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
           Solutions from{" "}
           <a
@@ -82,7 +84,7 @@ export default function HomePage() {
             Jayant
           </a>
         </p>
-      </section>
+      </PageHeader>
 
       <section
         aria-label="Library overview"
@@ -162,7 +164,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {topics.map((topic) => (
+          {featuredTopics.map((topic) => (
             <Card
               key={topic.slug}
               className="group/row relative cursor-pointer bg-card"
@@ -183,6 +185,35 @@ export default function HomePage() {
             </Card>
           ))}
         </div>
+        {remainingTopics.length > 0 ? (
+          <details className="group/topics">
+            <summary className="t-tactile flex min-h-10 w-fit cursor-pointer list-none items-center rounded-lg px-3 text-sm font-medium text-muted-foreground transition-[background-color,color,transform] hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+              <span className="group-open/topics:hidden">
+                Show all {topics.length} topics
+              </span>
+              <span className="hidden group-open/topics:inline">
+                Show fewer topics
+              </span>
+            </summary>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {remainingTopics.map((topic) => (
+                <Card key={topic.slug} className="group/row relative bg-card">
+                  <Link
+                    href={`/topics/${topic.slug}`}
+                    className="absolute inset-0 z-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    aria-label={topic.name}
+                  />
+                  <CardHeader className="pointer-events-none relative z-10">
+                    <CardTitle className="text-base">
+                      <TitleUnderline>{topic.name}</TitleUnderline>
+                    </CardTitle>
+                    <CardDescription>{topic.solutionCount} listings</CardDescription>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          </details>
+        ) : null}
       </section>
     </div>
   )

@@ -3,7 +3,6 @@
 import type {
   ProgressCounts,
   ProgressFlag,
-  SolutionProgressEntry,
   SolutionProgressMap,
 } from "@/lib/progress/types"
 import {
@@ -12,7 +11,7 @@ import {
   subscribeStudyBag,
 } from "@/lib/storage/study-bag"
 import { REVISIT_TAG_ID } from "@/lib/tags/constants"
-import { clearTag, setTag } from "@/lib/tags/store"
+import { clearTag } from "@/lib/tags/store"
 
 export {
   getProgressEntry,

@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { FilteredCount } from "@/components/filtered-count"
+import { PageHeader } from "@/components/page-header"
 import { RandomProblemButton } from "@/components/random-problem-button"
 import { SolutionFilters } from "@/components/solution-filters"
 import {
@@ -50,23 +51,22 @@ export default async function ProblemsPage({
   return (
     <SolutionViewProvider>
       <div className="flex flex-col gap-8">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              All problems
-            </h1>
+        <PageHeader
+          title="All problems"
+          actions={
+            <>
+              <RandomProblemButton solutions={solutions} />
+              <SolutionViewToggle />
+            </>
+          }
+        >
             <FilteredCount
               solutions={solutions}
               statuses={filters.statuses}
               tagIds={filters.tagIds}
               ofTotal={allSolutions.length}
             />
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <RandomProblemButton solutions={solutions} />
-            <SolutionViewToggle />
-          </div>
-        </div>
+        </PageHeader>
 
         <SolutionFilters
           basePath={basePath}

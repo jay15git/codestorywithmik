@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
 import { MyListsOverview } from "@/components/my-lists-overview"
+import { PageHeader } from "@/components/page-header"
 
 export const metadata: Metadata = {
   title: "My lists",
@@ -11,13 +12,10 @@ export const metadata: Metadata = {
 export default function ListsPage() {
   return (
     <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">My lists</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Problems you tagged on solution pages. Includes Starred, Revisit, and
-          lists you create.
-        </p>
-      </section>
+      <PageHeader
+        title="My lists"
+        description="Problems you tagged on solution pages, including Starred, Revisit, and lists you create."
+      />
 
       <MyListsOverview />
     </div>

@@ -50,13 +50,17 @@ export function AppShell({ children }: AppShellProps) {
         </Sidebar>
 
         <SidebarInset>
-          <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-background/90 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:gap-3 sm:px-4">
+          <header className="app-safe-inline sticky top-0 z-20 flex min-h-14 items-center gap-1 bg-background/90 py-1 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:gap-2">
             <SidebarTrigger />
             <SiteNav className="min-w-0 flex-1" />
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
               <SearchLazy />
-              <GithubRepoButton />
-              <SoundToggle />
+              <div className="hidden lg:block">
+                <GithubRepoButton />
+              </div>
+              <div className="hidden md:block">
+                <SoundToggle />
+              </div>
               <ThemeToggle />
             </div>
           </header>
@@ -64,7 +68,7 @@ export function AppShell({ children }: AppShellProps) {
           <main
             id="main-content"
             tabIndex={-1}
-            className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 py-8 outline-none md:px-8"
+            className="page-shell mx-auto w-full max-w-6xl min-w-0 flex-1 py-6 outline-none sm:py-8"
           >
             {children}
           </main>

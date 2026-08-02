@@ -2,6 +2,12 @@ import type { SolutionCode } from "./types"
 import type { WalkcccLanguageExtension } from "./walkccc-source"
 
 export type SolutionLanguage = "cpp" | "java" | "python" | "sql" | "typescript"
+export type SolutionShikiLanguage =
+  | "cpp"
+  | "java"
+  | "python"
+  | "sql"
+  | "typescript"
 
 export const SOLUTION_LANGUAGE_ORDER: SolutionLanguage[] = [
   "cpp",
@@ -19,7 +25,10 @@ export const SOLUTION_LANGUAGE_LABELS: Record<SolutionLanguage, string> = {
   typescript: "TypeScript",
 }
 
-export const SOLUTION_LANGUAGE_SHIKI: Record<SolutionLanguage, string> = {
+export const SOLUTION_LANGUAGE_SHIKI: Record<
+  SolutionLanguage,
+  SolutionShikiLanguage
+> = {
   cpp: "cpp",
   java: "java",
   python: "python",

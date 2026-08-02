@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { TitleUnderline } from "@/components/title-underline"
+import { PageHeader } from "@/components/page-header"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getSolutions } from "@/lib/content/get-content"
 import {
@@ -24,13 +25,10 @@ export default function PatternsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Patterns</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Interview patterns mapped to LeetCode topic tags. Ordered Easy to
-          Hard.
-        </p>
-      </section>
+      <PageHeader
+        title="Patterns"
+        description="Interview patterns mapped to LeetCode topic tags, ordered from easy to hard."
+      />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {patterns.map(({ pattern, count }) => (

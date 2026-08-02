@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { BookmarkIcon, PlusIcon, RotateCcwIcon, StarIcon } from "lucide-react"
 
 import { useSolutionTags } from "@/components/solution-tags-provider"
@@ -41,13 +41,6 @@ export function SolutionSaveTagsDialog({
   const [draftIds, setDraftIds] = useState<string[]>([])
   const [newTagName, setNewTagName] = useState("")
 
-  useEffect(() => {
-    if (open) {
-      setDraftIds(getTagIds(slug))
-      setNewTagName("")
-    }
-  }, [open, slug, getTagIds])
-
   const assignedCount = getTagIds(slug).length
   const defaultTags = tags.filter((tag) => tag.kind === "default")
   const customTags = tags.filter((tag) => tag.kind === "custom")
@@ -65,6 +58,14 @@ export function SolutionSaveTagsDialog({
     setOpen(false)
   }
 
+  function handleOpenChange(nextOpen: boolean) {
+    if (nextOpen) {
+      setDraftIds(getTagIds(slug))
+      setNewTagName("")
+    }
+    setOpen(nextOpen)
+  }
+
   function handleCreateTag() {
     const trimmed = newTagName.trim()
     if (!trimmed) {
@@ -79,7 +80,7 @@ export function SolutionSaveTagsDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
           <Button

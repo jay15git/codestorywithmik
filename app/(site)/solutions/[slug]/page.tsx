@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { ButtonLink } from "@/components/button-link"
+import { PageHeader } from "@/components/page-header"
 import { CompanyTagList } from "@/components/company-tag-list"
 import { DifficultyBadge } from "@/components/difficulty-badge"
 import Link from "next/link"
@@ -18,24 +19,16 @@ import { SrsReviewControls } from "@/components/srs-review-controls"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { sortCompanyTags } from "@/lib/content/sort-company-tags"
 import { getRelatedSolutions } from "@/lib/content/related-solutions"
-import {
-  getSolution,
-  getSolutions,
-} from "@/lib/content/get-content"
+import { getSolutionMeta, getSolutions } from "@/lib/content/get-content"
+import { getPreparedSolution } from "@/lib/content/get-prepared-solution"
 import { practiceLinkLabel } from "@/lib/content/practice-link-label"
 import {
   navStateToHrefParams,
   parseSolutionNavParams,
 } from "@/lib/content/solution-nav"
 import { getSolutionsForNav } from "@/lib/content/solution-nav-server"
-import {
-  getAvailableLanguages,
-  SOLUTION_LANGUAGE_SHIKI,
-  type SolutionLanguage,
-} from "@/lib/content/solution-languages"
 import { topicSlugFromName } from "@/lib/content/slug"
 import { parseLanguageParam } from "@/lib/preferences/language-param"
-import { highlightCode } from "@/lib/shiki"
 
 interface SolutionPageProps {
   params: Promise<{ slug: string }>
@@ -52,18 +45,14 @@ interface SolutionPageProps {
   }>
 }
 
-export async function generateStaticParams() {
-  return getSolutions().map((solution) => ({ slug: solution.slug }))
-}
-
 export async function generateMetadata({
   params,
 }: SolutionPageProps): Promise<Metadata> {
   const { slug } = await params
-  const solution = getSolution(slug)
+  const solution = getSolutionMeta(slug)
 
   if (!solution) {
-    return { title: "Solution not found" }
+    notFound()
   }
 
   return {
@@ -77,8 +66,14 @@ export default async function SolutionPage({
   searchParams,
 }: SolutionPageProps) {
   const { slug } = await params
+  const meta = getSolutionMeta(slug)
+
+  if (!meta) {
+    notFound()
+  }
+
   const query = await searchParams
-  const solution = getSolution(slug)
+  const solution = await getPreparedSolution(slug)
 
   if (!solution) {
     notFound()
@@ -92,32 +87,10 @@ export default async function SolutionPage({
   const related = getRelatedSolutions(solution, getSolutions())
   const initialLang = parseLanguageParam(query.lang)
 
-  const availableLanguages = getAvailableLanguages(solution.code)
-  const highlighted = Object.fromEntries(
-    await Promise.all(
-      availableLanguages.map(async (language) => [
-        language,
-        await highlightCode(
-          solution.code[language]!,
-          SOLUTION_LANGUAGE_SHIKI[language] as
-            | "cpp"
-            | "java"
-            | "python"
-            | "sql"
-            | "typescript",
-        ),
-      ]),
-    ),
-  ) as Partial<Record<SolutionLanguage, string>>
-
   return (
     <div className="min-w-0 max-w-full space-y-8">
-      <div className="space-y-4">
+      <PageHeader title={solution.title} className="gap-3">
         <div className="space-y-3">
-          <h1 className="text-3xl font-semibold tracking-tight">
-            {solution.title}
-          </h1>
-
           <div className="flex flex-wrap items-center gap-2">
             <SolutionStatusControls slug={solution.slug} />
             <SrsReviewControls slug={solution.slug} />
@@ -175,14 +148,14 @@ export default async function SolutionPage({
                 <span
                   className={buttonVariants({ variant: "outline", size: "sm" })}
                 >
-                  T.C: {solution.timeComplexity}
+                  Time: {solution.timeComplexity}
                 </span>
               )}
               {solution.spaceComplexity && (
                 <span
                   className={buttonVariants({ variant: "outline", size: "sm" })}
                 >
-                  S.C: {solution.spaceComplexity}
+                  Space: {solution.spaceComplexity}
                 </span>
               )}
             </div>
@@ -202,7 +175,7 @@ export default async function SolutionPage({
 
           <CompanyTagList companies={sortCompanyTags(solution.companyTags)} />
         </div>
-      </div>
+      </PageHeader>
 
       <SolutionNeighborsNav
         solutions={neighborSolutions}
@@ -216,7 +189,7 @@ export default async function SolutionPage({
           slug={solution.slug}
           title={solution.title}
           code={solution.code}
-          highlighted={highlighted}
+          highlighted={solution.highlighted}
           initialLang={initialLang}
           topic={solution.topic}
           difficulty={solution.difficulty}

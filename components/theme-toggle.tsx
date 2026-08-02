@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { MoonIcon, SunIcon } from "lucide-react"
 import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 
 import { Button } from "@/components/ui/button"
 
@@ -24,13 +24,18 @@ const iconSwapVisible = {
   scale: 1,
 }
 
+const subscribeMounted = () => () => {}
+const getMountedSnapshot = () => true
+const getServerMountedSnapshot = () => false
+
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
   const reduceMotion = useReducedMotion()
-
-  useEffect(() => setMounted(true), [])
-
+  const mounted = useSyncExternalStore(
+    subscribeMounted,
+    getMountedSnapshot,
+    getServerMountedSnapshot,
+  )
   const isDark = resolvedTheme === "dark"
   const transition = reduceMotion ? { duration: 0 } : iconSwap
 
@@ -69,7 +74,10 @@ export function ThemeToggle() {
               <MoonIcon />
             </motion.span>
           ) : (
-            <span className="col-start-1 row-start-1 inline-flex opacity-0" aria-hidden>
+            <span
+              className="col-start-1 row-start-1 inline-flex opacity-0"
+              aria-hidden
+            >
               <MoonIcon />
             </span>
           )}

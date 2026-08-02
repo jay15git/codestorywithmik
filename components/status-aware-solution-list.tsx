@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useMemo } from "react"
 
 import { ListKeyboardNav } from "@/components/list-keyboard-nav"
@@ -9,10 +10,12 @@ import { useSolutionProgress } from "@/components/solution-progress-provider"
 import { useSolutionTags } from "@/components/solution-tags-provider"
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty"
+import { buttonVariants } from "@/components/ui/button-variants"
 import {
   LIST_PAGE_SIZE,
   type ListHrefParams,
@@ -51,8 +54,8 @@ export function StatusAwareSolutionList({
         map,
         assignments,
         statuses,
-        tagIds,
-      ),
+        tagIds
+      )
     )
   }, [solutions, statuses, tagIds, map, assignments])
 
@@ -73,6 +76,19 @@ export function StatusAwareSolutionList({
               : "Mark problems from a solution page, or clear the progress filter."}
           </EmptyDescription>
         </EmptyHeader>
+        <EmptyContent className="flex-row flex-wrap justify-center">
+          <Link
+            href={basePath}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            Clear filters
+          </Link>
+          {basePath !== "/problems" ? (
+            <Link href="/problems" className={buttonVariants()}>
+              Browse problems
+            </Link>
+          ) : null}
+        </EmptyContent>
       </Empty>
     )
   }

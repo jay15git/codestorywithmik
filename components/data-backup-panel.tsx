@@ -24,6 +24,7 @@ function backupFilename() {
 }
 
 export function DataBackupPanel() {
+  const importStatusId = "backup-import-status"
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [pendingImport, setPendingImport] = useState<string | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
@@ -58,7 +59,8 @@ export function DataBackupPanel() {
         setPendingImport(String(reader.result))
         setImportError(null)
       } catch {
-        setImportError("Invalid backup file. Expected version 1 JSON.")
+        setImportError("Choose a valid LeetSeek backup JSON file.")
+        setStatusMessage(null)
         setPendingImport(null)
       }
     }
@@ -104,13 +106,14 @@ export function DataBackupPanel() {
         <Button
           type="button"
           variant="outline"
+          aria-describedby={importStatusId}
           onClick={() => fileInputRef.current?.click()}
         >
           Import backup
         </Button>
         <Button
           type="button"
-          variant="outline"
+          variant="destructive"
           onClick={() => setClearOpen(true)}
         >
           Clear local data
@@ -125,12 +128,18 @@ export function DataBackupPanel() {
         onChange={handleFileChange}
       />
 
-      {statusMessage ? (
-        <p className="text-sm text-muted-foreground">{statusMessage}</p>
-      ) : null}
-      {importError ? (
-        <p className="text-sm text-destructive">{importError}</p>
-      ) : null}
+      <div id={importStatusId} aria-live="polite">
+        {statusMessage ? (
+          <p role="status" className="text-sm text-muted-foreground">
+            {statusMessage}
+          </p>
+        ) : null}
+        {importError ? (
+          <p role="alert" className="text-sm text-destructive">
+            {importError}
+          </p>
+        ) : null}
+      </div>
 
       <Dialog
         open={pendingImport !== null}
@@ -154,8 +163,8 @@ export function DataBackupPanel() {
             >
               Cancel
             </Button>
-            <Button type="button" onClick={confirmImport}>
-              Replace all
+            <Button type="button" variant="destructive" onClick={confirmImport}>
+              Import and replace
             </Button>
           </DialogFooter>
         </DialogContent>

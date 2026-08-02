@@ -219,7 +219,9 @@
 
 /* Motion utility classes */
 .t-tactile,
-button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)) {
+button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)):not(
+    .t-static
+  ) {
   transform: scale(1);
   transform-origin: center;
   transition-property:
@@ -233,16 +235,16 @@ button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)) {
 @media (hover: hover) and (pointer: fine) {
   .t-tactile:not(:disabled):not([aria-disabled="true"]):hover,
   button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)):not(
-      :disabled
-    ):not([aria-disabled="true"]):hover {
+      .t-static
+    ):not(:disabled):not([aria-disabled="true"]):hover {
     transform: scale(var(--tactile-hover-scale));
   }
 }
 
 .t-tactile:not(:disabled):not([aria-disabled="true"]):active,
 button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)):not(
-    :disabled
-  ):not([aria-disabled="true"]):active {
+    .t-static
+  ):not(:disabled):not([aria-disabled="true"]):active {
   transform: scale(var(--tactile-press-scale));
   transition-duration: var(--tactile-press-dur);
 }
@@ -278,11 +280,15 @@ button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)):not(
   .t-skel-skeleton,
   .t-skel-content,
   .t-tactile,
-  button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)) {
+  button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)):not(
+      .t-static
+    ) {
     transition: none !important;
   }
   .t-tactile,
-  button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)) {
+  button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)):not(
+      .t-static
+    ) {
     transform: none !important;
     will-change: auto;
   }

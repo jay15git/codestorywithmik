@@ -3,6 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { FilteredCount } from "@/components/filtered-count"
+import { PageHeader } from "@/components/page-header"
 import { RandomProblemButton } from "@/components/random-problem-button"
 import { SolutionListNavProvider } from "@/components/solution-list-nav-provider"
 import {
@@ -17,7 +18,6 @@ import { buttonVariants } from "@/components/ui/button-variants"
 import { getSolutions } from "@/lib/content/get-content"
 import {
   getPattern,
-  getPatterns,
   getSolutionsForPattern,
   patternTopicHrefs,
 } from "@/lib/content/patterns"
@@ -32,10 +32,6 @@ interface PatternPageProps {
     status?: string
     tag?: string
   }>
-}
-
-export async function generateStaticParams() {
-  return getPatterns().map((pattern) => ({ slug: pattern.slug }))
 }
 
 export async function generateMetadata({
@@ -85,8 +81,16 @@ export default async function PatternPage({
     <SolutionViewProvider>
       <SolutionListNavProvider value={navParams}>
         <div className="flex flex-col gap-8">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex flex-col gap-3">
+          <PageHeader
+            title={pattern.name}
+            description={pattern.description}
+            actions={
+              <>
+                <RandomProblemButton solutions={solutions} />
+                <SolutionViewToggle />
+              </>
+            }
+          >
               <p className="text-sm text-muted-foreground">
                 <Link
                   href="/patterns"
@@ -94,12 +98,6 @@ export default async function PatternPage({
                 >
                   Patterns
                 </Link>
-              </p>
-              <h1 className="text-3xl font-semibold tracking-tight">
-                {pattern.name}
-              </h1>
-              <p className="max-w-2xl text-muted-foreground">
-                {pattern.description}
               </p>
               <FilteredCount
                 solutions={solutions}
@@ -120,12 +118,7 @@ export default async function PatternPage({
                   </Link>
                 ))}
               </div>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <RandomProblemButton solutions={solutions} />
-              <SolutionViewToggle />
-            </div>
-          </div>
+          </PageHeader>
 
           <div className="flex flex-wrap items-center gap-2">
             <StatusFilterDropdown

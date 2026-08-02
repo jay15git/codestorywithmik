@@ -29,10 +29,9 @@ export function StatusAwareStudyPlanGroups({
   const { map } = useSolutionProgress()
   const { assignments } = useSolutionTags()
 
-  const statuses: StatusFilterValue[] =
-    status === "all" ? [] : [status as StatusFilterValue]
-
   const visibleGroups = useMemo(() => {
+    const statuses: StatusFilterValue[] =
+      status === "all" ? [] : [status as StatusFilterValue]
     return groups
       .map((group) => {
         const solutions = group.solutions.filter((solution) =>
@@ -41,13 +40,13 @@ export function StatusAwareStudyPlanGroups({
             map,
             assignments,
             statuses,
-            tagIds,
-          ),
+            tagIds
+          )
         )
         return { name: group.name, solutions }
       })
       .filter((group) => group.solutions.length > 0)
-  }, [groups, statuses, tagIds, map, assignments])
+  }, [groups, status, tagIds, map, assignments])
 
   if (visibleGroups.length === 0) {
     return (
@@ -69,7 +68,7 @@ export function StatusAwareStudyPlanGroups({
           <section key={group.name} className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold tracking-tight">
               {group.name}
-              <span className="ml-2 text-sm font-normal tabular-nums text-muted-foreground">
+              <span className="ml-2 text-sm font-normal text-muted-foreground tabular-nums">
                 {group.solutions.length}
               </span>
             </h2>

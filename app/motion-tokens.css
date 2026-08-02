@@ -33,7 +33,7 @@
 
   /* Tactile controls */
   --tactile-hover-scale: 1.015;
-  --tactile-press-scale: 0.97;
+  --tactile-press-scale: 0.96;
   --tactile-dur: var(--duration-quick);
   --tactile-press-dur: var(--duration-micro);
   --tactile-ease: var(--ease-smooth-out);

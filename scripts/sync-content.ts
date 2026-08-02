@@ -2,7 +2,6 @@ import {
   cpSync,
   existsSync,
   mkdirSync,
-  readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs"
@@ -17,6 +16,7 @@ import {
   CONTENT_SUBMODULE_PATH,
   GENERATED_INDEX_PATH,
   GENERATED_SEARCH_INDEX_PATH,
+  GENERATED_SOLUTION_SLUGS_PATH,
   GENERATED_SOLUTIONS_PATH,
   ORIGINAL_REPO_SLUG,
   PUBLIC_SEARCH_INDEX_PATH,
@@ -244,15 +244,24 @@ async function run() {
 
   const searchIndex = buildSearchIndex(index.solutions, index.topics)
   const searchIndexPath = path.join(process.cwd(), GENERATED_SEARCH_INDEX_PATH)
+  const solutionSlugsPath = path.join(
+    process.cwd(),
+    GENERATED_SOLUTION_SLUGS_PATH,
+  )
   const publicSearchIndexPath = path.join(process.cwd(), PUBLIC_SEARCH_INDEX_PATH)
 
   mkdirSync(path.dirname(publicSearchIndexPath), { recursive: true })
 
   writeFileSync(indexPath, JSON.stringify(index, null, 2))
+  writeFileSync(
+    solutionSlugsPath,
+    JSON.stringify(index.solutions.map((solution) => solution.slug)),
+  )
   writeFileSync(searchIndexPath, JSON.stringify(searchIndex))
   writeFileSync(publicSearchIndexPath, JSON.stringify(searchIndex))
 
   console.log(`Wrote ${index.solutionCount} solutions to ${indexPath}`)
+  console.log(`Wrote solution slug manifest to ${solutionSlugsPath}`)
   console.log(`Wrote search index to ${searchIndexPath}`)
 }
 
