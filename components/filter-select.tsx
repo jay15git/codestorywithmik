@@ -86,7 +86,12 @@ export function FilterSelect({
           )
         }}
       </SelectTrigger>
-      <SelectContent className={cn("max-h-80", menuClassName)}>
+      <SelectContent
+        // Reserve menu width up front. Every row already reserves a checkmark
+        // slot, and this keeps the popup itself from resizing when selection
+        // state changes.
+        className={cn("w-64 min-w-64 max-w-64 max-h-80", menuClassName)}
+      >
         {options.map((option, index) => (
           <SelectItem key={option.value} value={option.value} index={index}>
             {option.label}
