@@ -2,7 +2,6 @@ import {
   SOLUTION_LANGUAGE_ORDER,
   type SolutionLanguage,
 } from "@/lib/content/solution-languages"
-import type { SolutionNotesMap } from "@/lib/notes/types"
 import {
   createDefaultTagState,
   migrateProgressFlagsToTags,
@@ -12,7 +11,6 @@ import type { LegacyProgressEntry, StudyBag, StudyBagV1, ViewMode } from "./type
 
 export const LEGACY_STORAGE_KEYS = {
   progress: "solution-progress-v1",
-  notes: "solution-notes-v1",
   language: "solution-language-v1",
   viewMode: "solution-view-mode",
 } as const
@@ -21,7 +19,6 @@ export function createEmptyStudyBag(): StudyBag {
   return {
     version: 2,
     progress: {},
-    notes: {},
     language: null,
     viewMode: "grid",
     tags: createDefaultTagState(),
@@ -68,7 +65,6 @@ export function migrateStudyBagV1ToV2(bag: StudyBagV1): StudyBag {
   return {
     version: 2,
     progress: migrated.progress,
-    notes: bag.notes,
     language: bag.language,
     viewMode: bag.viewMode,
     tags: {
@@ -85,7 +81,6 @@ export function buildStudyBagFromLegacyStorage(
   const v1Bag: StudyBagV1 = {
     version: 1,
     progress: {},
-    notes: {},
     language: null,
     viewMode: "grid",
   }
@@ -97,13 +92,6 @@ export function buildStudyBagFromLegacyStorage(
   if (progress) {
     v1Bag.progress = progress
     keysToRemove.push(LEGACY_STORAGE_KEYS.progress)
-  }
-
-  const notesRaw = getItem(LEGACY_STORAGE_KEYS.notes)
-  const notes = parseJsonRecord<SolutionNotesMap>(notesRaw)
-  if (notes) {
-    v1Bag.notes = notes
-    keysToRemove.push(LEGACY_STORAGE_KEYS.notes)
   }
 
   const languageRaw = getItem(LEGACY_STORAGE_KEYS.language)

@@ -24,7 +24,6 @@ describe("tag migrate", () => {
         "two-sum": { solved: true, starred: true },
         "three-sum": { starred: true },
       } satisfies Record<string, LegacyProgressEntry>,
-      notes: {},
       language: null,
       viewMode: "grid",
     })

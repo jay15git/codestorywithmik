@@ -4,7 +4,6 @@ import {
   SOLUTION_LANGUAGE_ORDER,
   type SolutionLanguage,
 } from "@/lib/content/solution-languages"
-import type { SolutionNotesMap } from "@/lib/notes/types"
 import type { SolutionProgressMap } from "@/lib/progress/types"
 import { coerceTagState } from "@/lib/tags/migrate"
 
@@ -87,10 +86,6 @@ function coerceProgressMap(value: unknown): SolutionProgressMap {
   return result
 }
 
-function coerceNotesMap(value: unknown): SolutionNotesMap {
-  return isRecord(value) ? (value as SolutionNotesMap) : {}
-}
-
 function coerceLanguage(value: unknown): SolutionLanguage | null {
   if (typeof value !== "string") {
     return null
@@ -120,7 +115,6 @@ function normalizeStudyBag(json: unknown): StudyBag {
     return {
       version: 2,
       progress: coerceProgressMap(json.progress),
-      notes: coerceNotesMap(json.notes),
       language: coerceLanguage(json.language),
       viewMode: coerceViewMode(json.viewMode),
       tags: coerceTagState(json.tags),
@@ -130,7 +124,6 @@ function normalizeStudyBag(json: unknown): StudyBag {
   const v1: StudyBagV1 = {
     version: 1,
     progress: coerceLegacyProgressMap(json.progress),
-    notes: coerceNotesMap(json.notes),
     language: coerceLanguage(json.language),
     viewMode: coerceViewMode(json.viewMode),
   }

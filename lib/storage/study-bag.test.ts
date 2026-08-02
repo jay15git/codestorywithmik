@@ -23,12 +23,6 @@ describe("study bag migrate", () => {
         LEGACY_STORAGE_KEYS.progress,
         JSON.stringify({ "two-sum": { solved: true } }),
       ],
-      [
-        LEGACY_STORAGE_KEYS.notes,
-        JSON.stringify({
-          "two-sum": { markdown: "note", updatedAt: "2026-01-01T00:00:00.000Z" },
-        }),
-      ],
       [LEGACY_STORAGE_KEYS.language, "python"],
       [LEGACY_STORAGE_KEYS.viewMode, "list"],
     ])
@@ -39,10 +33,9 @@ describe("study bag migrate", () => {
 
     assert.equal(bag.version, 2)
     assert.equal(bag.progress["two-sum"]?.solved, true)
-    assert.equal(bag.notes["two-sum"]?.markdown, "note")
     assert.equal(bag.language, "python")
     assert.equal(bag.viewMode, "list")
-    assert.equal(keysToRemove.length, 4)
+    assert.equal(keysToRemove.length, 3)
     assert.equal(hasLegacyStudyData((key) => storage.get(key) ?? null), true)
   })
 
@@ -58,7 +51,6 @@ describe("study bag", () => {
     const bag = parseStudyBackup({
       version: 2,
       progress: { a: { solved: true } },
-      notes: {},
       language: "java",
       viewMode: "list",
       tags: {
@@ -79,7 +71,6 @@ describe("study bag", () => {
     const bag = parseStudyBackup({
       version: 1,
       progress: { bar: { starred: true } },
-      notes: {},
       language: null,
       viewMode: "grid",
     })
@@ -108,7 +99,6 @@ describe("study bag", () => {
     replaceStudyBag({
       version: 2,
       progress: {},
-      notes: {},
       language: null,
       viewMode: "grid",
       tags: {

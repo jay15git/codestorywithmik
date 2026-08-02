@@ -16,7 +16,6 @@ import {
   SolutionCodeSectionFallback,
 } from "@/components/solution-code-section"
 import { SolutionNeighborsNav } from "@/components/solution-neighbors-nav"
-import { SolutionNotes } from "@/components/solution-notes"
 import { SolutionStatusControls } from "@/components/solution-status-controls"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { sortCompanyTags } from "@/lib/content/sort-company-tags"
@@ -181,8 +180,6 @@ export default async function SolutionPage({
       <Suspense fallback={<SolutionCodeSectionFallback />}>
         <SolutionCodeSection slug={meta.slug} initialLang={initialLang} />
       </Suspense>
-
-      <SolutionNotes slug={meta.slug} />
 
       <RelatedSolutions solutions={related} />
     </div>
