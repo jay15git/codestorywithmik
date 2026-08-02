@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   Children,
@@ -13,16 +13,16 @@ import {
   useContext,
   type ReactNode,
   type HTMLAttributes,
-} from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { cva, type VariantProps } from "class-variance-authority";
-import { Select as SelectPrimitive } from "@base-ui/react/select";
-import type { IconComponent } from "@/lib/icon-context";
-import { cn } from "@/lib/utils";
-import { spring, exitFallbackMs } from "@/lib/springs";
-import { useProximityHover } from "@/hooks/use-proximity-hover";
-import { useShape } from "@/lib/shape-context";
-import { Elevated } from "@/lib/elevated";
+} from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { cva, type VariantProps } from "class-variance-authority"
+import { Select as SelectPrimitive } from "@base-ui/react/select"
+import type { IconComponent } from "@/lib/icon-context"
+import { cn } from "@/lib/utils"
+import { spring, exitFallbackMs } from "@/lib/springs"
+import { useProximityHover } from "@/hooks/use-proximity-hover"
+import { useShape } from "@/lib/shape-context"
+import { Elevated } from "@/lib/elevated"
 
 // ---------------------------------------------------------------------------
 // Select context
@@ -39,54 +39,56 @@ import { Elevated } from "@/lib/elevated";
 // acknowledgment — the checkmark drawing in and the selected background
 // springing to the picked row — is visible instead of being cut off by the
 // ~60ms close fade. Escape and outside presses still close immediately.
-const selectionAckMs = 300;
+const selectionAckMs = 300
 
 interface SelectContextValue {
-  value: string | string[];
-  multiple: boolean;
-  open: boolean;
-  actionsRef: React.RefObject<{ unmount: () => void } | null>;
+  value: string | string[]
+  multiple: boolean
+  open: boolean
+  actionsRef: React.RefObject<{ unmount: () => void } | null>
 }
 
-const SelectContext = createContext<SelectContextValue | null>(null);
+const SelectContext = createContext<SelectContextValue | null>(null)
 
 function useSelectContext() {
-  const ctx = useContext(SelectContext);
-  if (!ctx) throw new Error("Select compound components must be inside <Select>");
-  return ctx;
+  const ctx = useContext(SelectContext)
+  if (!ctx)
+    throw new Error("Select compound components must be inside <Select>")
+  return ctx
 }
 
 function isValueChecked(selected: string | string[], itemValue: string) {
   return Array.isArray(selected)
     ? selected.includes(itemValue)
-    : selected === itemValue;
+    : selected === itemValue
 }
 
 // Content context for proximity hover
 interface SelectContentContextValue {
-  registerItem: (index: number, element: HTMLElement | null) => void;
-  activeIndex: number | null;
-  checkedIndex?: number;
+  registerItem: (index: number, element: HTMLElement | null) => void
+  activeIndex: number | null
+  checkedIndex?: number
 }
 
-const SelectContentContext =
-  createContext<SelectContentContextValue | null>(null);
+const SelectContentContext = createContext<SelectContentContextValue | null>(
+  null
+)
 
 // ---------------------------------------------------------------------------
 // Select (root)
 // ---------------------------------------------------------------------------
 
 interface SelectProps {
-  children: ReactNode;
-  value?: string | string[];
-  defaultValue?: string | string[];
-  onValueChange?: (value: string | string[]) => void;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  multiple?: boolean;
-  disabled?: boolean;
-  name?: string;
-  required?: boolean;
+  children: ReactNode
+  value?: string | string[]
+  defaultValue?: string | string[]
+  onValueChange?: (value: string | string[]) => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  multiple?: boolean
+  disabled?: boolean
+  name?: string
+  required?: boolean
 }
 
 /**
@@ -101,19 +103,19 @@ function collectSelectItems(
   out: { value: string; label: ReactNode }[] = []
 ) {
   Children.forEach(node, (child) => {
-    if (!isValidElement(child)) return;
-    const props = child.props as { value?: unknown; children?: ReactNode };
+    if (!isValidElement(child)) return
+    const props = child.props as { value?: unknown; children?: ReactNode }
     if (typeof props.value === "string") {
       out.push({
         value: props.value,
         label:
           typeof props.children === "string" ? props.children : props.value,
-      });
+      })
     } else if (props.children) {
-      collectSelectItems(props.children, out);
+      collectSelectItems(props.children, out)
     }
-  });
-  return out;
+  })
+  return out
 }
 
 function Select({
@@ -130,21 +132,21 @@ function Select({
 }: SelectProps) {
   const [internalValue, setInternalValue] = useState<string | string[]>(
     defaultValue ?? (multiple ? [] : "")
-  );
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
-  const actionsRef = useRef<{ unmount: () => void } | null>(null);
-  const currentValue = value !== undefined ? value : internalValue;
-  const open = openProp !== undefined ? openProp : uncontrolledOpen;
+  )
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
+  const actionsRef = useRef<{ unmount: () => void } | null>(null)
+  const currentValue = value !== undefined ? value : internalValue
+  const open = openProp !== undefined ? openProp : uncontrolledOpen
 
-  const items = useMemo(() => collectSelectItems(children), [children]);
+  const items = useMemo(() => collectSelectItems(children), [children])
 
   const setOpen = useCallback(
     (next: boolean) => {
-      if (openProp === undefined) setUncontrolledOpen(next);
-      onOpenChange?.(next);
+      if (openProp === undefined) setUncontrolledOpen(next)
+      onOpenChange?.(next)
     },
     [openProp, onOpenChange]
-  );
+  )
 
   const handleValueChange = useCallback(
     (next: string | string[] | null) => {
@@ -152,21 +154,21 @@ function Select({
         ? Array.isArray(next)
           ? next
           : []
-        : ((next ?? "") as string);
-      if (value === undefined) setInternalValue(v);
-      onValueChange?.(v);
+        : ((next ?? "") as string)
+      if (value === undefined) setInternalValue(v)
+      onValueChange?.(v)
     },
     [value, onValueChange, multiple]
-  );
+  )
 
-  const ackTimeoutRef = useRef<number | null>(null);
+  const ackTimeoutRef = useRef<number | null>(null)
   const cancelAckClose = useCallback(() => {
     if (ackTimeoutRef.current !== null) {
-      clearTimeout(ackTimeoutRef.current);
-      ackTimeoutRef.current = null;
+      clearTimeout(ackTimeoutRef.current)
+      ackTimeoutRef.current = null
     }
-  }, []);
-  useEffect(() => cancelAckClose, [cancelAckClose]);
+  }, [])
+  useEffect(() => cancelAckClose, [cancelAckClose])
 
   // Picking an item acknowledges before closing: the close is deferred by
   // selectionAckMs so the checkmark draw and the selected background's spring
@@ -176,28 +178,24 @@ function Select({
   // Multiple mode stays open on item-press so users can toggle several rows.
   const handleOpenChange = useCallback(
     (nextOpen: boolean, eventDetails: { reason: string }) => {
-      if (
-        !multiple &&
-        !nextOpen &&
-        eventDetails.reason === "item-press"
-      ) {
-        cancelAckClose();
+      if (!multiple && !nextOpen && eventDetails.reason === "item-press") {
+        cancelAckClose()
         ackTimeoutRef.current = window.setTimeout(() => {
-          ackTimeoutRef.current = null;
-          setOpen(false);
-        }, selectionAckMs);
-        return;
+          ackTimeoutRef.current = null
+          setOpen(false)
+        }, selectionAckMs)
+        return
       }
-      cancelAckClose();
-      setOpen(nextOpen);
+      cancelAckClose()
+      setOpen(nextOpen)
     },
     [cancelAckClose, multiple, setOpen]
-  );
+  )
 
   const ctx = useMemo(
     () => ({ value: currentValue, multiple, open, actionsRef }),
     [currentValue, multiple, open]
-  );
+  )
 
   const rootValue = multiple
     ? Array.isArray(currentValue)
@@ -205,7 +203,7 @@ function Select({
       : []
     : currentValue === ""
       ? null
-      : currentValue;
+      : currentValue
 
   return (
     <SelectContext.Provider value={ctx}>
@@ -228,10 +226,10 @@ function Select({
         {children}
       </SelectPrimitive.Root>
     </SelectContext.Provider>
-  );
+  )
 }
 
-Select.displayName = "Select";
+Select.displayName = "Select"
 
 // ---------------------------------------------------------------------------
 // SelectTrigger
@@ -239,10 +237,10 @@ Select.displayName = "Select";
 
 const triggerVariants = cva(
   [
-    "group inline-flex items-center justify-between gap-2 outline-none cursor-pointer",
-    "text-[13px] h-9 px-3 min-w-[160px]",
+    "t-tactile group inline-flex cursor-pointer items-center justify-between gap-2 outline-none",
+    "h-9 min-w-[160px] px-3 text-[13px]",
     "transition-all duration-80",
-    "disabled:opacity-50 disabled:pointer-events-none",
+    "disabled:pointer-events-none disabled:opacity-50",
     "focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)]",
   ],
   {
@@ -258,15 +256,16 @@ const triggerVariants = cva(
       variant: "bordered",
     },
   }
-);
+)
 
 interface SelectTriggerProps
-  extends Omit<HTMLAttributes<HTMLButtonElement>, "children">,
+  extends
+    Omit<HTMLAttributes<HTMLButtonElement>, "children">,
     VariantProps<typeof triggerVariants> {
-  icon?: IconComponent;
-  placeholder?: string;
-  error?: string;
-  children?: ReactNode | ((value: string | string[]) => ReactNode);
+  icon?: IconComponent
+  placeholder?: string
+  error?: string
+  children?: ReactNode | ((value: string | string[]) => ReactNode)
 }
 
 const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
@@ -282,12 +281,13 @@ const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
     },
     ref
   ) => {
-    const shape = useShape();
+    const shape = useShape()
 
     return (
       <div className="flex flex-col gap-1">
         <SelectPrimitive.Trigger
           ref={ref}
+          data-slot="select-trigger"
           aria-invalid={!!error || undefined}
           data-cuelume-press=""
           data-cuelume-release=""
@@ -299,12 +299,12 @@ const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
           )}
           {...props}
         >
-          <span className="flex items-center gap-2 min-w-0 flex-1">
+          <span className="flex min-w-0 flex-1 items-center gap-2">
             {Icon && (
               <Icon
                 size={16}
                 strokeWidth={1.5}
-                className="shrink-0 text-muted-foreground transition-[color,stroke-width] duration-80 group-hover:text-foreground group-hover:stroke-[2]"
+                className="shrink-0 text-muted-foreground transition-[color,stroke-width] duration-80 group-hover:stroke-[2] group-hover:text-foreground"
               />
             )}
             <SelectPrimitive.Value
@@ -313,7 +313,7 @@ const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
               // box, and the trimmed box excludes ascenders/descenders — the
               // padding gives glyphs room while the negative margin keeps the
               // trimmed layout box.
-              className="min-w-0 flex-1 text-left truncate [text-box:trim-both_cap_alphabetic] py-1 -my-1 data-[placeholder]:text-muted-foreground"
+              className="-my-1 min-w-0 flex-1 truncate py-1 text-left [text-box:trim-both_cap_alphabetic] data-[placeholder]:text-muted-foreground"
             >
               {children}
             </SelectPrimitive.Value>
@@ -334,29 +334,29 @@ const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
           </svg>
         </SelectPrimitive.Trigger>
         {error && (
-          <span className="text-[12px] text-destructive pl-3">{error}</span>
+          <span className="pl-3 text-[12px] text-destructive">{error}</span>
         )}
       </div>
-    );
+    )
   }
-);
+)
 
-SelectTrigger.displayName = "SelectTrigger";
+SelectTrigger.displayName = "SelectTrigger"
 
 // ---------------------------------------------------------------------------
 // SelectContent
 // ---------------------------------------------------------------------------
 
 interface SelectContentProps {
-  className?: string;
-  children: ReactNode;
+  className?: string
+  children: ReactNode
 }
 
 const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
   ({ className, children }, ref) => {
-    const { open, value, multiple, actionsRef } = useSelectContext();
-    const shape = useShape();
-    const containerRef = useRef<HTMLDivElement>(null);
+    const { open, value, multiple, actionsRef } = useSelectContext()
+    const shape = useShape()
+    const containerRef = useRef<HTMLDivElement>(null)
 
     const {
       activeIndex,
@@ -367,12 +367,12 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
       handlers,
       registerItem,
       remeasure,
-    } = useProximityHover(containerRef);
+    } = useProximityHover(containerRef)
 
-    const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+    const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
     const [checkedIndex, setCheckedIndex] = useState<number | undefined>(
       undefined
-    );
+    )
 
     // Release Base UI's deferred unmount once the exit tween has played.
     // onAnimationComplete on the motion.div is the primary signal; this
@@ -380,13 +380,13 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     // animation callbacks can stall. The popup exits with spring.fast, so the
     // fallback tracks that tier's exit duration plus a safety buffer.
     useEffect(() => {
-      if (open) return;
+      if (open) return
       const id = setTimeout(
         () => actionsRef.current?.unmount(),
         exitFallbackMs(spring.fast)
-      );
-      return () => clearTimeout(id);
-    }, [open, actionsRef]);
+      )
+      return () => clearTimeout(id)
+    }, [open, actionsRef])
 
     // Fresh rects once per open. Measuring is the hook's job — it owns the
     // one coalesced pass that item registration and container resizes both
@@ -395,9 +395,9 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     // registered while it sits hidden between opens, so registration alone
     // would never trigger a fresh pass on reopen.
     useEffect(() => {
-      if (!open) return;
-      remeasure();
-    }, [open, remeasure]);
+      if (!open) return
+      remeasure()
+    }, [open, remeasure])
 
     // Detect the checked row. Deliberately does NOT remeasure on a value
     // change while open: the rows haven't moved, so the published rects stay
@@ -407,30 +407,30 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     // Multiple mode uses per-item checkmarks only (no single selected bg).
     useEffect(() => {
       if (!open || multiple) {
-        if (multiple) setCheckedIndex(undefined);
-        return;
+        if (multiple) setCheckedIndex(undefined)
+        return
       }
       // Double rAF: first waits for React commit, second for layout
-      let inner: number;
+      let inner: number
       const outer = requestAnimationFrame(() => {
         inner = requestAnimationFrame(() => {
-          const container = containerRef.current;
+          const container = containerRef.current
           if (container) {
             const items = Array.from(
               container.querySelectorAll("[data-proximity-index]")
-            ) as HTMLElement[];
+            ) as HTMLElement[]
             const idx = items.findIndex(
               (el) => el.getAttribute("data-value") === value
-            );
-            setCheckedIndex(idx !== -1 ? idx : undefined);
+            )
+            setCheckedIndex(idx !== -1 ? idx : undefined)
           }
-        });
-      });
+        })
+      })
       return () => {
-        cancelAnimationFrame(outer);
-        cancelAnimationFrame(inner);
-      };
-    }, [open, value, multiple]);
+        cancelAnimationFrame(outer)
+        cancelAnimationFrame(inner)
+      }
+    }, [open, value, multiple])
 
     // Reset every overlay index as the close begins. checkedIndex otherwise
     // lags one open behind value (picking an item closes the popup before the
@@ -439,26 +439,26 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     // pill would still be sitting on the previously active row and spring from
     // there to the row that auto-focus lands on.
     useEffect(() => {
-      if (open) return;
-      setCheckedIndex(undefined);
-      setActiveIndex(null);
-      setFocusedIndex(null);
-    }, [open, setActiveIndex]);
+      if (open) return
+      setCheckedIndex(undefined)
+      setActiveIndex(null)
+      setFocusedIndex(null)
+    }, [open, setActiveIndex])
 
     // Overlays read rects only once the hook reports the item set fully
     // measured. Positioning one from an incomplete pass mounts it at the wrong
     // row, and the correcting pass then springs it across the list.
     const activeRect =
-      isMeasured && activeIndex !== null ? itemRects[activeIndex] : null;
+      isMeasured && activeIndex !== null ? itemRects[activeIndex] : null
     const checkedRect =
-      isMeasured && checkedIndex != null ? itemRects[checkedIndex] : null;
+      isMeasured && checkedIndex != null ? itemRects[checkedIndex] : null
     const focusRect =
-      isMeasured && focusedIndex !== null ? itemRects[focusedIndex] : null;
+      isMeasured && focusedIndex !== null ? itemRects[focusedIndex] : null
 
     const contentCtx = useMemo(
       () => ({ registerItem, activeIndex, checkedIndex }),
       [registerItem, activeIndex, checkedIndex]
-    );
+    )
 
     return (
       <SelectPrimitive.Portal>
@@ -481,7 +481,7 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
             // Base UI defers unmount while actionsRef is set; release it once
             // the exit spring has finished so the close animation fully plays.
             onAnimationComplete={() => {
-              if (!open) actionsRef.current?.unmount();
+              if (!open) actionsRef.current?.unmount()
             }}
           >
             <SelectContentContext.Provider value={contentCtx}>
@@ -491,47 +491,47 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                     offset={2}
                     shadowLevel={3}
                     ref={(node: HTMLDivElement | null) => {
-                      (
+                      ;(
                         containerRef as React.MutableRefObject<HTMLDivElement | null>
-                      ).current = node;
-                      if (typeof ref === "function") ref(node);
+                      ).current = node
+                      if (typeof ref === "function") ref(node)
                       else if (ref)
                         (
                           ref as React.MutableRefObject<HTMLDivElement | null>
-                        ).current = node;
+                        ).current = node
                     }}
                   />
                 }
                 onMouseEnter={() => {
-                  handlers.onMouseEnter();
-                  setFocusedIndex(null);
+                  handlers.onMouseEnter()
+                  setFocusedIndex(null)
                 }}
                 onMouseMove={handlers.onMouseMove}
                 onMouseLeave={handlers.onMouseLeave}
                 onFocus={(e) => {
                   const indexAttr = (e.target as HTMLElement)
                     .closest("[data-proximity-index]")
-                    ?.getAttribute("data-proximity-index");
+                    ?.getAttribute("data-proximity-index")
                   if (indexAttr != null) {
-                    const idx = Number(indexAttr);
-                    setActiveIndex(idx);
+                    const idx = Number(indexAttr)
+                    setActiveIndex(idx)
                     setFocusedIndex(
                       (e.target as HTMLElement).matches(":focus-visible")
                         ? idx
                         : null
-                    );
+                    )
                   }
                 }}
                 onBlur={(e) => {
                   if (containerRef.current?.contains(e.relatedTarget as Node))
-                    return;
-                  setFocusedIndex(null);
-                  setActiveIndex(null);
+                    return
+                  setFocusedIndex(null)
+                  setActiveIndex(null)
                 }}
                 className={cn(
                   // min-w tracks the trigger via the Positioner's --anchor-width
                   // var, matching the pre-migration minWidth: triggerRect.width.
-                  `relative flex flex-col gap-0.5 min-w-[var(--anchor-width)] max-h-[min(300px,var(--available-height))] overflow-y-auto ${shape.container} p-1 select-none outline-none`,
+                  `relative flex max-h-[min(300px,var(--available-height))] min-w-[var(--anchor-width)] flex-col gap-0.5 overflow-y-auto ${shape.container} p-1 outline-none select-none`,
                   className
                 )}
               >
@@ -546,7 +546,7 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                   <AnimatePresence>
                     {checkedRect && (
                       <motion.div
-                        className={`absolute ${shape.bg} bg-active pointer-events-none`}
+                        className={`absolute ${shape.bg} pointer-events-none bg-active`}
                         // Position lives in `animate` so an in-session value
                         // change springs the marker to the picked row (the
                         // selection acknowledgment). Safe against the reopen
@@ -577,7 +577,7 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                     {activeRect && (
                       <motion.div
                         key={sessionRef.current}
-                        className={`absolute ${shape.bg} bg-hover pointer-events-none`}
+                        className={`absolute ${shape.bg} pointer-events-none bg-hover`}
                         initial={{
                           opacity: 0,
                           top: activeRect.top,
@@ -631,21 +631,21 @@ const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
           </motion.div>
         </SelectPrimitive.Positioner>
       </SelectPrimitive.Portal>
-    );
+    )
   }
-);
+)
 
-SelectContent.displayName = "SelectContent";
+SelectContent.displayName = "SelectContent"
 
 // ---------------------------------------------------------------------------
 // SelectItem
 // ---------------------------------------------------------------------------
 
 interface SelectItemProps extends HTMLAttributes<HTMLDivElement> {
-  icon?: IconComponent;
-  index: number;
-  value: string;
-  disabled?: boolean;
+  icon?: IconComponent
+  index: number
+  value: string
+  disabled?: boolean
 }
 
 const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
@@ -661,31 +661,31 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
     },
     ref
   ) => {
-    const selectCtx = useSelectContext();
-    const contentCtx = useContext(SelectContentContext);
-    const internalRef = useRef<HTMLDivElement>(null);
-    const shape = useShape();
-    const hasMounted = useRef(false);
+    const selectCtx = useSelectContext()
+    const contentCtx = useContext(SelectContentContext)
+    const internalRef = useRef<HTMLDivElement>(null)
+    const shape = useShape()
+    const hasMounted = useRef(false)
 
     useEffect(() => {
-      hasMounted.current = true;
-    }, []);
+      hasMounted.current = true
+    }, [])
 
     // Register with proximity hover. Depends on the (stable) registerItem
     // rather than the content context, which is rebuilt on every activeIndex
     // change: keying the effect to the whole context re-ran it per mousemove,
     // unregistering and re-registering every row and so keeping the hook's
     // measurement permanently unsettled while the pointer moved.
-    const registerItem = contentCtx?.registerItem;
+    const registerItem = contentCtx?.registerItem
     useEffect(() => {
-      if (!registerItem) return;
-      registerItem(index, internalRef.current);
-      return () => registerItem(index, null);
-    }, [index, registerItem]);
+      if (!registerItem) return
+      registerItem(index, internalRef.current)
+      return () => registerItem(index, null)
+    }, [index, registerItem])
 
-    const isActive = contentCtx?.activeIndex === index;
-    const isChecked = isValueChecked(selectCtx.value, value);
-    const skipAnimation = !hasMounted.current;
+    const isActive = contentCtx?.activeIndex === index
+    const isChecked = isValueChecked(selectCtx.value, value)
+    const skipAnimation = !hasMounted.current
 
     return (
       <SelectPrimitive.Item
@@ -695,13 +695,13 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
         render={
           <div
             ref={(node: HTMLDivElement | null) => {
-              (
+              ;(
                 internalRef as React.MutableRefObject<HTMLDivElement | null>
-              ).current = node;
-              if (typeof ref === "function") ref(node);
+              ).current = node
+              if (typeof ref === "function") ref(node)
               else if (ref)
                 (ref as React.MutableRefObject<HTMLDivElement | null>).current =
-                  node;
+                  node
             }}
             data-proximity-index={index}
             data-value={value}
@@ -711,12 +711,12 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
               // the text-box trim on the item text doesn't shrink the row.
               // shrink-0: the popup is a max-height flex column, so without it
               // a long list compresses rows to fit instead of scrolling.
-              `relative z-10 flex h-9 shrink-0 items-center gap-2 ${shape.item} px-2 text-[13px] cursor-pointer outline-none select-none`,
+              `relative z-10 flex h-9 shrink-0 items-center gap-2 overflow-hidden ${shape.item} cursor-pointer px-2 text-[13px] outline-none select-none`,
               "transition-[color] duration-80",
               isActive || isChecked
                 ? "text-foreground"
                 : "text-muted-foreground",
-              disabled && "opacity-50 pointer-events-none",
+              disabled && "pointer-events-none opacity-50",
               className
             )}
             {...props}
@@ -734,7 +734,9 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
         <SelectPrimitive.ItemText
           // py-1/-my-1 keeps truncate's overflow:hidden from clipping
           // ascenders/descenders outside the trimmed box.
-          render={<span className="flex-1 min-w-0 truncate [text-box:trim-both_cap_alphabetic] py-1 -my-1" />}
+          render={
+            <span className="-my-1 min-w-0 flex-1 truncate py-1 [text-box:trim-both_cap_alphabetic]" />
+          }
         >
           {children}
         </SelectPrimitive.ItemText>
@@ -742,7 +744,7 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
         {/* Always-rendered fixed slot so the check appearing/disappearing
             never changes the row's intrinsic width — without it the whole
             popup resizes when a selection lands. */}
-        <span aria-hidden className="shrink-0 w-4 h-4">
+        <span aria-hidden className="grid size-4 shrink-0 place-items-center">
           <AnimatePresence>
             {isChecked && (
               <motion.svg
@@ -755,7 +757,7 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
                 strokeWidth={2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="text-foreground"
+                className="size-4 text-foreground"
                 initial={{ opacity: 1 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 1 }}
@@ -777,11 +779,11 @@ const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
           </AnimatePresence>
         </span>
       </SelectPrimitive.Item>
-    );
+    )
   }
-);
+)
 
-SelectItem.displayName = "SelectItem";
+SelectItem.displayName = "SelectItem"
 
 // ---------------------------------------------------------------------------
 // SelectGroup + SelectLabel + SelectSeparator
@@ -796,25 +798,25 @@ function SelectGroup({
     <div role="group" className={className} {...props}>
       {children}
     </div>
-  );
+  )
 }
 
-SelectGroup.displayName = "SelectGroup";
+SelectGroup.displayName = "SelectGroup"
 
 const SelectLabel = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        "px-2 py-1.5 shrink-0 text-[11px] text-muted-foreground",
+        "shrink-0 px-2 py-1.5 text-[11px] text-muted-foreground",
         className
       )}
       {...props}
     />
   )
-);
+)
 
-SelectLabel.displayName = "SelectLabel";
+SelectLabel.displayName = "SelectLabel"
 
 const SelectSeparator = forwardRef<
   HTMLDivElement,
@@ -823,12 +825,12 @@ const SelectSeparator = forwardRef<
   <div
     ref={ref}
     role="separator"
-    className={cn("my-1 -mx-1 h-px shrink-0 bg-border/60", className)}
+    className={cn("-mx-1 my-1 h-px shrink-0 bg-border/60", className)}
     {...props}
   />
-));
+))
 
-SelectSeparator.displayName = "SelectSeparator";
+SelectSeparator.displayName = "SelectSeparator"
 
 // ---------------------------------------------------------------------------
 // Exports
@@ -843,6 +845,11 @@ export {
   SelectLabel,
   SelectSeparator,
   triggerVariants,
-};
+}
 
-export type { SelectProps, SelectTriggerProps, SelectContentProps, SelectItemProps };
+export type {
+  SelectProps,
+  SelectTriggerProps,
+  SelectContentProps,
+  SelectItemProps,
+}

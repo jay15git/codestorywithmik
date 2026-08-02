@@ -21,7 +21,7 @@ export const STUDY_PLAN_DEFINITIONS: StudyPlanDefinition[] = [
     slug: "blind-75",
     name: "Blind 75",
     description:
-      "Classic high-signal interview set — arrays through DP, in NeetCode Blind 75 order.",
+      "Classic interview set covering arrays through DP, in NeetCode Blind 75 order.",
     groups: [
       {
         name: "Arrays & Hashing",
@@ -55,7 +55,7 @@ export const STUDY_PLAN_DEFINITIONS: StudyPlanDefinition[] = [
     slug: "neetcode-150",
     name: "NeetCode 150",
     description:
-      "Broader roadmap covering Blind 75 plus extras across every major pattern.",
+      "Broader roadmap: Blind 75 plus extras across major patterns.",
     groups: [
       {
         name: "Arrays & Hashing",
@@ -125,7 +125,7 @@ export const STUDY_PLAN_DEFINITIONS: StudyPlanDefinition[] = [
     slug: "neetcode-250",
     name: "NeetCode 250",
     description:
-      "NeetCode 150 plus 100 more — beginner-friendly coverage across every major pattern.",
+      "NeetCode 150 plus 100 more, with broader beginner-friendly coverage.",
     groups: [
       {
         name: "Arrays & Hashing",

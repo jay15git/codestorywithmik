@@ -49,7 +49,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${pattern.name} — Patterns`,
+    title: pattern.name,
     description: pattern.description,
   }
 }

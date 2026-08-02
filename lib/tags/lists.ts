@@ -47,7 +47,7 @@ export function getListTitle(tagId: string, tag: UserTag | null): string {
 
 export function getListDescription(tagId: string, tag: UserTag | null): string {
   if (tagId === ALL_SAVED_LIST_ID) {
-    return "Every problem you tagged from Save on a solution page."
+    return "Every problem you tagged on a solution page."
   }
   if (tag?.kind === "default") {
     return `Problems tagged ${tag.name}.`

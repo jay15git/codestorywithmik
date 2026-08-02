@@ -1,10 +1,7 @@
 "use client"
 
-import {
-  CheckIcon,
-  RotateCcwIcon,
-  StarIcon,
-} from "lucide-react"
+import { CheckIcon, RotateCcwIcon, StarIcon } from "lucide-react"
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 
 import { SolutionSaveTagsDialog } from "@/components/solution-save-tags-dialog"
 import { useSolutionProgress } from "@/components/solution-progress-provider"
@@ -20,6 +17,10 @@ import { Badge } from "@/components/ui/badge"
 import { REVISIT_TAG_ID, STARRED_TAG_ID } from "@/lib/tags/constants"
 import { cn } from "@/lib/utils"
 
+const stateSwap = { duration: 0.15, ease: "easeOut" as const }
+const stateSwapHidden = { opacity: 0, filter: "blur(2px)" }
+const stateSwapVisible = { opacity: 1, filter: "blur(0px)" }
+
 export function SolutionStatusControls({
   slug,
   className,
@@ -30,6 +31,8 @@ export function SolutionStatusControls({
   const { hasFlag, toggleFlag } = useSolutionProgress()
 
   const solved = hasFlag(slug, "solved")
+  const reduceMotion = useReducedMotion()
+  const transition = reduceMotion ? { duration: 0 } : stateSwap
 
   return (
     <TooltipProvider>
@@ -41,16 +44,29 @@ export function SolutionStatusControls({
                 type="button"
                 variant={solved ? "default" : "outline"}
                 size="sm"
+                className={cn(
+                  "t-resize",
+                  solved ? "w-[5.25rem]" : "w-[6.5rem]"
+                )}
                 aria-pressed={solved}
-                aria-label={
-                  solved ? "Unset solved" : "Mark as solved"
-                }
+                aria-label={solved ? "Unset solved" : "Mark as solved"}
                 onClick={() => toggleFlag(slug, "solved")}
               />
             }
           >
-            <CheckIcon data-icon="inline-start" />
-            Solved
+            <AnimatePresence initial={false} mode="wait">
+              <motion.span
+                key={solved ? "solved" : "mark-solved"}
+                className="inline-flex items-center gap-1"
+                initial={stateSwapHidden}
+                animate={stateSwapVisible}
+                exit={stateSwapHidden}
+                transition={transition}
+              >
+                {solved ? <CheckIcon data-icon="inline-start" /> : null}
+                {solved ? "Solved" : "Mark solved"}
+              </motion.span>
+            </AnimatePresence>
           </TooltipTrigger>
           <TooltipContent>
             {solved ? "Remove solved" : "Mark as solved"}

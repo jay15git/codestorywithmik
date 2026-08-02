@@ -46,7 +46,7 @@ function computeVisibleCount(
   itemWidths: readonly number[],
   containerWidth: number,
   moreWidthForOverflow: (overflowCount: number) => number,
-  hardCap?: number,
+  hardCap?: number
 ): number {
   const total = itemWidths.length
   if (total === 0) {
@@ -57,7 +57,10 @@ function computeVisibleCount(
     typeof hardCap === "number" ? Math.min(hardCap, total) : total
 
   // Hard cap below total always needs a more chip for the rest.
-  if (cappedTotal >= total && sumItemWidths(itemWidths, total) <= containerWidth) {
+  if (
+    cappedTotal >= total &&
+    sumItemWidths(itemWidths, total) <= containerWidth
+  ) {
     return total
   }
 
@@ -87,7 +90,7 @@ function moreWidthByDigits(
   measureLabel: HTMLElement,
   measureButton: HTMLElement,
   overflowCount: number,
-  cache: Map<number, number>,
+  cache: Map<number, number>
 ): number {
   const digits = String(overflowCount).length
   const cached = cache.get(digits)
@@ -129,7 +132,7 @@ export function CompactTagOverflow({
       }
 
       const widths = [...measure.children].map(
-        (child) => (child as HTMLElement).offsetWidth,
+        (child) => (child as HTMLElement).offsetWidth
       )
       const digitWidthCache = new Map<number, number>()
       const fitCount = computeVisibleCount(
@@ -137,7 +140,7 @@ export function CompactTagOverflow({
         containerWidth,
         (overflow) =>
           moreWidthByDigits(moreLabel, moreButton, overflow, digitWidthCache),
-        maxVisible,
+        maxVisible
       )
 
       setVisibleCount(Math.min(fitCount, items.length))
@@ -194,7 +197,7 @@ export function CompactTagOverflow({
             href={item.href}
             data-cuelume-press=""
             data-cuelume-release=""
-            className="shrink-0 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="t-tactile shrink-0 text-xs font-medium text-muted-foreground transition-[color,transform] hover:text-foreground"
           >
             {item.label}
           </Link>

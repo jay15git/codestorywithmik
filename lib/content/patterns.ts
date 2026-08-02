@@ -70,7 +70,7 @@ export const PATTERN_DEFINITIONS: PatternDefinition[] = [
   },
   {
     slug: "graphs-bfs-dfs",
-    name: "Graphs — BFS & DFS",
+    name: "Graphs: BFS & DFS",
     description: "Traversals, connectivity, and grid/graph search.",
     topicTags: ["Breadth-First Search", "Depth-First Search", "Graph Theory"],
   },
@@ -89,19 +89,21 @@ export const PATTERN_DEFINITIONS: PatternDefinition[] = [
   {
     slug: "dynamic-programming",
     name: "Dynamic Programming",
-    description: "Optimal substructure — 1D/2D DP, knapsack-style, and memoization.",
+    description:
+      "Optimal substructure: 1D/2D DP, knapsack-style, and memoization.",
     topicTags: ["Dynamic Programming", "Memoization"],
   },
   {
     slug: "backtracking",
     name: "Backtracking",
-    description: "Explore candidates with undo — subsets, permutations, constraints.",
+    description:
+      "Explore candidates with undo: subsets, permutations, constraints.",
     topicTags: ["Backtracking"],
   },
   {
     slug: "greedy",
     name: "Greedy",
-    description: "Local choices that lead to a global optimum when the pattern fits.",
+    description: "Local best choices when the pattern fits.",
     topicTags: ["Greedy"],
   },
   {

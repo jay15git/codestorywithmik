@@ -12,7 +12,7 @@ import { getCompanies, getSolutions } from "@/lib/content/get-content"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
-  title: "Companies — LeetSeek",
+  title: "Companies",
   description:
     "Browse LeetCode solutions by company. Sort by name or interview frequency.",
 }
@@ -36,8 +36,8 @@ export default async function CompaniesPage({
       <section className="flex flex-col gap-3">
         <h1 className="text-3xl font-semibold tracking-tight">Companies</h1>
         <p className="max-w-2xl text-muted-foreground">
-          Solutions tagged from community company interview data. Frequency
-          score sums reported ask rates across problems.
+          Tagged from community interview data. Frequency sums ask rates across
+          problems.
         </p>
         <div className="flex flex-wrap gap-2">
           <Link
@@ -49,7 +49,7 @@ export default async function CompaniesPage({
               }),
             )}
           >
-            A–Z
+            A-Z
           </Link>
           <Link
             href="/companies?sort=frequency"

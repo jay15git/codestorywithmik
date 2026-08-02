@@ -20,7 +20,7 @@ import {
 
 function backupFilename() {
   const date = new Date().toISOString().slice(0, 10)
-  return `codestory-backup-${date}.json`
+  return `leetseek-backup-${date}.json`
 }
 
 export function DataBackupPanel() {
@@ -72,7 +72,7 @@ export function DataBackupPanel() {
       const bag = parseStudyBackup(JSON.parse(pendingImport) as unknown)
       replaceStudyBag(bag)
       setPendingImport(null)
-      setStatusMessage("Backup imported. All local study data was replaced.")
+      setStatusMessage("Backup imported. Local study data replaced.")
       setImportError(null)
     } catch {
       setImportError("Could not import backup.")
@@ -92,9 +92,8 @@ export function DataBackupPanel() {
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold">Data</h2>
         <p className="text-sm text-muted-foreground">
-          Progress, notes, review cards, and preferences are stored only in this
-          browser. Export a backup before clearing site data or switching
-          devices.
+          Progress, notes, review cards, and preferences stay in this browser.
+          Export before clearing site data or switching devices.
         </p>
       </div>
 
@@ -143,8 +142,8 @@ export function DataBackupPanel() {
           <DialogHeader>
             <DialogTitle>Replace all local data?</DialogTitle>
             <DialogDescription>
-              Importing will replace progress, notes, spaced-repetition cards,
-              language preference, and list/grid view mode on this device.
+              Replaces progress, notes, review cards, and preferences on this
+              device.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:justify-end">
@@ -167,8 +166,8 @@ export function DataBackupPanel() {
           <DialogHeader>
             <DialogTitle>Clear local study data?</DialogTitle>
             <DialogDescription>
-              This removes progress, notes, review cards, and preferences from
-              this browser. Export a backup first if you might need them later.
+              Removes progress, notes, review cards, and preferences from this
+              browser. Export first if you need them later.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:justify-end">

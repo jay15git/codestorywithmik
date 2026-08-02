@@ -6,6 +6,9 @@ const withBundleAnalyzer = bundleAnalyzer({
 })
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: process.cwd(),
+  },
   serverExternalPackages: ["ts-fsrs"],
   outputFileTracingIncludes: {
     "/problems": ["./generated/**/*"],

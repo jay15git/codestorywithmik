@@ -67,7 +67,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${solution.title} — ${solution.topic}`,
+    title: solution.title,
     description: `Interview solution for ${solution.title} with company tags and code.`,
   }
 }
@@ -118,8 +118,10 @@ export default async function SolutionPage({
             {solution.title}
           </h1>
 
-          <SolutionStatusControls slug={solution.slug} />
-          <SrsReviewControls slug={solution.slug} />
+          <div className="flex flex-wrap items-center gap-2">
+            <SolutionStatusControls slug={solution.slug} />
+            <SrsReviewControls slug={solution.slug} />
+          </div>
 
           <div className="flex flex-wrap items-center gap-2">
             {solution.difficulty && (
@@ -212,9 +214,16 @@ export default async function SolutionPage({
       <BlindCodeSection slug={solution.slug}>
         <SolutionCodePanel
           slug={solution.slug}
+          title={solution.title}
           code={solution.code}
           highlighted={highlighted}
           initialLang={initialLang}
+          topic={solution.topic}
+          difficulty={solution.difficulty}
+          timeComplexity={solution.timeComplexity}
+          spaceComplexity={solution.spaceComplexity}
+          leetcodeUrl={solution.leetcodeUrl}
+          gfgUrl={solution.gfgUrl}
         />
       </BlindCodeSection>
 

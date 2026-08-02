@@ -3,8 +3,17 @@ import Link from "next/link"
 
 import { RandomProblemButton } from "@/components/random-problem-button"
 import { TitleUnderline } from "@/components/title-underline"
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getContentIndex, getSolutions, getTopics } from "@/lib/content/get-content"
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  getContentIndex,
+  getSolutions,
+  getTopics,
+} from "@/lib/content/get-content"
 import {
   getSolutionsForStudyPlan,
   getStudyPlans,
@@ -12,7 +21,9 @@ import {
 } from "@/lib/content/study-plans"
 
 export const metadata: Metadata = {
-  title: "LeetSeek — LeetCode DS & Algo",
+  title: {
+    absolute: "LeetSeek · LeetCode DS & Algo",
+  },
   description:
     "Browse LeetCode solutions by topic and company, with C++ and Java code from walkccc/LeetCode (MIT).",
 }
@@ -34,10 +45,10 @@ export default function HomePage() {
           <h1 className="max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl">
             LeetCode interview solutions
           </h1>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/problems"
-              className="text-sm font-medium underline underline-offset-2 hover:text-foreground"
+              className="inline-flex min-h-10 items-center rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               All problems
             </Link>
@@ -58,8 +69,7 @@ export default function HomePage() {
           >
             walkccc/LeetCode
           </a>{" "}
-          (MIT), organized by LeetCode topic tags and company. Each page has
-          the code and links to practice on LeetCode.
+          (MIT), by topic and company. Code plus links to practice on LeetCode.
         </p>
         <p className="max-w-2xl text-sm text-muted-foreground">
           Made by{" "}
@@ -74,7 +84,10 @@ export default function HomePage() {
         </p>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section
+        aria-label="Library overview"
+        className="grid gap-4 sm:grid-cols-3"
+      >
         <Card className="bg-card">
           <CardHeader>
             <CardTitle className="text-2xl tabular-nums">
@@ -101,16 +114,25 @@ export default function HomePage() {
         </Card>
       </section>
 
-      <section className="flex flex-col gap-4">
+      <section
+        aria-labelledby="study-plans-heading"
+        className="flex flex-col gap-4"
+      >
         <div>
-          <h2 className="text-xl font-semibold">Study plans</h2>
+          <h2 id="study-plans-heading" className="text-xl font-semibold">
+            Study plans
+          </h2>
           <p className="text-sm text-muted-foreground">
-            Blind 75, NeetCode 150, and NeetCode 250 — curated by LeetCode id.
+            Blind 75, NeetCode 150, and NeetCode 250.
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {plans.map(({ plan, available, curated }) => (
-            <Link key={plan.slug} href={`/plans/${plan.slug}`}>
+            <Link
+              key={plan.slug}
+              href={`/plans/${plan.slug}`}
+              className="block h-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
               <Card className="h-full bg-card transition-colors hover:bg-muted/40">
                 <CardHeader>
                   <CardTitle className="text-base">
@@ -127,12 +149,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-4">
+      <section aria-labelledby="topics-heading" className="flex flex-col gap-4">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold">Browse by topic</h2>
+            <h2 id="topics-heading" className="text-xl font-semibold">
+              Browse by topic
+            </h2>
             <p className="text-sm text-muted-foreground">
-              LeetCode topic tags — problems can appear in multiple topics.
+              Problems can appear under more than one topic.
             </p>
           </div>
         </div>
@@ -145,10 +169,10 @@ export default function HomePage() {
             >
               <Link
                 href={`/topics/${topic.slug}`}
-                className="absolute inset-0 z-0 rounded-xl"
+                className="absolute inset-0 z-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 aria-label={topic.name}
               />
-              <CardHeader className="relative z-10 pointer-events-none">
+              <CardHeader className="pointer-events-none relative z-10">
                 <CardTitle className="text-base">
                   <TitleUnderline>{topic.name}</TitleUnderline>
                 </CardTitle>

@@ -10,7 +10,7 @@ import {
 } from "@/lib/content/patterns"
 
 export const metadata: Metadata = {
-  title: "Patterns — LeetSeek",
+  title: "Patterns",
   description:
     "Study LeetCode solutions by interview pattern: two pointers, DP, BFS/DFS, and more.",
 }
@@ -27,8 +27,8 @@ export default function PatternsPage() {
       <section className="flex flex-col gap-2">
         <h1 className="text-3xl font-semibold tracking-tight">Patterns</h1>
         <p className="max-w-2xl text-muted-foreground">
-          Curated interview patterns mapped onto LeetCode topic tags. Problems
-          ordered Easy → Hard so you can ramp up within a pattern.
+          Interview patterns mapped to LeetCode topic tags. Ordered Easy to
+          Hard.
         </p>
       </section>
 

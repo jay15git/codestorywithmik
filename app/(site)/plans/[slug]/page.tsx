@@ -47,7 +47,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${plan.name} — Study Plans`,
+    title: plan.name,
     description: plan.description,
   }
 }

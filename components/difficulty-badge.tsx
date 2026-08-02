@@ -12,10 +12,12 @@ export function DifficultyBadge({
   difficulty,
   className,
   size = "sm",
+  plain = false,
 }: {
   difficulty: Difficulty | null | undefined
   className?: string
   size?: "xs" | "sm"
+  plain?: boolean
 }) {
   if (!difficulty) {
     return null
@@ -26,7 +28,8 @@ export function DifficultyBadge({
       className={cn(
         buttonVariants({ variant: "outline", size }),
         DIFFICULTY_TEXT_STYLES[difficulty],
-        className,
+        plain && "h-auto! border-0! bg-transparent! p-0! hover:bg-transparent!",
+        className
       )}
     >
       {difficulty}

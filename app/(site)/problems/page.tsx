@@ -18,9 +18,9 @@ import {
 import { getSolutions } from "@/lib/content/get-content"
 
 export const metadata: Metadata = {
-  title: "All Problems — LeetSeek",
+  title: "All Problems",
   description:
-    "Browse every indexed LeetCode solution. Filter by topic, company, difficulty, and sort the list.",
+    "Browse every indexed LeetCode solution. Filter by topic, company, difficulty, and sort.",
 }
 
 interface ProblemsPageProps {
@@ -34,14 +34,16 @@ interface ProblemsPageProps {
   }>
 }
 
-export default async function ProblemsPage({ searchParams }: ProblemsPageProps) {
+export default async function ProblemsPage({
+  searchParams,
+}: ProblemsPageProps) {
   const filters = parseListSearchParams(await searchParams)
   const allSolutions = getSolutions()
   const companyOptions = getCompanyOptions(allSolutions)
   const topicOptions = getTopicOptions(allSolutions)
   const solutions = sortSolutions(
     filterSolutions(allSolutions, filters),
-    filters.sort,
+    filters.sort
   )
   const basePath = "/problems"
 
@@ -72,6 +74,7 @@ export default async function ProblemsPage({ searchParams }: ProblemsPageProps) 
           companies={companyOptions}
           topics={topicOptions}
           showSort
+          showColumns
         />
 
         <StatusAwareSolutionList

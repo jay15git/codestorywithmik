@@ -11,7 +11,7 @@ const MAX_LINES = 2
 function countLines(
   itemWidths: readonly number[],
   containerWidth: number,
-  gap: number,
+  gap: number
 ): number {
   if (itemWidths.length === 0) {
     return 0
@@ -46,7 +46,7 @@ function computeVisibleCount(
   containerWidth: number,
   moreButtonWidth: number,
   gap: number,
-  maxLines: number,
+  maxLines: number
 ): number {
   const total = itemWidths.length
   if (total === 0) {
@@ -112,7 +112,7 @@ export function CompanyTagList({ companies, className }: CompanyTagListProps) {
       }
 
       const widths = [...measure.children].map(
-        (child) => (child as HTMLElement).offsetWidth,
+        (child) => (child as HTMLElement).offsetWidth
       )
       const moreWidth = moreButton.offsetWidth
       const count = computeVisibleCount(
@@ -120,7 +120,7 @@ export function CompanyTagList({ companies, className }: CompanyTagListProps) {
         containerWidth,
         moreWidth,
         GAP_PX,
-        MAX_LINES,
+        MAX_LINES
       )
 
       setVisibleCount(count)
@@ -166,10 +166,7 @@ export function CompanyTagList({ companies, className }: CompanyTagListProps) {
         More
       </button>
 
-      <div
-        ref={containerRef}
-        className="flex flex-wrap items-center gap-2"
-      >
+      <div ref={containerRef} className="flex flex-wrap items-center gap-2">
         {visibleCompanies.map((company) => (
           <CompanyTagLink key={company} company={company} />
         ))}
@@ -180,7 +177,7 @@ export function CompanyTagList({ companies, className }: CompanyTagListProps) {
             data-cuelume-press=""
             data-cuelume-release=""
             onClick={() => setExpanded(true)}
-            className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="t-tactile text-xs font-medium text-muted-foreground transition-[color,transform] hover:text-foreground"
           >
             More
           </button>
@@ -192,7 +189,7 @@ export function CompanyTagList({ companies, className }: CompanyTagListProps) {
             data-cuelume-press=""
             data-cuelume-release=""
             onClick={() => setExpanded(false)}
-            className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="t-tactile text-xs font-medium text-muted-foreground transition-[color,transform] hover:text-foreground"
           >
             Show less
           </button>

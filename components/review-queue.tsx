@@ -100,8 +100,8 @@ export function ReviewQueue({
               Review queue
             </h1>
             <p className="mt-2 max-w-2xl text-muted-foreground">
-              Spaced repetition from local cards. Mark solved to enroll; rate
-              recall on the solution page. Revisit flags also land here.
+              Spaced repetition from local cards. Solve to enroll; rate recall
+              on the solution page.
             </p>
             <p className="mt-2 text-sm tabular-nums text-muted-foreground">
               {today} UTC · {resolved.length} due
@@ -124,8 +124,8 @@ export function ReviewQueue({
             <EmptyHeader>
               <EmptyTitle>Nothing due</EmptyTitle>
               <EmptyDescription>
-                Solve a problem and it schedules for tomorrow. Or mark revisit
-                to pull it into today&apos;s queue.
+                Solve a problem to schedule it for tomorrow, or mark revisit to
+                add it today.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>

@@ -50,7 +50,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${topic.name} — LeetSeek`,
+    title: topic.name,
     description: `Browse ${topic.solutionCount} ${topic.name} interview solutions.`,
   }
 }

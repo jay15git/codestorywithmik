@@ -4,9 +4,9 @@ import { ReviewQueue } from "@/components/review-queue"
 import { getSolutions } from "@/lib/content/get-content"
 
 export const metadata: Metadata = {
-  title: "Review — LeetSeek",
+  title: "Review",
   description:
-    "Spaced repetition queue for problems you have solved or marked to revisit.",
+    "Spaced repetition queue for problems you solved or marked to revisit.",
 }
 
 export default function ReviewPage() {

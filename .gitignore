@@ -45,3 +45,5 @@ next-env.d.ts
 # cursor / agent skills (local install artifacts)
 .agents/
 skills-lock.json
+# CocoIndex Code (ccc)
+/.cocoindex_code/

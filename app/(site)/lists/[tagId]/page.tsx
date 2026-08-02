@@ -33,7 +33,7 @@ export async function generateMetadata({
   const tag = DEFAULT_TAGS.find((item) => item.id === decodedId)
 
   return {
-    title: `${getListTitle(decodedId, tag ?? null)} — My lists`,
+    title: getListTitle(decodedId, tag ?? null),
     description: getListDescription(decodedId, tag ?? null),
   }
 }

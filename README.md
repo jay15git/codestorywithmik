@@ -14,7 +14,7 @@ A searchable website for browsing LeetCode data structures and algorithms soluti
 - Companies index sortable by interview frequency
 - Pattern study pages (Easy → Hard within a pattern)
 - Daily problem + weekly set (deterministic, no account)
-- Blind mode + practice timer on solution pages
+- Blind mode on solution pages
 - Related problems on each solution page
 - Prev / next navigation within topic or company lists (arrow keys)
 - Keyboard study shortcuts (`j`/`k` lists, `s`/`d`/`b` on solutions)

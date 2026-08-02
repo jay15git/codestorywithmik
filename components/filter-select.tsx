@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useState } from "react"
 
 import {
   Select,
@@ -8,7 +8,6 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select"
-import { formatMultiLabel } from "@/lib/content/filter-solutions"
 import { cn } from "@/lib/utils"
 
 function sameStringList(left: string[], right: string[]) {
@@ -38,19 +37,6 @@ export function FilterSelect({
 }) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState(values)
-  const draftRef = useRef(draft)
-  draftRef.current = draft
-
-  useEffect(() => {
-    if (!open) {
-      setDraft(values)
-    }
-  }, [values, open])
-
-  const labelMap = useMemo(
-    () => new Map(options.map((option) => [option.value, option.label])),
-    [options],
-  )
 
   return (
     <Select
@@ -59,14 +45,12 @@ export function FilterSelect({
       open={open}
       onOpenChange={(next) => {
         if (!next) {
-          const committed = multiple
-            ? draftRef.current
-            : draftRef.current[0]
-              ? [draftRef.current[0]]
-              : []
+          const committed = multiple ? draft : draft[0] ? [draft[0]] : []
           if (!sameStringList(committed, values)) {
             onCommit(committed)
           }
+        } else {
+          setDraft(values)
         }
         setOpen(next)
       }}
@@ -78,17 +62,26 @@ export function FilterSelect({
         setDraft(typeof next === "string" && next ? [next] : [])
       }}
     >
-      <SelectTrigger className={cn("min-w-40", className)}>
+      <SelectTrigger className={cn("t-resize w-fit min-w-0", className)}>
         {(selected) => {
           const selectedValues = Array.isArray(selected)
             ? selected
             : selected
               ? [selected]
               : []
+          const activeValues = selectedValues.filter(
+            (value) =>
+              options.find((option) => option.value === value)?.label !==
+              emptyLabel
+          )
           return (
             <>
-              <span className="text-muted-foreground">{label}: </span>
-              {formatMultiLabel(selectedValues, emptyLabel, labelMap)}
+              <span className="shrink-0">{label}</span>
+              {activeValues.length > 0 ? (
+                <span className="ml-1 shrink-0 text-muted-foreground">
+                  ({activeValues.length})
+                </span>
+              ) : null}
             </>
           )
         }}

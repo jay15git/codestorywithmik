@@ -49,31 +49,21 @@ export function SoundPreferencePanel() {
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold">Sound</h2>
         <p className="text-sm text-muted-foreground">
-          Soft interaction cues for buttons, navigation, and successful actions.
-          Stored only in this browser. Same control as the header speaker icon.
+          Soft UI feedback sounds. Saved in this browser.
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          data-cuelume-press={undefined}
-          data-cuelume-release={undefined}
-          data-cuelume-toggle={enabled ? "" : undefined}
-          aria-pressed={mounted ? enabled : undefined}
-          onClick={toggle}
-        >
-          {mounted ? (enabled ? "Sounds on" : "Sounds muted") : "Sounds on"}
-        </Button>
-        <p className="text-sm text-muted-foreground">
-          {mounted
-            ? enabled
-              ? "Playing UI feedback sounds."
-              : "All interaction sounds are muted."
-            : "Loading preference…"}
-        </p>
-      </div>
+      <Button
+        type="button"
+        variant="outline"
+        data-cuelume-press={undefined}
+        data-cuelume-release={undefined}
+        data-cuelume-toggle={enabled ? "" : undefined}
+        aria-pressed={mounted ? enabled : undefined}
+        onClick={toggle}
+      >
+        {mounted ? (enabled ? "Sounds on" : "Sounds muted") : "Sounds on"}
+      </Button>
     </div>
   )
 }

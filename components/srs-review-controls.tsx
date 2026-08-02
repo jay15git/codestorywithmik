@@ -1,12 +1,9 @@
 "use client"
 
 import { useMemo, useSyncExternalStore } from "react"
-import Link from "next/link"
 
 import { useSolutionProgress } from "@/components/solution-progress-provider"
-import { useSolutionTags } from "@/components/solution-tags-provider"
 import { Button } from "@/components/ui/button"
-import { getSrsStateLabel } from "@/lib/srs/state"
 import {
   isDueOnOrBefore,
   previewSrsRatings,
@@ -15,12 +12,20 @@ import {
 import {
   getServerSrsMap,
   getSrsCard,
+  markDueToday,
   rateSrsCard,
   readSrsMap,
   subscribeToSrs,
 } from "@/lib/srs/store"
 import type { SrsRating } from "@/lib/srs/types"
 import { REVISIT_TAG_ID } from "@/lib/tags/constants"
+import { hasTag } from "@/lib/tags/filters"
+import {
+  getServerTagState,
+  readTagState,
+  setTag,
+  subscribeToTags,
+} from "@/lib/tags/store"
 
 const RATINGS: Array<{ rating: SrsRating; label: string }> = [
   { rating: "again", label: "Again" },
@@ -29,17 +34,31 @@ const RATINGS: Array<{ rating: SrsRating; label: string }> = [
   { rating: "easy", label: "Easy" },
 ]
 
+function formatReviewDate(dateKey: string): string {
+  const [year, month, day] = dateKey.split("-")
+  const monthName = new Intl.DateTimeFormat("en", {
+    month: "short",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(Number(year), Number(month) - 1, Number(day))))
+
+  return `${day} ${monthName} '${year.slice(-2)}`
+}
+
 export function SrsReviewControls({ slug }: { slug: string }) {
   const { setFlag } = useSolutionProgress()
-  const { hasTag, setTag } = useSolutionTags()
   const srsMap = useSyncExternalStore(
     subscribeToSrs,
     readSrsMap,
     getServerSrsMap,
   )
+  const tagState = useSyncExternalStore(
+    subscribeToTags,
+    readTagState,
+    getServerTagState,
+  )
   const card = getSrsCard(srsMap, slug)
   const today = toUtcDateKey()
-  const revisit = hasTag(slug, REVISIT_TAG_ID)
+  const revisit = hasTag(tagState.assignments, slug, REVISIT_TAG_ID)
   const due =
     revisit || (card ? isDueOnOrBefore(card.dueAt, today) : false)
   const previews = useMemo(
@@ -51,6 +70,7 @@ export function SrsReviewControls({ slug }: { slug: string }) {
     rateSrsCard(slug, rating)
     if (rating === "again") {
       setTag(slug, REVISIT_TAG_ID, true)
+      markDueToday(slug)
     } else {
       setFlag(slug, "solved", true)
     }
@@ -61,18 +81,10 @@ export function SrsReviewControls({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border bg-card px-3 py-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="text-sm font-medium">
-          {due ? "Rate recall" : "Next review"}
-        </p>
-        <p className="text-xs tabular-nums text-muted-foreground">
-          {card ? `due ${card.dueAt}` : "due today"}
-          {card ? ` · ${getSrsStateLabel(card.state)}` : null}
-        </p>
-      </div>
+    <div className="flex flex-wrap items-center gap-2">
       {due ? (
-        <div className="flex flex-wrap gap-2">
+        <>
+          <span className="text-sm font-medium">Rate recall</span>
           {RATINGS.map(({ rating, label }) => (
             <Button
               key={rating}
@@ -87,14 +99,11 @@ export function SrsReviewControls({ slug }: { slug: string }) {
               </span>
             </Button>
           ))}
-        </div>
+        </>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          Not due yet.{" "}
-          <Link href="/review" className="underline underline-offset-2">
-            Open queue
-          </Link>
-        </p>
+        <span className="text-sm text-muted-foreground">
+          Next review {formatReviewDate(card!.dueAt)}
+        </span>
       )}
     </div>
   )

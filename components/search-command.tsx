@@ -51,7 +51,7 @@ async function loadSearchIndex(): Promise<SearchIndex> {
 function ensureSearchIndex(
   onLoaded: (index: SearchIndex) => void,
   onError: (message: string) => void,
-  onFinally: () => void,
+  onFinally: () => void
 ) {
   if (cachedIndex) {
     onLoaded(cachedIndex)
@@ -135,7 +135,7 @@ export function SearchCommand() {
     ensureSearchIndex(
       (loaded) => setIndex(loaded),
       (message) => setError(message),
-      () => setLoading(false),
+      () => setLoading(false)
     )
   }, [])
 
@@ -201,10 +201,10 @@ export function SearchCommand() {
                 key={value}
                 type="button"
                 className={cn(
-                  "rounded-md border px-2 py-0.5 text-xs transition-colors",
+                  "t-tactile rounded-md border px-2 py-0.5 text-xs transition-[color,background-color,border-color,transform]",
                   active
                     ? "border-foreground bg-foreground text-background"
-                    : "border-border text-muted-foreground hover:text-foreground",
+                    : "border-border text-muted-foreground hover:text-foreground"
                 )}
                 aria-pressed={active}
                 onClick={() =>
@@ -292,7 +292,7 @@ export function SearchCommand() {
                           <span
                             className={cn(
                               "shrink-0 text-xs font-medium",
-                              DIFFICULTY_STYLES[problem.difficulty],
+                              DIFFICULTY_STYLES[problem.difficulty]
                             )}
                           >
                             {problem.difficulty}

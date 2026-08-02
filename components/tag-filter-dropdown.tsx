@@ -4,7 +4,10 @@ import { useRouter } from "next/navigation"
 
 import { FilterSelect } from "@/components/filter-select"
 import { useSolutionTags } from "@/components/solution-tags-provider"
-import { buildListHref, type ListHrefParams } from "@/lib/content/filter-solutions"
+import {
+  buildListHref,
+  type ListHrefParams,
+} from "@/lib/content/filter-solutions"
 
 export function TagFilterDropdown({
   basePath,
@@ -33,13 +36,12 @@ export function TagFilterDropdown({
       emptyLabel="All tags"
       values={tagIds}
       options={options}
-      className="min-w-40"
       onCommit={(next) => {
         router.push(
           buildListHref(basePath, {
             ...hrefParams,
             tagIds: next,
-          }),
+          })
         )
       }}
     />

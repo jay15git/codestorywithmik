@@ -3,10 +3,8 @@ import { ProgressSidebarSummary } from "@/components/progress-sidebar-summary"
 import { SearchLazy } from "@/components/search-lazy"
 import { SidebarBrand } from "@/components/sidebar-brand"
 import { SiteNav } from "@/components/site-nav"
-import { SolutionProgressProvider } from "@/components/solution-progress-provider"
-import { SolutionTagsProvider } from "@/components/solution-tags-provider"
+import { SiteProviders } from "@/components/site-providers"
 import { SoundToggle } from "@/components/sound-toggle"
-import { StudyStorageProvider } from "@/components/study-storage-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { TopicSidebar } from "@/components/topic-sidebar"
 import {
@@ -30,44 +28,48 @@ export function AppShell({ children }: AppShellProps) {
   const { solutionCount } = getContentIndex()
 
   return (
-    <StudyStorageProvider>
-      <SolutionTagsProvider>
-        <SolutionProgressProvider>
-        <SidebarProvider>
-          <Sidebar
-            className="[&_[data-slot=sidebar-inner]]:bg-transparent [&_[data-slot=sidebar][data-mobile=true]]:bg-transparent"
+    <SiteProviders>
+      <SidebarProvider>
+        <a
+          href="#main-content"
+          className="fixed start-4 top-4 z-50 -translate-y-24 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-surface-3 transition-transform focus-visible:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring motion-reduce:transition-none"
+        >
+          Skip to content
+        </a>
+        <Sidebar className="[&_[data-slot=sidebar-inner]]:bg-transparent [&_[data-slot=sidebar][data-mobile=true]]:bg-transparent">
+          <SidebarHeader className="gap-3 p-4">
+            <SidebarBrand />
+          </SidebarHeader>
+          <SidebarContent className="px-2 pb-4">
+            <TopicSidebar topics={topics} />
+          </SidebarContent>
+          <SidebarFooter className="pb-4">
+            <ProgressSidebarSummary totalSolutions={solutionCount} />
+          </SidebarFooter>
+          <SidebarRail />
+        </Sidebar>
+
+        <SidebarInset>
+          <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-background/90 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:gap-3 sm:px-4">
+            <SidebarTrigger />
+            <SiteNav className="min-w-0 flex-1" />
+            <div className="flex shrink-0 items-center gap-2">
+              <SearchLazy />
+              <GithubRepoButton />
+              <SoundToggle />
+              <ThemeToggle />
+            </div>
+          </header>
+
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 py-8 outline-none md:px-8"
           >
-            <SidebarHeader className="gap-3 p-4">
-              <SidebarBrand />
-            </SidebarHeader>
-            <SidebarContent className="px-2 pb-4">
-              <TopicSidebar topics={topics} />
-            </SidebarContent>
-            <SidebarFooter className="pb-4">
-              <ProgressSidebarSummary totalSolutions={solutionCount} />
-            </SidebarFooter>
-            <SidebarRail />
-          </Sidebar>
-
-          <SidebarInset>
-            <header className="sticky top-0 z-20 flex h-14 items-center gap-2 bg-background/90 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:gap-3 sm:px-4">
-              <SidebarTrigger />
-              <SiteNav className="min-w-0 flex-1" />
-              <div className="flex shrink-0 items-center gap-2">
-                <SearchLazy />
-                <GithubRepoButton />
-                <SoundToggle />
-                <ThemeToggle />
-              </div>
-            </header>
-
-            <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-4 py-8 md:px-8">
-              {children}
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
-      </SolutionProgressProvider>
-      </SolutionTagsProvider>
-    </StudyStorageProvider>
+            {children}
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
+    </SiteProviders>
   )
 }

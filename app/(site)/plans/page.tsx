@@ -11,7 +11,7 @@ import {
 } from "@/lib/content/study-plans"
 
 export const metadata: Metadata = {
-  title: "Study Plans — LeetSeek",
+  title: "Study Plans",
   description:
     "Work through Blind 75 and NeetCode 150 with local progress tracking.",
 }
@@ -32,8 +32,7 @@ export default function StudyPlansPage() {
       <section className="flex flex-col gap-2">
         <h1 className="text-3xl font-semibold tracking-tight">Study plans</h1>
         <p className="max-w-2xl text-muted-foreground">
-          Curated interview roadmaps by LeetCode id. Progress stays in this
-          browser — mark solved as you go.
+          Curated roadmaps by LeetCode id. Progress stays in this browser.
         </p>
       </section>
 

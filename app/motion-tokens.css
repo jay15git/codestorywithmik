@@ -31,6 +31,13 @@
   --blur-medium: 3px;
   --blur-large: 8px;
 
+  /* Tactile controls */
+  --tactile-hover-scale: 1.015;
+  --tactile-press-scale: 0.97;
+  --tactile-dur: var(--duration-quick);
+  --tactile-press-dur: var(--duration-micro);
+  --tactile-ease: var(--ease-smooth-out);
+
   /* Semantic transition vars */
   --modal-open-dur: var(--duration-fast);
   --modal-close-dur: var(--duration-quick);

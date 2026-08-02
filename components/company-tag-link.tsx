@@ -15,8 +15,8 @@ export function CompanyTagLink({ company, className }: CompanyTagLinkProps) {
       data-cuelume-press=""
       data-cuelume-release=""
       className={cn(
-        "text-xs font-medium text-muted-foreground transition-colors duration-quick ease-smooth-out hover:text-foreground",
-        className,
+        "t-tactile duration-quick text-xs font-medium text-muted-foreground transition-[color,transform] ease-smooth-out hover:text-foreground",
+        className
       )}
     >
       {company}

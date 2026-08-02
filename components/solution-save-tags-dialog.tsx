@@ -1,12 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import {
-  BookmarkIcon,
-  PlusIcon,
-  RotateCcwIcon,
-  StarIcon,
-} from "lucide-react"
+import { BookmarkIcon, PlusIcon, RotateCcwIcon, StarIcon } from "lucide-react"
 
 import { useSolutionTags } from "@/components/solution-tags-provider"
 import { Button } from "@/components/ui/button"
@@ -61,7 +56,7 @@ export function SolutionSaveTagsDialog({
     setDraftIds((current) =>
       current.includes(tagId)
         ? current.filter((id) => id !== tagId)
-        : [...current, tagId],
+        : [...current, tagId]
     )
   }
 
@@ -79,7 +74,7 @@ export function SolutionSaveTagsDialog({
     const tag = createTag(trimmed)
     setNewTagName("")
     setDraftIds((current) =>
-      current.includes(tag.id) ? current : [...current, tag.id],
+      current.includes(tag.id) ? current : [...current, tag.id]
     )
   }
 
@@ -151,10 +146,16 @@ export function SolutionSaveTagsDialog({
         </div>
 
         <DialogFooter className="gap-2 sm:justify-end">
-          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+          >
             Cancel
           </Button>
-          <Button type="button" onClick={handleApply}>Apply</Button>
+          <Button type="button" onClick={handleApply}>
+            Apply
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -186,8 +187,8 @@ function TagChecklist({
               <button
                 type="button"
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted/60",
-                  checked && "bg-muted/40",
+                  "t-tactile flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm transition-[background-color,transform] hover:bg-muted/60",
+                  checked && "bg-muted/40"
                 )}
                 onClick={() => onToggle(tag.id)}
               >
@@ -196,7 +197,7 @@ function TagChecklist({
                     "flex size-4 shrink-0 items-center justify-center rounded border",
                     checked
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-muted-foreground/40",
+                      : "border-muted-foreground/40"
                   )}
                 >
                   {checked ? "✓" : null}

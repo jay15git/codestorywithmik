@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation"
 
 import { FilterSelect } from "@/components/filter-select"
 import { useSolutionTags } from "@/components/solution-tags-provider"
+import {
+  type SolutionColumn,
+  useSolutionViewContext,
+} from "@/components/solution-view"
 import { Button } from "@/components/ui/button"
 import {
   buildListHref,
@@ -25,6 +29,12 @@ const STATUS_OPTIONS: Array<{ label: string; value: StatusFilterValue }> = [
   { label: "Solved", value: "solved" },
 ]
 
+const COLUMN_OPTIONS: Array<{ label: string; value: SolutionColumn }> = [
+  { label: "Difficulty", value: "difficulty" },
+  { label: "Topics", value: "topics" },
+  { label: "Companies", value: "companies" },
+]
+
 export function SolutionFilters({
   basePath,
   filters,
@@ -33,6 +43,7 @@ export function SolutionFilters({
   currentTopicSlug,
   showStatus = true,
   showSort = false,
+  showColumns = false,
 }: {
   basePath: string
   filters: Pick<
@@ -50,18 +61,21 @@ export function SolutionFilters({
   currentTopicSlug?: string
   showStatus?: boolean
   showSort?: boolean
+  showColumns?: boolean
 }) {
   const router = useRouter()
   const { tags } = useSolutionTags()
+  const { viewMode, visibleColumns, setVisibleColumns } =
+    useSolutionViewContext()
 
   const hasActiveFilters = Boolean(
     filters.difficulties.length > 0 ||
-      filters.companySlugs.length > 0 ||
-      filters.topicSlugs.length > 0 ||
-      filters.prep ||
-      filters.statuses.length > 0 ||
-      filters.tagIds.length > 0 ||
-      (showSort && filters.sort && filters.sort !== "id"),
+    filters.companySlugs.length > 0 ||
+    filters.topicSlugs.length > 0 ||
+    filters.prep ||
+    filters.statuses.length > 0 ||
+    filters.tagIds.length > 0 ||
+    (showSort && filters.sort && filters.sort !== "id")
   )
 
   const shared = {
@@ -107,13 +121,39 @@ export function SolutionFilters({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {showSort ? (
+        <FilterSelect
+          label="Sort"
+          emptyLabel="LeetCode id"
+          values={[filters.sort ?? "id"]}
+          options={SORT_OPTIONS}
+          className="text-muted-foreground"
+          menuClassName="w-44 min-w-44 max-w-44"
+          multiple={false}
+          onCommit={(next) =>
+            pushFilters({ sort: (next[0] as ListSort | undefined) ?? "id" })
+          }
+        />
+      ) : null}
+
+      {showColumns && viewMode === "list" ? (
+        <FilterSelect
+          label="Columns"
+          emptyLabel="None"
+          values={visibleColumns}
+          options={COLUMN_OPTIONS}
+          className="text-muted-foreground"
+          menuClassName="w-44 min-w-44 max-w-44"
+          onCommit={(columns) => setVisibleColumns(columns as SolutionColumn[])}
+        />
+      ) : null}
+
       {topics && topics.length > 0 ? (
         <FilterSelect
           label={currentTopicSlug ? "Related" : "Topic"}
           emptyLabel={currentTopicSlug ? "All" : "All topics"}
           values={filters.topicSlugs}
           options={topicOptions}
-          className="min-w-48"
           onCommit={(topicSlugs) => pushFilters({ topicSlugs })}
         />
       ) : null}
@@ -136,21 +176,7 @@ export function SolutionFilters({
           emptyLabel="All companies"
           values={filters.companySlugs}
           options={companyOptions}
-          className="min-w-48"
           onCommit={(companySlugs) => pushFilters({ companySlugs })}
-        />
-      ) : null}
-
-      {showSort ? (
-        <FilterSelect
-          label="Sort"
-          emptyLabel="LeetCode id"
-          values={[filters.sort ?? "id"]}
-          options={SORT_OPTIONS}
-          multiple={false}
-          onCommit={(next) =>
-            pushFilters({ sort: (next[0] as ListSort | undefined) ?? "id" })
-          }
         />
       ) : null}
 
@@ -174,7 +200,6 @@ export function SolutionFilters({
           emptyLabel="All tags"
           values={filters.tagIds}
           options={tagOptions}
-          className="min-w-40"
           onCommit={(tagIds) => pushFilters({ tagIds })}
         />
       ) : null}

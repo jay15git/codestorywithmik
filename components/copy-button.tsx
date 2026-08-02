@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button"
 
 interface CopyButtonProps {
   value: string
+  label?: string
 }
 
-export function CopyButton({ value }: CopyButtonProps) {
+export function CopyButton({ value, label = "Copy code" }: CopyButtonProps) {
   const [copied, setCopied] = React.useState(false)
 
   async function handleCopy() {
@@ -24,7 +25,8 @@ export function CopyButton({ value }: CopyButtonProps) {
     <Button
       variant="ghost"
       size="icon-xs"
-      aria-label="Copy code"
+      aria-label={label}
+      title={label}
       data-cuelume-press={undefined}
       data-cuelume-release={undefined}
       onClick={handleCopy}

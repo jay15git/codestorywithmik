@@ -218,6 +218,44 @@
 }
 
 /* Motion utility classes */
+.t-tactile,
+button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)) {
+  transform: scale(1);
+  transform-origin: center;
+  transition-property:
+    transform, color, background-color, border-color, box-shadow, opacity,
+    filter;
+  transition-duration: var(--tactile-dur);
+  transition-timing-function: var(--tactile-ease);
+  will-change: transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .t-tactile:not(:disabled):not([aria-disabled="true"]):hover,
+  button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)):not(
+      :disabled
+    ):not([aria-disabled="true"]):hover {
+    transform: scale(var(--tactile-hover-scale));
+  }
+}
+
+.t-tactile:not(:disabled):not([aria-disabled="true"]):active,
+button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)):not(
+    :disabled
+  ):not([aria-disabled="true"]):active {
+  transform: scale(var(--tactile-press-scale));
+  transition-duration: var(--tactile-press-dur);
+}
+
+/* Sidebar keeps its current motion language for this pass. */
+[data-slot^="sidebar"].t-tactile,
+[data-slot="sidebar"] .t-tactile {
+  transform: none !important;
+  transition-property:
+    color, background-color, border-color, box-shadow, opacity, filter !important;
+  will-change: auto;
+}
+
 .motion-line {
   transition-property: width, background-color, color;
   transition-duration: var(--duration-fast);
@@ -238,8 +276,15 @@
   .t-tabs-pill,
   .t-tabs [data-slot="tabs-trigger"],
   .t-skel-skeleton,
-  .t-skel-content {
+  .t-skel-content,
+  .t-tactile,
+  button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)) {
     transition: none !important;
+  }
+  .t-tactile,
+  button:not(:where([data-slot^="sidebar"], [data-slot="sidebar"] *)) {
+    transform: none !important;
+    will-change: auto;
   }
   .t-skel-skeleton.is-pulsing > *,
   [data-slot="skeleton"].is-pulsing,

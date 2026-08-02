@@ -4,23 +4,14 @@ import { DifficultyBadge } from "@/components/difficulty-badge"
 import { TitleUnderline } from "@/components/title-underline"
 import type { SolutionMeta } from "@/lib/content/types"
 
-export function RelatedSolutions({
-  solutions,
-}: {
-  solutions: SolutionMeta[]
-}) {
+export function RelatedSolutions({ solutions }: { solutions: SolutionMeta[] }) {
   if (solutions.length === 0) {
     return null
   }
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-medium">More like this</h2>
-        <p className="text-sm text-muted-foreground">
-          Shared topic tags and overlapping company tags.
-        </p>
-      </div>
+      <h2 className="text-lg font-medium">More like this</h2>
 
       <ul className="divide-y rounded-lg border bg-card">
         {solutions.map((solution) => (
@@ -29,7 +20,7 @@ export function RelatedSolutions({
               href={`/solutions/${solution.slug}`}
               data-cuelume-press=""
               data-cuelume-release=""
-              className="flex items-center gap-3 px-3 py-2.5 transition-colors duration-quick ease-smooth-out hover:bg-muted/40"
+              className="duration-quick flex items-center gap-3 px-3 py-2.5 transition-colors ease-smooth-out hover:bg-muted/40"
             >
               <DifficultyBadge difficulty={solution.difficulty} />
               <span className="min-w-0 flex-1 truncate text-sm font-medium">

@@ -4,7 +4,7 @@ import { StarIcon } from "lucide-react"
 
 import { ButtonLink } from "@/components/button-link"
 
-const REPO_SLUG = "jay15git/codestorywithmik"
+const REPO_SLUG = "jay15git/leetseek"
 const REPO_URL = `https://github.com/${REPO_SLUG}`
 
 async function getStarCount(): Promise<number | null> {

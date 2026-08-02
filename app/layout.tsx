@@ -16,7 +16,7 @@ const fontMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "LeetSeek — LeetCode DS & Algo",
+    default: "LeetSeek · LeetCode DS & Algo",
     template: "%s | LeetSeek",
   },
   description:

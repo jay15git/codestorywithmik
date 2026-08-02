@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react"
@@ -23,14 +24,26 @@ import { cn } from "@/lib/utils"
 interface SolutionViewContextValue {
   viewMode: ViewMode
   setViewMode: (mode: ViewMode) => void
+  visibleColumns: SolutionColumn[]
+  setVisibleColumns: (columns: SolutionColumn[]) => void
 }
+
+export type SolutionColumn = "difficulty" | "topics" | "companies"
+
+const DEFAULT_VISIBLE_COLUMNS: SolutionColumn[] = [
+  "difficulty",
+  "topics",
+  "companies",
+]
 
 const SolutionViewContext = createContext<SolutionViewContextValue | null>(null)
 
 function useSolutionViewContext() {
   const context = useContext(SolutionViewContext)
   if (!context) {
-    throw new Error("SolutionView components must be used within SolutionViewProvider")
+    throw new Error(
+      "SolutionView components must be used within SolutionViewProvider"
+    )
   }
   return context
 }
@@ -38,10 +51,13 @@ function useSolutionViewContext() {
 export { useSolutionViewContext }
 
 export function SolutionViewProvider({ children }: { children: ReactNode }) {
+  const [visibleColumns, setVisibleColumns] = useState<SolutionColumn[]>(
+    DEFAULT_VISIBLE_COLUMNS
+  )
   const viewMode = useSyncExternalStore<ViewMode>(
     subscribeToViewMode,
     readViewMode,
-    getServerViewMode,
+    getServerViewMode
   )
 
   const setViewMode = useCallback((mode: ViewMode) => {
@@ -49,8 +65,8 @@ export function SolutionViewProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const contextValue = useMemo(
-    () => ({ viewMode, setViewMode }),
-    [viewMode, setViewMode],
+    () => ({ viewMode, setViewMode, visibleColumns, setVisibleColumns }),
+    [viewMode, setViewMode, visibleColumns]
   )
 
   return (

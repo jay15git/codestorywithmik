@@ -15,9 +15,9 @@ import { getSolutions } from "@/lib/content/get-content"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
-  title: "Daily & Weekly — LeetSeek",
+  title: "Daily & Weekly",
   description:
-    "Deterministic problem of the day and weekly practice set. Same for everyone, no account needed.",
+    "Problem of the day and weekly practice set. Same for everyone.",
 }
 
 export default function DailyPage() {
@@ -33,8 +33,7 @@ export default function DailyPage() {
           Daily & weekly
         </h1>
         <p className="max-w-2xl text-muted-foreground">
-          Picked from the catalog with a stable hash of the UTC date / ISO
-          week — same problems for every visitor.
+          Same problem of the day and weekly set for every visitor.
         </p>
       </section>
 
