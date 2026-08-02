@@ -14,7 +14,6 @@ export default function ListsPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="My lists"
-        description="Problems you tagged on solution pages, including Starred, Revisit, and lists you create."
       />
 
       <MyListsOverview />

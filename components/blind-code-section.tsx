@@ -6,12 +6,18 @@ import {
   useContext,
   useMemo,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { SolutionStudyHotkeys } from "@/components/solution-study-hotkeys"
+import {
+  getServerHideSolutionByDefault,
+  readHideSolutionByDefault,
+  subscribeToHideSolutionByDefault,
+} from "@/lib/preferences/hide-solution"
 import { cn } from "@/lib/utils"
 
 interface BlindModeContextValue {
@@ -36,18 +42,24 @@ export function BlindCodeSection({
   /** Enables s/d/b study hotkeys for this solution. */
   slug?: string
 }) {
-  const [blind, setBlind] = useState(true)
+  const hideSolutionByDefault = useSyncExternalStore(
+    subscribeToHideSolutionByDefault,
+    readHideSolutionByDefault,
+    getServerHideSolutionByDefault
+  )
+  const [blindOverride, setBlindOverride] = useState<boolean | null>(null)
+  const blind = blindOverride ?? hideSolutionByDefault
   const reduceMotion = useReducedMotion()
   const transition = reduceMotion
     ? { duration: 0 }
     : { duration: 0.25, ease: "easeInOut" as const }
 
   const toggleBlind = useCallback(() => {
-    setBlind((value) => !value)
-  }, [])
+    setBlindOverride((value) => !(value ?? hideSolutionByDefault))
+  }, [hideSolutionByDefault])
 
   const contextValue = useMemo(
-    () => ({ blind, toggleBlind, setBlind }),
+    () => ({ blind, toggleBlind, setBlind: setBlindOverride }),
     [blind, toggleBlind]
   )
 
@@ -61,7 +73,7 @@ export function BlindCodeSection({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setBlind(true)}
+              onClick={() => setBlindOverride(true)}
             >
               Hide solution
             </Button>
@@ -93,7 +105,7 @@ export function BlindCodeSection({
                   <p className="text-base font-semibold text-foreground sm:text-lg">
                     Solve first, then reveal.
                   </p>
-                  <Button type="button" onClick={() => setBlind(false)}>
+                  <Button type="button" onClick={() => setBlindOverride(false)}>
                     Reveal code
                   </Button>
                 </div>

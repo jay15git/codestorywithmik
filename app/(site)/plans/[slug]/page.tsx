@@ -1,8 +1,6 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { FilteredCount } from "@/components/filtered-count"
 import { PageHeader } from "@/components/page-header"
 import { RandomProblemButton } from "@/components/random-problem-button"
 import { SolutionListNavProvider } from "@/components/solution-list-nav-provider"
@@ -20,7 +18,6 @@ import {
   getSolutionsForStudyPlan,
   getStudyPlan,
   getStudyPlanGroupsWithSolutions,
-  studyPlanIdCount,
 } from "@/lib/content/study-plans"
 import type { StatusFilter } from "@/lib/progress/types"
 
@@ -74,41 +71,19 @@ export default async function StudyPlanPage({
     status: dropdownStatus,
     tagIds,
   })
-  const curated = studyPlanIdCount(plan)
-
   return (
     <SolutionViewProvider>
       <SolutionListNavProvider value={navParams}>
         <div className="flex flex-col gap-8">
           <PageHeader
             title={plan.name}
-            description={plan.description}
             actions={
               <>
                 <RandomProblemButton solutions={solutions} />
                 <SolutionViewToggle />
               </>
             }
-          >
-              <p className="text-sm text-muted-foreground">
-                <Link
-                  href="/plans"
-                  className="underline-offset-2 hover:underline"
-                >
-                  Study plans
-                </Link>
-              </p>
-              <FilteredCount
-                solutions={solutions}
-                statuses={statuses}
-                tagIds={tagIds}
-                trailing={
-                  solutions.length !== curated
-                    ? `· ${curated} curated`
-                    : undefined
-                }
-              />
-          </PageHeader>
+          />
 
           <div className="flex flex-wrap items-center gap-2">
             <StatusFilterDropdown

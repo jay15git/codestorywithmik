@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 
-import { DataBackupPanel } from "@/components/data-backup-panel"
 import { PageHeader } from "@/components/page-header"
-import { SoundPreferencePanel } from "@/components/sound-preference-panel"
+import { SettingsPreferencesPanel } from "@/components/settings-preferences-panel"
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -14,11 +13,9 @@ export default function SettingsPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Settings"
-        description="Manage preferences and local study data for this browser."
       />
 
-      <SoundPreferencePanel />
-      <DataBackupPanel />
+      <SettingsPreferencesPanel />
     </div>
   )
 }
