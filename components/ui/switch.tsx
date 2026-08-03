@@ -255,15 +255,10 @@ const Switch = forwardRef<HTMLDivElement, SwitchProps>(
           />
         </SwitchPrimitive.Root>
 
-        {/* Label */}
+        {/* Accessible state label; status stays out of the visual layout. */}
         <span
           id={labelId}
-          className={cn(
-            // text-box trim recenters the letterforms against the track; the
-            // 20px track is taller than the label, so layout doesn't change.
-            "text-[13px] transition-[color] duration-80 [text-box:trim-both_cap_alphabetic]",
-            checked ? "text-foreground" : "text-muted-foreground"
-          )}
+          className="sr-only"
         >
           {label}
         </span>
