@@ -47,3 +47,6 @@ next-env.d.ts
 skills-lock.json
 # CocoIndex Code (ccc)
 /.cocoindex_code/
+
+# Graphify code-intelligence output
+/graphify-out/

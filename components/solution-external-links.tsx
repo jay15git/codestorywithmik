@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils"
 const GFG_GREEN = "#2f8d46"
 
 const iconButtonClassName =
-  "relative z-10 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+  "pointer-events-auto relative z-10 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 
 const labeledLinkClassName =
-  "relative z-10 inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+  "pointer-events-auto relative z-10 inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 
 interface SolutionExternalLinksProps {
   youtubeUrl: string | null

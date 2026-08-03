@@ -50,6 +50,11 @@ export function FilterSelect({
       }
       open={open}
       onOpenChange={(next) => {
+        if (!multiple) {
+          setOpen(next)
+          if (next) setDraft(values)
+          return
+        }
         if (!next) {
           const committed = multiple ? draft : draft[0] ? [draft[0]] : []
           if (!sameStringList(committed, values)) {
@@ -65,7 +70,12 @@ export function FilterSelect({
           setDraft(Array.isArray(next) ? next : [])
           return
         }
-        setDraft(typeof next === "string" && next ? [next] : [])
+        const nextValues = typeof next === "string" && next ? [next] : []
+        setDraft(nextValues)
+        // Single-select menus close immediately after selection. Commit here
+        // so the latest value cannot be lost to the close event reading stale
+        // React state.
+        onCommit(nextValues)
       }}
     >
       <SelectTrigger className={cn("t-resize w-fit min-w-0", className)}>

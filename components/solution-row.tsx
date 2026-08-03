@@ -23,7 +23,7 @@ interface SolutionRowProps {
 
 const MAX_GRID_COMPANIES = 3
 /**
- * Fixed rem tracks for topic/company so columns align across rows.
+ * Flexible topic/company tracks keep rows inside their container.
  * Tags appear at md+ — sm content width can't fit six columns cleanly.
  */
 const LIST_ROW_GRID = "grid w-full min-h-11 items-center gap-x-3 md:gap-x-4"
@@ -40,25 +40,25 @@ function getListGridClass(
   if (difficulty && topics && companies) {
     return cn(
       mobile,
-      "md:grid-cols-[4.75rem_minmax(0,1fr)_minmax(9rem,0.8fr)_minmax(11rem,1fr)_2.5rem_3rem]"
+      "md:grid-cols-[4.75rem_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1fr)_2.5rem_3rem]"
     )
   }
   if (difficulty && topics) {
     return cn(
       mobile,
-      "md:grid-cols-[4.75rem_minmax(0,1fr)_minmax(9rem,0.8fr)_2.5rem_3rem]"
+      "md:grid-cols-[4.75rem_minmax(0,1fr)_minmax(0,0.8fr)_2.5rem_3rem]"
     )
   }
   if (difficulty && companies) {
     return cn(
       mobile,
-      "md:grid-cols-[4.75rem_minmax(0,1fr)_minmax(11rem,1fr)_2.5rem_3rem]"
+      "md:grid-cols-[4.75rem_minmax(0,1fr)_minmax(0,1fr)_2.5rem_3rem]"
     )
   }
   if (topics && companies) {
     return cn(
       mobile,
-      "md:grid-cols-[minmax(0,1fr)_minmax(9rem,0.8fr)_minmax(11rem,1fr)_2.5rem_3rem]"
+      "md:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1fr)_2.5rem_3rem]"
     )
   }
   if (difficulty) {
@@ -67,13 +67,13 @@ function getListGridClass(
   if (topics) {
     return cn(
       mobile,
-      "md:grid-cols-[minmax(0,1fr)_minmax(9rem,0.8fr)_2.5rem_3rem]"
+      "md:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_2.5rem_3rem]"
     )
   }
   if (companies) {
     return cn(
       mobile,
-      "md:grid-cols-[minmax(0,1fr)_minmax(11rem,1fr)_2.5rem_3rem]"
+      "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_2.5rem_3rem]"
     )
   }
   return cn(mobile, "md:grid-cols-[minmax(0,1fr)_2.5rem_3rem]")
@@ -141,13 +141,13 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
         </div>
 
         {showTopics ? (
-          <div className="pointer-events-auto relative z-10 hidden min-h-7 min-w-0 items-center md:flex">
+          <div className="pointer-events-none relative z-10 hidden min-h-14 min-w-0 items-center md:flex">
             <CompactTagOverflow items={topicItems} />
           </div>
         ) : null}
 
         {showCompanies ? (
-          <div className="pointer-events-auto relative z-10 hidden min-h-7 min-w-0 items-center md:flex">
+          <div className="pointer-events-none relative z-10 hidden min-h-14 min-w-0 items-center md:flex">
             <CompactTagOverflow items={companyItems} />
           </div>
         ) : null}
@@ -156,7 +156,7 @@ export function SolutionRow({ solution, variant = "grid" }: SolutionRowProps) {
           <SolutionStatusMarkers slug={solution.slug} />
         </div>
 
-        <div className="pointer-events-auto relative z-10 flex min-h-7 items-center justify-end">
+        <div className="pointer-events-none relative z-10 flex min-h-7 items-center justify-end">
           {hasExternalLinks ? (
             <SolutionExternalLinks
               iconLayout="slots"

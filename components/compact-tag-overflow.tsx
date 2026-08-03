@@ -26,15 +26,24 @@ interface CompactTagOverflowProps {
   className?: string
 }
 
-/** Matches Tailwind `gap-2` (8px) — tag cluster gutters */
-const ITEM_GAP_PX = 8
+/** Matches Tailwind `gap-1.5` (6px) — compact two-line tag gutters */
+const ITEM_GAP_PX = 6
+const TAG_CLASS_NAME =
+  "inline-flex h-6 max-w-[9rem] items-center overflow-hidden text-xs font-medium leading-none text-muted-foreground"
 
-function sumItemWidths(itemWidths: readonly number[], count: number): number {
-  let sum = 0
-  for (let index = 0; index < count; index++) {
-    sum += itemWidths[index] + (index > 0 ? ITEM_GAP_PX : 0)
+function fitsWithinRows(widths: readonly number[], containerWidth: number): boolean {
+  let rows = 1
+  let rowWidth = 0
+  for (const width of widths) {
+    const nextWidth = rowWidth === 0 ? width : rowWidth + ITEM_GAP_PX + width
+    if (nextWidth <= containerWidth) {
+      rowWidth = nextWidth
+    } else {
+      rows += 1
+      rowWidth = width
+    }
   }
-  return sum
+  return rows <= 2
 }
 
 /**
@@ -57,10 +66,7 @@ function computeVisibleCount(
     typeof hardCap === "number" ? Math.min(hardCap, total) : total
 
   // Hard cap below total always needs a more chip for the rest.
-  if (
-    cappedTotal >= total &&
-    sumItemWidths(itemWidths, total) <= containerWidth
-  ) {
+  if (cappedTotal >= total && fitsWithinRows(itemWidths, containerWidth)) {
     return total
   }
 
@@ -69,12 +75,11 @@ function computeVisibleCount(
 
   for (let count = 1; count <= maxShow; count++) {
     const overflow = total - count
-    const used =
-      sumItemWidths(itemWidths, count) +
-      ITEM_GAP_PX +
-      moreWidthForOverflow(overflow)
-
-    if (used <= containerWidth) {
+    const widths = [
+      ...itemWidths.slice(0, count),
+      ITEM_GAP_PX + moreWidthForOverflow(overflow),
+    ]
+    if (fitsWithinRows(widths, containerWidth)) {
       best = count
     }
   }
@@ -163,14 +168,14 @@ export function CompactTagOverflow({
   const overflowItems = items.slice(cappedVisible)
 
   return (
-    <div className={cn("relative min-w-0", className)}>
+    <div className={cn("pointer-events-none relative min-w-0", className)}>
       <div
         ref={measureRef}
         aria-hidden
         className="pointer-events-none invisible absolute flex items-center gap-2 whitespace-nowrap"
       >
         {items.map((item) => (
-          <span key={item.href} className="text-xs font-medium">
+          <span key={item.href} className={TAG_CLASS_NAME}>
             {item.label}
           </span>
         ))}
@@ -181,7 +186,7 @@ export function CompactTagOverflow({
         type="button"
         tabIndex={-1}
         aria-hidden
-        className="pointer-events-none invisible absolute inline-flex items-center gap-0.5 px-1.5 text-xs font-medium"
+        className="pointer-events-none invisible absolute inline-flex h-6 items-center gap-0.5 rounded-md border border-border/60 bg-muted px-2 text-xs font-medium"
       >
         <span ref={moreLabelRef}>+99</span>
         <ChevronDownIcon className="size-3" />
@@ -189,7 +194,7 @@ export function CompactTagOverflow({
 
       <div
         ref={containerRef}
-        className="flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap"
+        className="flex min-w-0 max-h-14 flex-wrap items-center gap-x-1.5 gap-y-0.5 overflow-hidden"
       >
         {visibleItems.map((item) => (
           <Link
@@ -197,7 +202,11 @@ export function CompactTagOverflow({
             href={item.href}
             data-cuelume-press=""
             data-cuelume-release=""
-            className="t-tactile shrink-0 text-xs font-medium text-muted-foreground transition-[color,transform] hover:text-foreground"
+            className={cn(
+              "t-tactile pointer-events-auto shrink-0 truncate transition-[color,transform] hover:text-foreground",
+              TAG_CLASS_NAME
+            )}
+            title={item.label}
           >
             {item.label}
           </Link>
@@ -210,7 +219,7 @@ export function CompactTagOverflow({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 shrink-0 gap-0.5 px-1.5 text-xs text-muted-foreground hover:text-foreground"
+                  className="pointer-events-auto h-6 shrink-0 gap-0.5 px-1 text-xs text-muted-foreground hover:text-foreground"
                   onClick={(event) => event.stopPropagation()}
                 />
               }

@@ -1,11 +1,10 @@
 "use client"
 
-import { CheckIcon, StarIcon } from "lucide-react"
+import { CheckIcon } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 
 import { SolutionSaveTagsDialog } from "@/components/solution-save-tags-dialog"
 import { useSolutionProgress } from "@/components/solution-progress-provider"
-import { useSolutionTags } from "@/components/solution-tags-provider"
 import { Button } from "@/components/ui/button"
 import {
   Tooltip,
@@ -13,8 +12,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Badge } from "@/components/ui/badge"
-import { STARRED_TAG_ID } from "@/lib/tags/constants"
 import { cn } from "@/lib/utils"
 
 const stateSwap = { duration: 0.15, ease: "easeOut" as const }
@@ -86,48 +83,19 @@ export function SolutionStatusMarkers({
   className?: string
 }) {
   const { hasFlag } = useSolutionProgress()
-  const { tags, getTagIds } = useSolutionTags()
 
   const solved = hasFlag(slug, "solved")
-  const assignedIds = getTagIds(slug)
-  const assignedTags = tags.filter((tag) => assignedIds.includes(tag.id))
 
-  if (!solved && assignedTags.length === 0) {
+  if (!solved) {
     return null
   }
 
   return (
     <div
       className={cn("flex items-center gap-1 text-muted-foreground", className)}
-      aria-label={[
-        solved ? "Solved" : null,
-        ...assignedTags.map((tag) => tag.name),
-      ]
-        .filter(Boolean)
-        .join(", ")}
+      aria-label="Solved"
     >
-      {solved ? (
-        <CheckIcon className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-      ) : null}
-      {assignedTags.map((tag) => {
-        if (tag.id === STARRED_TAG_ID) {
-          return (
-            <StarIcon
-              key={tag.id}
-              className="size-3.5 text-amber-600 dark:text-amber-400"
-            />
-          )
-        }
-        return (
-          <Badge
-            key={tag.id}
-            variant="secondary"
-            className="h-5 px-1.5 text-[10px] font-normal"
-          >
-            {tag.name}
-          </Badge>
-        )
-      })}
+      <CheckIcon className="size-3.5 text-emerald-600 dark:text-emerald-400" />
     </div>
   )
 }

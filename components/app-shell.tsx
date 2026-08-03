@@ -50,7 +50,7 @@ export function AppShell({ children }: AppShellProps) {
         </Sidebar>
 
         <SidebarInset>
-          <header className="app-safe-inline sticky top-0 z-20 flex min-h-14 items-center gap-1 bg-background/90 py-1 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:gap-2">
+          <header className="app-safe-inline sticky top-0 z-20 flex min-h-14 items-center gap-1 bg-background py-1 sm:gap-2">
             <SidebarTrigger />
             <SiteNav className="min-w-0 flex-1" />
             <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
