@@ -5,15 +5,13 @@ import { SettingsPreferencesPanel } from "@/components/settings-preferences-pane
 
 export const metadata: Metadata = {
   title: "Settings",
-  description: "Export or import local study data.",
+  description: "Manage local study preferences.",
 }
 
 export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-8">
-      <PageHeader
-        title="Settings"
-      />
+      <PageHeader title="Settings" />
 
       <SettingsPreferencesPanel />
     </div>

@@ -1,90 +1,98 @@
-# LeetSeek — LeetCode DS & Algo
+# LeetSeek
 
-A searchable website for browsing LeetCode data structures and algorithms solutions from [walkccc/LeetCode](https://github.com/walkccc/LeetCode) (MIT), with company tags from community CSV data.
+LeetSeek is a browser-first library for studying LeetCode data-structure and algorithm solutions. It indexes solutions from [jay15git/LeetCode](https://github.com/jay15git/LeetCode), a fork of [walkccc/LeetCode](https://github.com/walkccc/LeetCode) (MIT), and enriches them with community company-interview data.
 
-## Features
+## What it includes
 
-- Browse by LeetCode topic tags (multi-home — problems appear under every tag)
-- 3,500+ solution pages with C++, Java, Python, SQL, and TypeScript tabs when available
-- Company tag filters (enriched from LeetCode company-wise CSV data)
-- Local progress: solved / starred (stored in the browser)
-- Random unsolved problem from home, topic, or company lists
-- Company prep packs (Top 25 / 50 / 75 by interview frequency)
-- Companies index sortable by interview frequency
-- Pattern study pages (Easy → Hard within a pattern)
-- Daily problem + weekly set (deterministic, no account)
-- Blind mode on solution pages
-- Related problems on each solution page
-- Prev / next navigation within topic or company lists (arrow keys)
-- Keyboard study shortcuts (`j`/`k` lists, `s`/`d`/`b` on solutions)
-- Cmd+K search (`#121`, difficulty chips, `@company`, fuzzy titles)
-- Multi-filter URLs (topic, company, difficulty, language, status)
-- Remembered code language + shareable `?lang=` links
-- Syntax-highlighted code
-- Auto-sync from your fork on a schedule
+- 3,500+ indexed solution pages with available C++, Java, Python, SQL, and TypeScript code
+- Browse and filter problems by topic, company, difficulty, language, solved state, and saved tags
+- Topic, company, interview-pattern, and curated study-plan views
+- Blind 75, NeetCode 150, and NeetCode 250 plans, resolved against the current catalog
+- Company prep packs ranked by reported interview frequency
+- Daily problem and deterministic seven-problem weekly set
+- Random unsolved problem picker
+- Related problems, context-aware previous/next navigation, and solution-page keyboard shortcuts
+- Cmd+K search for titles, problem IDs, difficulties, and companies
+- Per-browser progress, stars, custom tags, default language, sound, dark mode, and hidden-solution preference
+- Shareable language URLs through `?lang=`
+- Syntax-highlighted code, reduced-motion support, keyboard navigation, and responsive layouts
+- Installable web-app metadata with favicon, Apple touch icon, and PWA manifest
+
+Progress and preferences remain in the current browser. LeetSeek has no account, server-side user data, or automatic backup.
+
+## Routes
+
+| Route                  | Purpose                                                          |
+| ---------------------- | ---------------------------------------------------------------- |
+| `/`                    | Catalog overview, study plans, topics, and random problem picker |
+| `/problems`            | Full searchable and filterable problem catalog                   |
+| `/topics/[topic]`      | Problems grouped by LeetCode topic                               |
+| `/companies`           | Company index, sortable by name or reported frequency            |
+| `/companies/[company]` | Company-tagged problems and prep packs                           |
+| `/plans`               | Curated interview study plans                                    |
+| `/plans/[slug]`        | A plan with local progress                                       |
+| `/patterns`            | Interview patterns mapped to topic tags                          |
+| `/patterns/[slug]`     | Problems for one pattern, easy to hard                           |
+| `/daily`               | Daily problem and weekly set                                     |
+| `/solutions/[slug]`    | Solution, code tabs, related problems, and study controls        |
+| `/settings`            | Local study preferences                                          |
+
+## Stack
+
+- Next.js 16, React 19, TypeScript
+- Tailwind CSS 4
+- Shiki syntax highlighting
+- Base UI, Framer Motion, and Cuelume interaction feedback
 
 ## Local development
 
+Requirements: Node.js 20.9+ and pnpm.
+
 ```bash
 pnpm install
-pnpm run sync-content   # clones fork + builds generated/content-index.json
+pnpm sync-content
 pnpm dev
 ```
 
-`sync-content` reads from `content/upstream` if the submodule is initialized, otherwise clones into `.cache/upstream`.
+Open [http://localhost:3000](http://localhost:3000).
 
-### Optional: git submodule
+`sync-content` clones or updates the solutions fork, fetches LeetCode metadata and company tags, and generates the catalog. It uses `content/upstream` when that submodule exists; otherwise it uses `.cache/upstream`.
+
+### Optional submodule
 
 ```bash
 git submodule add https://github.com/jay15git/LeetCode.git content/upstream
 git submodule update --init --recursive
 ```
 
-## Deploy to Vercel
+## Commands
 
-1. Push this repo to GitHub
-2. Import the project in [Vercel](https://vercel.com)
-3. Set environment variables:
-   - `CRON_SECRET` — random string (cron auth)
-   - `VERCEL_DEPLOY_HOOK_URL` — from Vercel → Project Settings → Deploy Hooks
-4. Deploy
+| Command             | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| `pnpm dev`          | Start local development server                  |
+| `pnpm sync-content` | Refresh source content and generated indexes    |
+| `pnpm build`        | Refresh content and create production build     |
+| `pnpm start`        | Run production server after build               |
+| `pnpm test`         | Run content, preference, storage, and tag tests |
+| `pnpm typecheck`    | Run TypeScript checks                           |
+| `pnpm lint`         | Run ESLint                                      |
+| `pnpm format`       | Format TypeScript and TSX files                 |
 
-Every build runs `pnpm run sync-content` first, pulling the latest solutions from your fork.
+## Deployment
 
-### Auto-update flow
+Deploy on [Vercel](https://vercel.com) by importing this repository. Each build runs `pnpm sync-content` before `next build`, so the deployed catalog reflects the current source data.
 
-```text
-walkccc/LeetCode
-        ↓ (every 6h, optional workflow)
-jay15git/LeetCode  ← your fork
-        ↓ (hourly cron on Vercel)
-LeetSeek site rebuild
-```
+For optional upstream automation, `.github/workflows/sync-fork-upstream.yml` updates `jay15git/LeetCode` from `walkccc/LeetCode` every six hours. Configure these GitHub secrets on the repository that runs the workflow:
 
-1. **Fork sync** (optional): add `FORK_SYNC_TOKEN` (PAT with `repo` scope on your fork) to this repo’s GitHub secrets. The workflow `.github/workflows/sync-fork-upstream.yml` merges upstream `main` into your fork every 6 hours.
-2. **Site sync**: Vercel cron hits `/api/cron/sync` hourly. If the fork’s latest commit SHA differs from the last built SHA, it triggers a deploy hook rebuild.
+- `FORK_SYNC_TOKEN`: token with access to push to the solutions fork
+- `VERCEL_DEPLOY_HOOK_URL`: optional Vercel deploy-hook URL; triggers a rebuild after a successful fork update
 
-### Manual deploy
-
-Run the **Manual deploy** workflow in GitHub Actions (requires `VERCEL_DEPLOY_HOOK_URL` secret), or:
-
-```bash
-curl -X POST "$VERCEL_DEPLOY_HOOK_URL"
-```
+You can also trigger `.github/workflows/manual-deploy.yml` manually with `VERCEL_DEPLOY_HOOK_URL` configured.
 
 ## Content sources
 
-| Repo | Role |
-|------|------|
-| `jay15git/LeetCode` | Solutions fork (cloned at build) |
-| `walkccc/LeetCode` | Original upstream (MIT) |
-| `snehasishroy/leetcode-companywise-interview-questions` | Company tag CSVs |
-
-## Scripts
-
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start dev server |
-| `pnpm run sync-content` | Sync solutions from fork |
-| `pnpm build` | Sync + production build |
-| `pnpm typecheck` | TypeScript check |
+| Source                                                                                                                            | Role                                                      |
+| --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [jay15git/LeetCode](https://github.com/jay15git/LeetCode)                                                                         | Solution source cloned during content sync                |
+| [walkccc/LeetCode](https://github.com/walkccc/LeetCode)                                                                           | Original solution repository, licensed MIT                |
+| [snehasishroy/leetcode-companywise-interview-questions](https://github.com/snehasishroy/leetcode-companywise-interview-questions) | Community company tags and reported interview frequencies |
