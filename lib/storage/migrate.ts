@@ -20,7 +20,7 @@ export function createEmptyStudyBag(): StudyBag {
     version: 2,
     progress: {},
     language: null,
-    viewMode: "grid",
+    viewMode: "list",
     tags: createDefaultTagState(),
   }
 }
@@ -55,7 +55,7 @@ function parseLanguage(raw: string | null): SolutionLanguage | null {
 }
 
 function parseViewMode(raw: string | null): ViewMode {
-  return raw === "list" ? "list" : "grid"
+  return raw === "grid" ? "grid" : "list"
 }
 
 export function migrateStudyBagV1ToV2(bag: StudyBagV1): StudyBag {
@@ -82,7 +82,7 @@ export function buildStudyBagFromLegacyStorage(
     version: 1,
     progress: {},
     language: null,
-    viewMode: "grid",
+    viewMode: "list",
   }
 
   const progressRaw = getItem(LEGACY_STORAGE_KEYS.progress)

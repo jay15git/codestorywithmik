@@ -41,7 +41,13 @@ export function FilterSelect({
   return (
     <Select
       multiple={multiple}
-      value={multiple ? draft : (draft[0] ?? "")}
+      value={
+        multiple
+          ? open
+            ? draft
+            : values
+          : ((open ? draft[0] : values[0]) ?? "")
+      }
       open={open}
       onOpenChange={(next) => {
         if (!next) {
@@ -90,7 +96,7 @@ export function FilterSelect({
         // Reserve menu width up front. Every row already reserves a checkmark
         // slot, and this keeps the popup itself from resizing when selection
         // state changes.
-        className={cn("w-64 min-w-64 max-w-64 max-h-80", menuClassName)}
+        className={cn("max-h-80 w-64 max-w-64 min-w-64", menuClassName)}
       >
         {options.map((option, index) => (
           <SelectItem key={option.value} value={option.value} index={index}>

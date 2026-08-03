@@ -31,6 +31,7 @@ interface ProblemsPageProps {
     topic?: string
     page?: string
     status?: string
+    tag?: string
     sort?: string
   }>
 }
@@ -75,6 +76,7 @@ export default async function ProblemsPage({
           topics={topicOptions}
           showSort
           showColumns
+          showLists
         />
 
         <StatusAwareSolutionList

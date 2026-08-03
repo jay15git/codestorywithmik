@@ -15,14 +15,14 @@ export function subscribeToViewMode(listener: () => void) {
 
 export function readViewMode(): ViewMode {
   if (typeof window === "undefined") {
-    return "grid"
+    return "list"
   }
 
   return getStudyBag().viewMode
 }
 
 export function getServerViewMode(): ViewMode {
-  return "grid"
+  return "list"
 }
 
 export function writeViewMode(mode: ViewMode) {

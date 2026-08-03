@@ -17,6 +17,9 @@ import {
   type ListSort,
 } from "@/lib/content/filter-solutions"
 import type { StatusFilterValue } from "@/lib/progress/filters"
+import { ALL_SAVED_LIST_ID } from "@/lib/tags/lists"
+
+const ALL_PROBLEMS_LIST_ID = "__all-problems__"
 
 const SORT_OPTIONS: Array<{ label: string; value: ListSort }> = [
   { label: "LeetCode id", value: "id" },
@@ -44,6 +47,7 @@ export function SolutionFilters({
   showStatus = true,
   showSort = false,
   showColumns = false,
+  showLists = false,
 }: {
   basePath: string
   filters: Pick<
@@ -62,6 +66,7 @@ export function SolutionFilters({
   showStatus?: boolean
   showSort?: boolean
   showColumns?: boolean
+  showLists?: boolean
 }) {
   const router = useRouter()
   const { tags } = useSolutionTags()
@@ -118,6 +123,11 @@ export function SolutionFilters({
     label: tag.name,
     value: tag.id,
   }))
+  const listOptions = [
+    { label: "All problems", value: ALL_PROBLEMS_LIST_ID },
+    { label: "All saved", value: ALL_SAVED_LIST_ID },
+    ...tagOptions,
+  ]
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -194,7 +204,20 @@ export function SolutionFilters({
         />
       ) : null}
 
-      {showStatus && tagOptions.length > 0 ? (
+      {showLists ? (
+        <FilterSelect
+          label="Lists"
+          emptyLabel="All problems"
+          values={[filters.tagIds[0] ?? ALL_PROBLEMS_LIST_ID]}
+          options={listOptions}
+          multiple={false}
+          onCommit={(next) =>
+            pushFilters({
+              tagIds: next[0] === ALL_PROBLEMS_LIST_ID ? [] : next,
+            })
+          }
+        />
+      ) : showStatus && tagOptions.length > 0 ? (
         <FilterSelect
           label="Tags"
           emptyLabel="All tags"

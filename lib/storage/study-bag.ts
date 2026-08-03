@@ -98,7 +98,7 @@ function coerceLanguage(value: unknown): SolutionLanguage | null {
 }
 
 function coerceViewMode(value: unknown): ViewMode {
-  return value === "list" ? "list" : "grid"
+  return value === "grid" ? "grid" : "list"
 }
 
 function normalizeStudyBag(json: unknown): StudyBag {

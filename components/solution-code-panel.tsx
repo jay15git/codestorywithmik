@@ -15,15 +15,12 @@ import {
   CodeBlockHeader,
 } from "@/components/code-block/code-block"
 import { CopyButton } from "@/components/copy-button"
-import { ExplainWithAiDropdown } from "@/components/explain-with-ai-dropdown"
-import { ShareSolutionLinkButton } from "@/components/share-solution-link-button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   getAvailableLanguages,
   SOLUTION_LANGUAGE_LABELS,
   type SolutionLanguage,
 } from "@/lib/content/solution-languages"
-import type { Difficulty } from "@/lib/content/types"
 import {
   getServerLanguagePreference,
   pickPreferredLanguage,
@@ -35,17 +32,9 @@ import { sanitizeShikiHtml } from "@/lib/sanitize-shiki-html"
 import { cn } from "@/lib/utils"
 
 interface SolutionCodePanelProps {
-  slug: string
-  title: string
   code: Record<SolutionLanguage, string | null>
   highlighted: Partial<Record<SolutionLanguage, string | null>>
   initialLang?: SolutionLanguage | null
-  topic?: string | null
-  difficulty?: Difficulty | null
-  timeComplexity?: string | null
-  spaceComplexity?: string | null
-  leetcodeUrl?: string | null
-  gfgUrl?: string | null
 }
 
 function HighlightedCode({ html }: { html: string }) {
@@ -72,17 +61,9 @@ function syncLangQuery(language: SolutionLanguage) {
 }
 
 export function SolutionCodePanel({
-  slug,
-  title,
   code,
   highlighted,
   initialLang = null,
-  topic = null,
-  difficulty = null,
-  timeComplexity = null,
-  spaceComplexity = null,
-  leetcodeUrl = null,
-  gfgUrl = null,
 }: SolutionCodePanelProps) {
   const resizeRef = useRef<HTMLDivElement>(null)
   const resizeContentRef = useRef<HTMLDivElement>(null)
@@ -183,18 +164,6 @@ export function SolutionCodePanel({
             {SOLUTION_LANGUAGE_LABELS[language]}
           </span>
           <div className="flex items-center gap-0.5">
-            <ExplainWithAiDropdown
-              title={title}
-              language={language}
-              code={code[language]!}
-              topic={topic}
-              difficulty={difficulty}
-              timeComplexity={timeComplexity}
-              spaceComplexity={spaceComplexity}
-              leetcodeUrl={leetcodeUrl}
-              gfgUrl={gfgUrl}
-            />
-            <ShareSolutionLinkButton slug={slug} language={language} />
             <CopyButton value={code[language]!} />
           </div>
         </CodeBlockHeader>
@@ -235,18 +204,6 @@ export function SolutionCodePanel({
                 ))}
               </TabsList>
               <div className="flex items-center gap-0.5">
-                <ExplainWithAiDropdown
-                  title={title}
-                  language={activeTab}
-                  code={code[activeTab]!}
-                  topic={topic}
-                  difficulty={difficulty}
-                  timeComplexity={timeComplexity}
-                  spaceComplexity={spaceComplexity}
-                  leetcodeUrl={leetcodeUrl}
-                  gfgUrl={gfgUrl}
-                />
-                <ShareSolutionLinkButton slug={slug} language={activeTab} />
                 <CopyButton value={copyValue!} />
               </div>
             </CodeBlockHeader>

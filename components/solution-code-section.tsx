@@ -46,17 +46,9 @@ export async function SolutionCodeSection({
   return (
     <BlindCodeSection slug={solution.slug}>
       <SolutionCodePanel
-        slug={solution.slug}
-        title={solution.title}
         code={solution.code}
         highlighted={solution.highlighted}
         initialLang={initialLang}
-        topic={solution.topic}
-        difficulty={solution.difficulty}
-        timeComplexity={solution.timeComplexity}
-        spaceComplexity={solution.spaceComplexity}
-        leetcodeUrl={solution.leetcodeUrl}
-        gfgUrl={solution.gfgUrl}
       />
     </BlindCodeSection>
   )
